@@ -1,0 +1,36 @@
+:root{--bg:#14110f;--bg2:#1d1815;--card:#241e1a;--gold:#c9a45c;--gold2:#e8d3a2;--text:#ece4d6;--muted:#a89f90;--line:#3a3028}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:radial-gradient(circle at 20% 0,#2a2018 0,var(--bg) 50%);color:var(--text);font:400 17px/1.8 'Montserrat',sans-serif;min-height:100vh}
+h1,h2,h3{font-family:'Bodoni Moda',serif;font-weight:500;line-height:1.2;color:var(--gold2)}
+h1{font-size:clamp(2.4rem,6vw,4.4rem)}h2{font-size:2rem;margin-bottom:1rem}h3{font-size:1.3rem;margin:1.5rem 0 .5rem}
+a{color:var(--gold)}
+nav{position:sticky;top:0;z-index:10;display:flex;flex-wrap:wrap;gap:.3rem 1.4rem;align-items:center;justify-content:space-between;padding:1rem 5vw;background:rgba(20,17,15,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .brand{font-family:'Bodoni Moda',serif;font-size:1.3rem;color:var(--gold2);text-decoration:none}
+nav ul{display:flex;flex-wrap:wrap;gap:1.2rem;list-style:none}
+nav ul a{color:var(--muted);text-decoration:none;font-size:.82rem;letter-spacing:.12em;text-transform:uppercase;padding-bottom:4px;border-bottom:2px solid transparent;transition:.25s}
+nav ul a:hover,nav ul a.active{color:var(--gold);border-color:var(--gold)}
+main{max-width:1000px;margin:0 auto;padding:4rem 5vw}
+.hero{min-height:75vh;display:flex;flex-direction:column;justify-content:center;text-align:center;align-items:center;gap:1.5rem}
+.eyebrow{letter-spacing:.3em;text-transform:uppercase;color:var(--gold);font-size:.8rem}
+.quote{font-family:'Bodoni Moda',serif;font-style:italic;font-size:1.3rem;color:var(--muted);max-width:640px}
+.btn{display:inline-block;padding:.8rem 2rem;border:1px solid var(--gold);color:var(--gold);text-decoration:none;letter-spacing:.1em;text-transform:uppercase;font-size:.8rem;transition:.3s}
+.btn:hover{background:var(--gold);color:var(--bg)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem;margin-top:2rem}
+.card{background:var(--card);border:1px solid var(--line);padding:1.6rem;transition:.3s;text-decoration:none;color:inherit;display:block}
+.card:hover{transform:translateY(-5px);border-color:var(--gold);box-shadow:0 12px 30px rgba(0,0,0,.4)}
+.card .num{color:var(--gold);font-size:.75rem;letter-spacing:.2em}
+.card h3{margin-top:.4rem}
+.tag{display:inline-block;margin-top:.6rem;padding:.15rem .8rem;border:1px solid var(--gold);border-radius:20px;color:var(--gold);font-size:.75rem}
+.profile{display:grid;grid-template-columns:260px 1fr;gap:2.5rem;align-items:start}
+.photo{width:100%;aspect-ratio:3/4;object-fit:cover;border:1px solid var(--gold);background:var(--card)}
+.facts{list-style:none;margin:1rem 0}.facts li{padding:.4rem 0;border-bottom:1px solid var(--line)}.facts b{color:var(--gold);display:inline-block;width:90px}
+article{padding:3rem 0;border-bottom:1px solid var(--line)}
+article img{width:100%;max-height:320px;object-fit:cover;margin:1rem 0;border:1px solid var(--line)}
+.meta{color:var(--muted);margin-bottom:1rem}.meta span{color:var(--gold)}
+p{margin-bottom:1rem}
+blockquote{border-left:3px solid var(--gold);padding:.5rem 1.2rem;margin:1.5rem 0;font-family:'Bodoni Moda',serif;font-style:italic;color:var(--gold2)}
+.todo{background:rgba(201,164,92,.12);padding:0 .3rem;border-radius:3px}
+footer{text-align:center;color:var(--muted);padding:3rem 5vw;font-size:.85rem;border-top:1px solid var(--line)}
+.fade{opacity:0;transform:translateY(20px);transition:.8s}.fade.show{opacity:1;transform:none}
+@media(max-width:700px){.profile{grid-template-columns:1fr}}
