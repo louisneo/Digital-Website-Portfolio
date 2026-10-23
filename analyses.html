@@ -12,13 +12,13 @@
 </main>
 <script>
 const works=[
-["The Iliad","Homer","Archetypal / Heroic Lens"],
-["The Odyssey","Homer","Psychoanalytic Lens"],
-["The Mahabharata","Vyasa","Moral-Philosophical Lens"],
-["The Divine Comedy","Dante Alighieri","Religious / Allegorical Lens"],
-["Beowulf","Anonymous","Historical Lens"],
-["The Epic of Gilgamesh","Anonymous","Existentialist Lens"],
-["The Aeneid","Virgil","Feminist Lens"]];
+["Voice out of the Whirlwind","Book of Job (Anonymous)","[Your Lens]"],
+["The Panchatantra","Vishnu Sharma","[Your Lens]"],
+["The Ramayana","Valmiki","[Your Lens]"],
+["The Mahabharata","Vyasa","[Your Lens]"],
+["The Iliad","Homer","[Your Lens]"],
+["The Odyssey","Homer","[Your Lens]"],
+["The Song of Roland","Anonymous (attributed to Turold)","[Your Lens]"]];
 const idx=document.getElementById("index"),list=document.getElementById("list");
 works.forEach(([t,a,l],i)=>{const n=i+1;
 idx.insertAdjacentHTML("beforeend",`<a class="card" href="#a${n}"><span class="num">ANALYSIS ${String(n).padStart(2,"0")}</span><h3>${t}</h3><p>${a}</p><span class="tag">${l}</span></a>`);
