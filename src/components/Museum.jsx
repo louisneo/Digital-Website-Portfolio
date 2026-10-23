@@ -19,7 +19,7 @@ function makeFloor() {
     const horiz = (tx + ty) % 2 === 0
     for (let k = 0; k < 4; k++) {
       const x = tx * 128, y = ty * 128
-      g.fillStyle = `hsl(${28 + Math.random() * 6} 62% ${40 + Math.random() * 12}%)`
+      g.fillStyle = `hsl(${26 + Math.random() * 6} 42% ${30 + Math.random() * 10}%)`
       if (horiz) { g.fillRect(x, y + k * 32, 128, 32); g.strokeRect(x, y + k * 32, 128, 32) }
       else { g.fillRect(x + k * 32, y, 32, 128); g.strokeRect(x + k * 32, y, 32, 128) }
     }

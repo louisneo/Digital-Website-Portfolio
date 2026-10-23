@@ -76,7 +76,7 @@ footer{text-align:center;color:var(--muted);padding:3rem 5vw;font-size:.85rem;bo
 .panel-body .tag{margin:0 0 .4rem;color:#f1dba5;border-color:rgba(241,219,165,.7)}
 .panel-body h3{font:600 .95rem 'Montserrat',sans-serif;margin:.9rem 0 .2rem;color:#fff}
 .panel-body p{font-size:.78rem;line-height:1.55;color:rgba(255,255,255,.9);margin:0}
-.dock{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:.35rem;padding:.55rem .8rem;border-radius:999px!important;max-width:96vw;z-index:6}
+.dock{width:max-content;flex-wrap:nowrap;justify-content:flex-start;position:absolute;bottom:26px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:.35rem;padding:.55rem .8rem;border-radius:999px!important;max-width:96vw;z-index:6}
 .logo{display:flex;align-items:center;gap:.5rem;font:600 1.05rem 'Montserrat',sans-serif;padding:0 .5rem;white-space:nowrap}
 .logo-dots{display:grid;grid-template-columns:repeat(2,13px);gap:3px}.logo-dots i{width:13px;height:13px;border-radius:50%;background:#f3d34a}
 .logo-dots i:nth-child(2){background:#f0b92d}.logo-dots i:nth-child(3){background:#f6e07a}
