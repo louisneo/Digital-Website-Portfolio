@@ -34,3 +34,60 @@ blockquote{border-left:3px solid var(--gold);padding:.5rem 1.2rem;margin:1.5rem 
 footer{text-align:center;color:var(--muted);padding:3rem 5vw;font-size:.85rem;border-top:1px solid var(--line)}
 .fade{opacity:0;transform:translateY(20px);transition:.8s}.fade.show{opacity:1;transform:none}
 @media(max-width:700px){.profile{grid-template-columns:1fr}}
+
+/* ===== VR Museum (Analyses) ===== */
+.museum{position:fixed;inset:0;z-index:50;background:#1a1410;overflow:hidden;font-family:'Montserrat',sans-serif;color:#fff}
+.museum-canvas{position:absolute;inset:0}
+.museum-canvas canvas{display:block;width:100%;height:100%;cursor:grab}
+#VRButton{left:auto!important;right:24px!important;bottom:24px!important;transform:none!important;background:rgba(40,30,24,.6)!important;backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.3)!important;border-radius:999px!important;color:#fff!important;z-index:5}
+.museum .glass{background:rgba(48,36,30,.55);backdrop-filter:blur(20px) saturate(1.2);-webkit-backdrop-filter:blur(20px) saturate(1.2);border:1px solid rgba(255,255,255,.18);box-shadow:0 20px 50px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.15);border-radius:26px}
+.museum button{font:inherit;color:inherit;cursor:pointer;background:none;border:0}
+.search-wrap{position:absolute;top:28px;left:50%;transform:translateX(-50%);width:min(440px,80vw);z-index:6}
+.search-pill{display:flex;align-items:center;gap:.7rem;padding:.65rem 1.1rem;border-radius:999px!important}
+.search-pill input{flex:1;background:none;border:0;outline:0;color:#fff;font:400 .9rem 'Montserrat',sans-serif}
+.search-pill input::placeholder{color:rgba(255,255,255,.6)}
+.results{list-style:none;margin-top:.6rem;padding:.4rem;border-radius:20px!important}
+.results button{display:flex;justify-content:space-between;gap:1rem;width:100%;padding:.6rem .9rem;border-radius:14px;text-align:left;font-size:.85rem}
+.results button:hover{background:rgba(255,255,255,.14)}.results span{color:rgba(255,255,255,.6);font-size:.75rem}
+.carousel{position:absolute;left:4vw;top:42%;width:310px;padding:1rem 1rem .8rem;transform:perspective(1200px) rotateY(8deg);animation:bob 6s ease-in-out infinite}
+.carousel h2{font:500 .7rem 'Montserrat',sans-serif;letter-spacing:.14em;text-align:center;margin-bottom:.8rem;color:#fff}
+.c-row{display:flex;align-items:center;gap:.4rem}
+.c-window{overflow:hidden;width:312px;flex:1;min-width:0}
+.c-track{display:flex;gap:8px;transition:transform .45s cubic-bezier(.3,.8,.3,1)}
+.c-card{flex:0 0 96px;text-align:center;font-size:.62rem;transition:.25s}
+.c-card img{width:96px;height:120px;object-fit:cover;border-radius:10px;border:1px solid rgba(255,255,255,.25);display:block;margin-bottom:.3rem}
+.c-card:hover{transform:translateY(-4px) scale(1.05)}
+.c-card span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.85}
+.round{width:34px;height:34px;flex:0 0 34px;display:grid;place-items:center;border-radius:50%!important;background:rgba(48,36,30,.55)!important;border:1px solid rgba(255,255,255,.25)!important;backdrop-filter:blur(14px);transition:.2s}
+.carousel .round{width:24px;height:24px;flex-basis:24px}
+.round:hover,.round.on{background:rgba(255,255,255,.9)!important;color:#2a1c10!important}
+.dots{display:flex;justify-content:center;gap:7px;margin-top:.7rem}
+.dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.4)}.dots i.on{background:#fff}
+.panel{position:absolute;right:4vw;top:15vh;width:340px;transform:perspective(1200px) rotateY(-7deg);transition:width .4s;animation:bob 7s ease-in-out infinite}
+.panel.wide{width:min(560px,60vw)}
+.panel-actions{display:flex;justify-content:space-between;margin-bottom:.6rem}
+.panel-actions>div{display:flex;gap:.5rem}
+.panel-card{overflow:hidden;max-height:70vh;display:flex;flex-direction:column;border-radius:20px!important}
+.panel-img{width:100%;height:240px;object-fit:cover;object-position:top;flex:0 0 auto}
+.wide .panel-img{height:300px}
+.panel-body{padding:1rem 1.2rem 1.3rem;overflow-y:auto;animation:fadeIn .5s}
+.panel-body h1{font:700 1.35rem/1.2 'Montserrat',sans-serif;color:#fff}
+.by{display:flex;align-items:center;gap:.4rem;margin:.3rem 0 .5rem;font-size:.85rem;color:rgba(255,255,255,.85)}
+.panel-body .tag{margin:0 0 .4rem;color:#f1dba5;border-color:rgba(241,219,165,.7)}
+.panel-body h3{font:600 .95rem 'Montserrat',sans-serif;margin:.9rem 0 .2rem;color:#fff}
+.panel-body p{font-size:.78rem;line-height:1.55;color:rgba(255,255,255,.9);margin:0}
+.dock{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:.35rem;padding:.55rem .8rem;border-radius:999px!important;max-width:96vw;z-index:6}
+.logo{display:flex;align-items:center;gap:.5rem;font:600 1.05rem 'Montserrat',sans-serif;padding:0 .5rem;white-space:nowrap}
+.logo-dots{display:grid;grid-template-columns:repeat(2,13px);gap:3px}.logo-dots i{width:13px;height:13px;border-radius:50%;background:#f3d34a}
+.logo-dots i:nth-child(2){background:#f0b92d}.logo-dots i:nth-child(3){background:#f6e07a}
+.sep{width:1px;height:28px;background:rgba(255,255,255,.3);margin:0 .3rem}
+.dock-btn{display:flex;align-items:center;gap:.45rem;padding:.6rem .8rem;border-radius:999px;font-size:.8rem;transition:.2s}
+.dock-btn:hover{background:rgba(255,255,255,.18)}
+.dock-btn.on{background:rgba(255,255,255,.28)}
+.hint{position:absolute;bottom:100px;left:50%;transform:translateX(-50%);padding:.7rem 1.3rem;border-radius:999px!important;font-size:.78rem;text-align:center;animation:fadeIn .5s;max-width:92vw}
+.popover{position:absolute;bottom:100px;left:50%;transform:translateX(-50%);padding:.8rem;min-width:260px;display:flex;flex-direction:column;gap:.4rem;font-size:.82rem;border-radius:20px!important;z-index:7}
+.popover button{padding:.5rem .8rem;border-radius:12px;text-align:left}.popover button:hover{background:rgba(255,255,255,.15)}
+.popover label{display:flex;gap:.6rem;align-items:center;padding:.3rem .4rem}.popover p{padding:.3rem .5rem;color:rgba(255,255,255,.75)}
+@keyframes bob{50%{margin-top:-8px}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}}
+@media(max-width:900px){.carousel{display:none}.panel{right:3vw;left:3vw;width:auto;top:auto;bottom:100px;transform:none}.panel-card{max-height:40vh}.panel-img{height:120px}.dock .logo,.dock-btn span{display:none}}
