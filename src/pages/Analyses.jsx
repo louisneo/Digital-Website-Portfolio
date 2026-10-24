@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Museum from '../components/Museum.jsx'
 import { works } from '../data/works.js'
-import { drawCover } from '../lib/cover.js'
+import { drawCover, onCoverImageLoad } from '../lib/cover.js'
 
 const P = {
   search: <><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></>,
@@ -27,7 +27,9 @@ const Icon = ({ n, size = 20 }) => (
 export default function Analyses() {
   const nav = useNavigate()
   const [active, setActive] = useState(0)
-  const [open, setOpen] = useState(true)
+  const small = typeof window !== 'undefined' && window.matchMedia('(max-width: 900px)').matches
+  const touch = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
+  const [open, setOpen] = useState(!small)
   const [wide, setWide] = useState(false)
   const [help, setHelp] = useState(true)
   const [query, setQuery] = useState('')
@@ -44,7 +46,8 @@ export default function Analyses() {
     document.body.style.overflow = 'hidden'
     const t = setTimeout(() => setHelp(false), 9000)
     document.fonts?.load('italic 28px "Bodoni Moda"').then(() => setFontTick(n => n + 1)).catch(() => {})
-    return () => { document.body.style.overflow = ''; clearTimeout(t); window.speechSynthesis?.cancel() }
+    const off = onCoverImageLoad(() => setFontTick(n => n + 1))
+    return () => { document.body.style.overflow = ''; clearTimeout(t); window.speechSynthesis?.cancel(); off() }
   }, [])
 
   const covers = useMemo(() => works.map((w, i) => drawCover(w, i, 300, 400).toDataURL()), [fontTick])
@@ -54,7 +57,7 @@ export default function Analyses() {
     const others = works.map((x, i) => ({ ...x, i })).filter(x => x.i !== active)
     return others.sort((a, b) => (b.author === w.author) - (a.author === w.author))
   }, [active, w.author])
-  const maxCi = Math.max(0, related.length - 3)
+  const maxCi = Math.max(0, related.length - 1)
 
   const results = query.trim()
     ? works.map((x, i) => ({ ...x, i })).filter(x => `${x.title} ${x.author} ${x.lens}`.toLowerCase().includes(query.toLowerCase()))
@@ -81,6 +84,9 @@ export default function Analyses() {
     <div className="museum" role="application" aria-label="Interactive VR literary museum">
       <Museum works={works} active={active} onSelect={select} onHotspot={() => setOpen(o => !o)} autoRotate={rotate} />
 
+      <button className="round mnav mnav-l" aria-label="Previous exhibit" onClick={() => select((active - 1 + works.length) % works.length)}><Icon n="left" size={16} /></button>
+      <button className="round mnav mnav-r" aria-label="Next exhibit" onClick={() => select((active + 1) % works.length)}><Icon n="right" size={16} /></button>
+
       <div className="spatial search-wrap">
         <label className="glass search-pill">
           <Icon n="search" />
@@ -100,18 +106,19 @@ export default function Analyses() {
         <div className="c-row">
           <button className="round" aria-label="Previous" onClick={() => setCi(c => Math.max(0, c - 1))}><Icon n="left" size={14} /></button>
           <div className="c-window">
-            <div className="c-track" style={{ transform: `translateX(-${ci * 104}px)` }}>
+            <div className="c-track" style={{ transform: `translateX(-${ci * 100}%)` }}>
               {related.map(r => (
                 <button key={r.i} className="c-card" onClick={() => select(r.i)} title={r.title}>
                   <img src={covers[r.i]} alt={r.title} />
-                  <span>{r.title}</span>
+                  <b>{r.title}</b>
+                  <span>{r.author}</span>
                 </button>
               ))}
             </div>
           </div>
           <button className="round" aria-label="Next" onClick={() => setCi(c => Math.min(maxCi, c + 1))}><Icon n="right" size={14} /></button>
         </div>
-        <div className="dots">{Array.from({ length: maxCi + 1 }, (_, k) => <i key={k} className={k === ci ? 'on' : ''} />)}</div>
+        <div className="dots">{Array.from({ length: maxCi + 1 }, (_, k) => <i key={k} className={k === ci ? 'on' : ''} onClick={() => setCi(k)} style={{ cursor: 'pointer' }} />)}</div>
       </aside>
 
       {open && (
@@ -142,7 +149,7 @@ export default function Analyses() {
       )}
 
       {help && (
-        <div className="glass hint">Drag to look around &middot; W A S D to walk &middot; Click an exhibit or the white dot &middot; Use the headset button (bottom right) for VR</div>
+        <div className="glass hint">{touch ? 'Drag to look around · Pinch to zoom · Tap an exhibit or the white dot · Use ‹ › to switch' : 'Drag to look around · W A S D to walk · Click an exhibit or the white dot · Use the headset button (bottom right) for VR'}</div>
       )}
 
       {pop && (

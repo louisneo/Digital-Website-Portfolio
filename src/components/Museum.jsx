@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js'
-import { drawCover, wrapText } from '../lib/cover.js'
+import { drawCover, wrapText, onCoverImageLoad } from '../lib/cover.js'
 
 const SPACING = 5.2
 const PED_Z = -2.2
@@ -85,7 +85,8 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
     const [w0, h0] = size()
 
     const renderer = new THREE.WebGLRenderer({ antialias: true })
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    const coarse = window.matchMedia?.('(pointer: coarse)').matches
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, coarse ? 1.5 : 2))
     renderer.setSize(w0, h0)
     renderer.toneMapping = THREE.ACESFilmicToneMapping
     renderer.toneMappingExposure = 1.1
@@ -189,6 +190,7 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
       works.forEach((wk, i) => drawCover(wk, i, 600, 800, canvases[i]))
       textures.forEach(t => { t.needsUpdate = true })
     }
+    const offImg = onCoverImageLoad(redraw)
     Promise.all([document.fonts.load('italic 28px "Bodoni Moda"'), document.fonts.load('500 44px "Bodoni Moda"')]).then(redraw).catch(() => {})
 
     // Hotspot anchor
@@ -382,6 +384,7 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
 
     return () => {
       disposed = true
+      offImg()
       renderer.setAnimationLoop(null)
       ro.disconnect()
       dom.removeEventListener('pointerdown', onDown)

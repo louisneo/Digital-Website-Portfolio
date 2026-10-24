@@ -15,8 +15,42 @@ export function wrapText(g, text, x, y, maxW, lh) {
   return y + lh
 }
 
-// Draws a manuscript-style book cover for a work onto a canvas.
+const imgCache = {}
+const listeners = new Set()
+// Subscribe to be told when an artwork image finishes loading (returns unsubscribe).
+export function onCoverImageLoad(fn) { listeners.add(fn); return () => listeners.delete(fn) }
+
+function loadArt(src) {
+  if (!imgCache[src]) {
+    const im = new Image()
+    im.onload = () => listeners.forEach(fn => fn())
+    im.src = import.meta.env.BASE_URL + src
+    imgCache[src] = im
+  }
+  return imgCache[src]
+}
+
+// Draws a book cover for a work onto a canvas: its artwork if provided, else a manuscript-style cover.
 export function drawCover(work, i, W = 600, H = 800, canvas) {
+  if (work.image) {
+    const im = loadArt(work.image)
+    if (im.complete && im.naturalWidth) {
+      const c = canvas || document.createElement('canvas')
+      c.width = W
+      c.height = H
+      const g = c.getContext('2d')
+      const s = W / 600
+      const r = Math.max(W / im.naturalWidth, H / im.naturalHeight)
+      const dw = im.naturalWidth * r, dh = im.naturalHeight * r
+      g.fillStyle = '#111'
+      g.fillRect(0, 0, W, H)
+      g.drawImage(im, (W - dw) / 2, (H - dh) / 2, dw, dh)
+      g.strokeStyle = '#d8b86a'
+      g.lineWidth = 6 * s
+      g.strokeRect(3 * s, 3 * s, W - 6 * s, H - 6 * s)
+      return c
+    }
+  }
   const c = canvas || document.createElement('canvas')
   c.width = W
   c.height = H

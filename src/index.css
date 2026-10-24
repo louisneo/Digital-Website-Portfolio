@@ -52,17 +52,18 @@ footer{text-align:center;color:var(--muted);padding:3rem 5vw;font-size:.85rem;bo
 .carousel{position:absolute;left:4vw;top:42%;width:310px;padding:1rem 1rem .8rem;transform:perspective(1200px) rotateY(8deg);animation:bob 6s ease-in-out infinite}
 .carousel h2{font:500 .7rem 'Montserrat',sans-serif;letter-spacing:.14em;text-align:center;margin-bottom:.8rem;color:#fff}
 .c-row{display:flex;align-items:center;gap:.4rem}
-.c-window{overflow:hidden;width:312px;flex:1;min-width:0}
-.c-track{display:flex;gap:8px;transition:transform .45s cubic-bezier(.3,.8,.3,1)}
-.c-card{flex:0 0 96px;text-align:center;font-size:.62rem;transition:.25s}
-.c-card img{width:96px;height:120px;object-fit:cover;border-radius:10px;border:1px solid rgba(255,255,255,.25);display:block;margin-bottom:.3rem}
-.c-card:hover{transform:translateY(-4px) scale(1.05)}
-.c-card span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.85}
+.c-window{overflow:hidden;flex:1;min-width:0}
+.c-track{display:flex;transition:transform .5s cubic-bezier(.3,.8,.3,1)}
+.c-card{flex:0 0 100%;min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center;padding:.2rem .3rem;transition:.25s}
+.c-card img{width:150px;height:200px;object-fit:cover;border-radius:12px;border:1px solid rgba(255,255,255,.3);display:block;margin-bottom:.6rem;box-shadow:0 14px 30px rgba(0,0,0,.45);transition:.3s}
+.c-card:hover img{transform:translateY(-4px) scale(1.04);box-shadow:0 18px 36px rgba(0,0,0,.55)}
+.c-card b{display:block;font:600 .82rem/1.25 'Montserrat',sans-serif;color:#fff}
+.c-card span{display:block;margin-top:.2rem;font-size:.66rem;opacity:.7}
 .round{width:34px;height:34px;flex:0 0 34px;display:grid;place-items:center;border-radius:50%!important;background:rgba(48,36,30,.55)!important;border:1px solid rgba(255,255,255,.25)!important;backdrop-filter:blur(14px);transition:.2s}
 .carousel .round{width:24px;height:24px;flex-basis:24px}
 .round:hover,.round.on{background:rgba(255,255,255,.9)!important;color:#2a1c10!important}
 .dots{display:flex;justify-content:center;gap:7px;margin-top:.7rem}
-.dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.4)}.dots i.on{background:#fff}
+.dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.4);transition:.3s}.dots i.on{background:#fff;width:18px;border-radius:4px}
 .panel{position:absolute;right:4vw;top:15vh;width:340px;transform:perspective(1200px) rotateY(-7deg);transition:width .4s;animation:bob 7s ease-in-out infinite}
 .panel.wide{width:min(560px,60vw)}
 .panel-actions{display:flex;justify-content:space-between;margin-bottom:.6rem}
@@ -90,4 +91,27 @@ footer{text-align:center;color:var(--muted);padding:3rem 5vw;font-size:.85rem;bo
 .popover label{display:flex;gap:.6rem;align-items:center;padding:.3rem .4rem}.popover p{padding:.3rem .5rem;color:rgba(255,255,255,.75)}
 @keyframes bob{50%{margin-top:-8px}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}}
-@media(max-width:900px){.carousel{display:none}.panel{right:3vw;left:3vw;width:auto;top:auto;bottom:100px;transform:none}.panel-card{max-height:40vh}.panel-img{height:120px}.dock .logo,.dock-btn span{display:none}}
+.mnav{display:none}
+.museum-canvas canvas{touch-action:none}
+@media(max-width:900px){
+.carousel{display:none}
+.search-wrap{top:max(14px,env(safe-area-inset-top));width:min(440px,88vw)}
+.search-pill{padding:.5rem .9rem}
+.search-pill input{font-size:16px}
+.panel{right:3vw;left:3vw;width:auto;top:auto;bottom:calc(88px + env(safe-area-inset-bottom));transform:none;animation:none}
+.panel.wide{width:auto}
+.panel-actions .round{width:32px;height:32px}
+.panel-card{max-height:48vh}
+.panel-img{height:110px;object-position:center 20%}
+.wide .panel-img{height:110px}
+.panel-body{padding:.8rem 1rem 1rem}
+.dock{bottom:calc(14px + env(safe-area-inset-bottom));gap:.1rem;padding:.4rem .5rem}
+.dock .logo,.dock-btn span,.dock .sep{display:none}
+.dock-btn{padding:.65rem .75rem}
+#VRButton{right:12px!important;bottom:calc(84px + env(safe-area-inset-bottom))!important;padding:6px 10px!important;font-size:11px!important}
+.hint{bottom:calc(150px + env(safe-area-inset-bottom));font-size:.7rem;border-radius:18px!important;width:90vw}
+.popover{bottom:calc(90px + env(safe-area-inset-bottom))}
+.mnav{display:grid;position:absolute;top:42%;z-index:5;width:40px;height:40px}
+.mnav-l{left:8px}.mnav-r{right:8px}
+}
+@media(max-width:900px) and (orientation:landscape){.panel{left:auto;width:min(340px,50vw);bottom:76px}.panel-card{max-height:56vh}.hint{display:none}}
