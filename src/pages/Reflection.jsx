@@ -11,7 +11,7 @@ export default function Reflection() {
     <>
       <h1>Personal Reflection</h1>
       {questions.map((q, i) => (
-        <section key={q}>
+        <section key={q} className="glass g-box reveal" style={{ '--i': i }}>
           <h3>{i + 1}. {q}</h3>
           <p className="todo">[Your answer.]</p>
         </section>

@@ -1,0 +1,249 @@
+/* ==========================================================
+   Glassmorphism theme.
+   Every rule is scoped to .glass-site, which wraps all pages
+   except Analyses. The Analyses page never receives these styles.
+   ========================================================== */
+
+.glass-site{
+  --gold:#f6c978;--gold2:#ffe2b0;--coral:#ff9d8a;
+  --soft:rgba(255,255,255,.86);--muted:rgba(255,255,255,.7);
+  --glass:rgba(255,255,255,.1);--edge:rgba(255,255,255,.25);
+  --blur:blur(18px) saturate(1.4);
+  position:relative;isolation:isolate;min-height:100vh;color:#fff;overflow-x:clip;
+  font:400 1rem/1.75 'Montserrat',system-ui,sans-serif;
+}
+
+/* ---------- Background ---------- */
+.glass-site .g-bg{position:fixed;inset:0;z-index:-1;overflow:hidden;background:#0b1226}
+.glass-site .g-bg-img{position:absolute;inset:-24px;background:#0b1226 url('/bg-turner-polyphemus.jpg') center/cover no-repeat;filter:blur(5px) saturate(1.1)}
+.glass-site .g-bg-shade{position:absolute;inset:0;background:
+  linear-gradient(180deg,rgba(8,14,34,.62) 0%,rgba(12,20,48,.5) 45%,rgba(30,16,32,.7) 100%)}
+.glass-site .blob{position:absolute;border-radius:50%;opacity:.5;will-change:transform}
+.glass-site .b1{width:44vmax;height:44vmax;left:-12vmax;top:-10vmax;background:radial-gradient(circle,rgba(255,157,138,.55),transparent 65%);animation:drift1 38s ease-in-out infinite alternate}
+.glass-site .b2{width:38vmax;height:38vmax;right:-10vmax;top:22vh;background:radial-gradient(circle,rgba(246,201,120,.45),transparent 65%);animation:drift2 46s ease-in-out infinite alternate}
+.glass-site .b3{width:40vmax;height:40vmax;left:20vw;bottom:-18vmax;background:radial-gradient(circle,rgba(92,130,255,.4),transparent 65%);animation:drift3 52s ease-in-out infinite alternate}
+@keyframes drift1{to{transform:translate3d(10vw,8vh,0)}}
+@keyframes drift2{to{transform:translate3d(-12vw,10vh,0)}}
+@keyframes drift3{to{transform:translate3d(8vw,-10vh,0)}}
+
+/* ---------- Type ---------- */
+.glass-site h1,.glass-site h2,.glass-site h3,.glass-site h4{
+  font-family:'Poppins','Montserrat',sans-serif;font-weight:700;color:#fff;line-height:1.15;letter-spacing:-.01em}
+.glass-site h1{font-size:clamp(2.1rem,6vw,3.7rem);font-weight:800}
+.glass-site h2{font-size:clamp(1.5rem,3.6vw,2.2rem);margin:0 0 1rem}
+.glass-site h3{font-size:1.2rem;margin:0 0 .6rem}
+.glass-site h4{font-size:1.02rem;margin:0 0 .35rem;color:var(--gold2)}
+.glass-site p{margin:0 0 1rem;color:var(--soft)}
+.glass-site a{color:var(--gold);text-underline-offset:3px}
+.glass-site a:hover{color:var(--gold2)}
+.glass-site :focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.glass-site .g-eyebrow{letter-spacing:.28em;text-transform:uppercase;font-size:.72rem;color:var(--gold);font-weight:600;margin-bottom:.8rem}
+.glass-site .g-meta{color:var(--muted)}.glass-site .g-meta span{color:var(--gold2);font-weight:600}
+.glass-site .g-lead{max-width:62ch;color:var(--muted)}
+.glass-site .g-h{margin:0 0 .8rem;font-size:1.5rem}
+.glass-site .g-work{font-size:clamp(1.6rem,3.4vw,2.2rem);color:var(--gold2);margin:.4rem 0 .4rem}
+.glass-site .g-cite{font-size:.82rem;color:var(--muted);margin:.6rem 0 0}
+.glass-site .g-note{color:var(--gold2);font-weight:600;margin:.8rem 0 .4rem}
+.glass-site .g-desc{display:block;font-size:.88rem;line-height:1.65;color:var(--muted)}
+.glass-site .g-fill{display:inline-block;padding:.2rem .8rem;border-radius:999px;background:rgba(255,157,138,.18);border:1px dashed rgba(255,157,138,.7);color:#ffd2c8}
+.glass-site .todo{background:rgba(255,157,138,.18);padding:.1rem .5rem;border-radius:8px;color:#ffd2c8}
+
+/* The one serif italic: Odyssey quotes only */
+.glass-site .g-quote{font-family:'Bodoni Moda',Georgia,serif;font-style:italic;font-weight:400;font-size:clamp(1.15rem,2.4vw,1.45rem);line-height:1.55;color:var(--gold2);border:0;border-left:3px solid var(--gold);padding:.2rem 0 .2rem 1.1rem;margin:0 0 .4rem}
+.glass-site .g-plain-quote{font-size:1.15rem;font-weight:400;color:#fff;margin:0}
+
+/* ---------- Layout ---------- */
+.glass-site main{max-width:1040px;margin:0 auto;padding:6.2rem 5vw 9rem}
+.glass-site .g-page{animation:pageIn .55s cubic-bezier(.2,.8,.2,1)}
+@keyframes pageIn{from{opacity:0;transform:translateY(14px)}}
+.glass-site .g-section{margin:4.5rem 0}
+.glass-site .g-box{padding:1.6rem 1.8rem;margin-bottom:1.4rem}
+.glass-site .g-box>p:last-child{margin-bottom:0}
+.glass-site .g-box h3,.glass-site .g-box h4{margin-top:0}
+.glass-site main>h1{margin-bottom:1.5rem}
+.glass-site main>.g-page>h1{margin-bottom:1.5rem}
+.glass-site footer{max-width:1040px;margin:0 auto;padding:2rem 5vw 8.5rem;border:0;text-align:center;color:var(--muted);font-size:.8rem}
+.glass-site footer p{color:var(--muted);margin:0 0 .5rem}
+.glass-site .g-foot-links{display:flex;gap:1.4rem;justify-content:center;font-size:.85rem}
+
+/* ---------- Glass ---------- */
+.glass-site .glass{
+  background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.08));
+  border:1px solid var(--edge);border-radius:24px;
+  box-shadow:0 20px 50px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.4);
+  -webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
+}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .glass-site .glass{background:rgba(18,24,48,.88)}
+}
+/* Light glass has no blur, so many small items stay cheap on phones */
+.glass-site .glass-lite{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:18px;box-shadow:inset 0 1px 0 rgba(255,255,255,.22)}
+.glass-site .g-lift{transition:transform .3s ease,border-color .3s ease,box-shadow .3s ease}
+.glass-site .g-lift:hover,.glass-site .g-person:hover{transform:translateY(-5px);border-color:rgba(255,255,255,.55);box-shadow:0 24px 54px rgba(0,0,0,.34),0 0 38px rgba(246,201,120,.22),inset 0 1px 0 rgba(255,255,255,.45)}
+.glass-site .g-person{transition:transform .3s ease,border-color .3s ease,box-shadow .3s ease}
+
+/* ---------- Reveal on scroll ---------- */
+.glass-site .reveal,.glass-site .fade{opacity:0}
+.glass-site .reveal.show,.glass-site .fade.show{opacity:1;animation:revealUp .7s cubic-bezier(.2,.8,.2,1) backwards;animation-delay:calc(var(--i,0)*90ms)}
+@keyframes revealUp{from{opacity:0;transform:translateY(26px)}}
+
+/* ---------- Brand pill and dock ---------- */
+.glass-site .g-brand{position:fixed;z-index:30;top:max(14px,env(safe-area-inset-top));left:14px;display:flex;align-items:center;gap:.55rem;padding:.55rem 1.1rem;border-radius:999px;color:#fff;text-decoration:none;font:700 .85rem 'Poppins',sans-serif}
+.glass-site .g-brand:hover{color:#fff;border-color:rgba(255,255,255,.5)}
+.glass-site .g-brand-dot{width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px var(--gold)}
+.glass-site .g-dock{position:fixed;z-index:30;left:50%;bottom:max(16px,env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;gap:.2rem;padding:.4rem;border-radius:999px}
+.glass-site .g-dock-item{display:flex;align-items:center;gap:.5rem;padding:.65rem 1.05rem;border-radius:999px;color:var(--soft);text-decoration:none;font:600 .8rem 'Poppins',sans-serif;transition:background .25s,color .25s}
+.glass-site .g-dock-item:hover{background:rgba(255,255,255,.12);color:#fff}
+.glass-site .g-dock-item.active{background:rgba(255,255,255,.24);color:var(--gold2);box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
+
+/* ---------- Buttons ---------- */
+.glass-site .g-btn{display:inline-block;padding:.75rem 1.7rem;border-radius:999px;background:linear-gradient(135deg,#ffd58f,#ff9d8a);color:#2a1a14;font:700 .85rem 'Poppins',sans-serif;text-decoration:none;box-shadow:0 10px 28px rgba(255,157,138,.35);transition:transform .25s,box-shadow .25s}
+.glass-site .g-btn:hover{color:#2a1a14;transform:translateY(-2px);box-shadow:0 14px 34px rgba(255,157,138,.5)}
+.glass-site .g-btn.ghost{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.35);box-shadow:none}
+.glass-site .g-btn.ghost:hover{color:#fff;background:rgba(255,255,255,.22)}
+.glass-site .g-round{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font:400 1.5rem/1 'Poppins',sans-serif;color:#fff;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);cursor:pointer;transition:background .25s,transform .25s}
+.glass-site .g-round:hover:not(:disabled){background:rgba(255,255,255,.28);transform:scale(1.06)}
+.glass-site .g-round:disabled{opacity:.35;cursor:default}
+.glass-site .g-plus{position:absolute;right:1rem;bottom:1rem;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font:400 1.6rem/1 'Poppins',sans-serif;color:#2a1a14;background:var(--gold);border:0;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.3);transition:transform .3s,background .25s}
+.glass-site .g-plus:hover{background:var(--gold2);transform:scale(1.08)}
+.glass-site .g-plus.on{transform:rotate(45deg)}
+.glass-site .g-chip{display:inline-block;align-self:flex-start;padding:.15rem .8rem;border-radius:999px;background:rgba(246,201,120,.16);border:1px solid rgba(246,201,120,.55);color:var(--gold2);font-size:.74rem;font-weight:600}
+
+/* ---------- Hero stage with floating panels ---------- */
+.glass-site .stage{position:relative;min-height:560px;perspective:1100px;margin-bottom:1rem}
+.glass-site .float{position:absolute;animation:floaty 9s ease-in-out infinite;animation-delay:var(--delay,0s)}
+@keyframes floaty{50%{transform:translateY(-12px)}}
+.glass-site .tilt{height:100%;transition:transform .3s ease-out;
+  transform:translate3d(calc(var(--mx,0)*var(--d)*14px),calc(var(--my,0)*var(--d)*10px),0) rotateX(calc(var(--my,0)*var(--d)*-3deg)) rotateY(calc(var(--mx,0)*var(--d)*4deg))}
+.glass-site .p-title{left:0;top:40px;width:min(600px,62%);z-index:2}
+.glass-site .p-title .tilt{padding:2.2rem 2.4rem}
+.glass-site .p-title .g-btn{margin-top:.8rem}
+.glass-site .p-quote{right:2%;bottom:30px;width:min(430px,48%);z-index:3}
+.glass-site .p-quote .tilt{padding:1.5rem 1.7rem}
+.glass-site .p-art{right:6%;top:0;width:min(250px,28%);z-index:1}
+.glass-site .p-art .tilt{padding:.7rem}
+.glass-site .p-art img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:16px}
+.glass-site .p-art small{display:block;padding:.5rem .3rem .1rem;color:var(--muted);font-size:.74rem;line-height:1.4}
+
+/* ---------- Tabs + carousel ---------- */
+.glass-site .g-carousel{margin-top:1.5rem}
+.glass-site .g-tabs{display:flex;gap:.2rem;padding:.3rem;border-radius:999px;width:max-content;max-width:100%;margin:0 auto 1.4rem;overflow-x:auto;scrollbar-width:none}
+.glass-site .g-tabs::-webkit-scrollbar{display:none}
+.glass-site .g-tab{font:600 .8rem 'Poppins',sans-serif;color:var(--soft);background:none;border:0;padding:.55rem 1.05rem;border-radius:999px;cursor:pointer;white-space:nowrap;transition:background .25s,color .25s}
+.glass-site .g-tab:hover{color:#fff}
+.glass-site .g-tab[aria-selected="true"]{background:rgba(255,255,255,.24);color:var(--gold2);box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
+.glass-site .g-car{--cw:300px;--step:290px;position:relative;height:480px;overflow:hidden;touch-action:pan-y;user-select:none}
+.glass-site .g-car-card{position:absolute;top:12px;left:50%;width:var(--cw);height:440px;
+  transform:translateX(calc(-50% + var(--o)*var(--step))) scale(calc(1 - var(--abs)*.16));
+  opacity:calc(1 - var(--abs)*.5);z-index:calc(10 - var(--abs));
+  transition:transform .55s cubic-bezier(.3,.8,.3,1),opacity .4s}
+.glass-site .g-car-card:not(.is-center){cursor:pointer}
+.glass-site .g-car-card.far{opacity:0;visibility:hidden;pointer-events:none}
+/* Only the three nearest cards blur, to keep scrolling smooth */
+.glass-site .g-car-card.far .glass{-webkit-backdrop-filter:none;backdrop-filter:none}
+.glass-site .g-card-in{position:relative;height:100%;padding:1.5rem;display:flex;flex-direction:column;gap:.5rem;overflow:hidden}
+.glass-site .g-car-card.is-center .g-card-in{box-shadow:0 30px 70px rgba(0,0,0,.4),0 0 40px rgba(246,201,120,.16),inset 0 1px 0 rgba(255,255,255,.45)}
+.glass-site .g-car-ctrl{display:flex;align-items:center;justify-content:center;gap:1.2rem;margin-top:.4rem}
+.glass-site .g-count{font:600 .8rem 'Poppins',sans-serif;color:var(--muted);min-width:3.5rem;text-align:center}
+
+/* Works cards */
+.glass-site .g-work-card img{width:100%;height:250px;object-fit:cover;object-position:top;border-radius:16px;display:block}
+.glass-site .g-num{color:var(--gold);font:700 .75rem 'Poppins',sans-serif;letter-spacing:.2em}
+.glass-site .g-work-card h3{margin:0;font-size:1.1rem}
+.glass-site .g-by{margin:0;color:var(--muted);font-size:.85rem}
+
+/* Why I chose it cards */
+.glass-site .g-greek{font:700 2.6rem/1.1 'Noto Sans','Poppins',sans-serif;color:var(--gold);margin-top:.4rem}
+.glass-site .g-translit{font:600 .95rem 'Poppins',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#fff}
+.glass-site .g-line{margin:.6rem 0 0;color:#fff;font-weight:600}
+.glass-site .g-more{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s ease}
+.glass-site .g-more.open{grid-template-rows:1fr}
+.glass-site .g-more>p{overflow:hidden;min-height:0;margin:0;font-size:.9rem;line-height:1.65;padding-right:3rem;opacity:0;transition:opacity .4s}
+.glass-site .g-more.open>p{opacity:1}
+.glass-site .g-idea{overflow-y:auto}
+
+/* ---------- Details dialog ---------- */
+.glass-site .g-modal{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:1rem;background:rgba(6,10,24,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);animation:pageIn .3s}
+.glass-site .g-dialog{position:relative;display:grid;grid-template-columns:220px 1fr;gap:1.6rem;padding:1.6rem;max-width:620px;width:100%;max-height:90vh;overflow:auto}
+.glass-site .g-dialog img{width:100%;height:100%;max-height:320px;object-fit:cover;object-position:top;border-radius:16px}
+.glass-site .g-close{position:absolute;top:.8rem;right:.8rem;width:38px;height:38px}
+.glass-site .g-actions{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.6rem}
+
+/* ---------- Home grid ---------- */
+.glass-site .g-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.3rem;margin-top:1.4rem}
+.glass-site .g-link-card{display:block;padding:1.6rem;text-decoration:none;color:#fff}
+.glass-site .g-link-card:hover{color:#fff}
+.glass-site .g-link-card h3{margin:.3rem 0 .4rem}
+.glass-site .g-link-card p{margin:0}
+
+/* ---------- Profile, facts ---------- */
+.glass-site .profile-page{position:relative;left:50%;width:min(1240px,90vw);transform:translateX(-50%)}
+.glass-site .profile{grid-template-columns:minmax(360px,42%) minmax(0,1fr);padding:2.4rem;gap:3rem;align-items:start}
+.glass-site .profile-photo-wrap{position:sticky;top:6.2rem;overflow:hidden;border-radius:22px;background:rgba(255,255,255,.08);box-shadow:0 24px 60px rgba(3,8,24,.35)}
+.glass-site .photo{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;object-position:center top;border:1px solid rgba(255,255,255,.3);border-radius:22px;background:rgba(255,255,255,.08)}
+.glass-site .profile-content{min-width:0}
+.glass-site .facts li{border-bottom:1px solid rgba(255,255,255,.16);color:var(--soft)}
+.glass-site .facts b{color:var(--gold);width:96px}
+
+/* ---------- Chart ---------- */
+.glass-site .g-figure{padding:1.6rem 1.8rem;margin:0 0 1.4rem}
+.glass-site .road-svg{width:100%;height:auto;display:block;margin:.4rem 0 .6rem}
+.glass-site .road-grid{stroke:rgba(255,255,255,.18);stroke-dasharray:4 6}
+.glass-site .road-axis{fill:var(--muted);font:600 12px 'Poppins',sans-serif}
+.glass-site .road-line{fill:none;stroke:var(--gold);stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:0;filter:drop-shadow(0 0 8px rgba(246,201,120,.55))}
+.glass-site .show .road-line{animation:draw 2.4s ease backwards}
+@keyframes draw{from{stroke-dashoffset:1}}
+.glass-site .road-dot{fill:#2a1a14;stroke:var(--gold);stroke-width:2.5}
+.glass-site .road-num{fill:var(--gold2);font:700 12px 'Poppins',sans-serif}
+.glass-site .road-legend{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:.3rem 1.2rem;margin:0 0 .6rem;font-size:.85rem;color:var(--soft)}
+.glass-site .road-legend b{display:inline-grid;place-items:center;width:22px;height:22px;margin-right:.4rem;border-radius:50%;background:rgba(246,201,120,.2);color:var(--gold2);font:700 .72rem 'Poppins',sans-serif}
+.glass-site .road-legend span{color:var(--muted)}
+
+/* ---------- People, frames, scene ---------- */
+.glass-site .g-people{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin-bottom:1.4rem}
+.glass-site .g-person{padding:1.3rem 1.4rem}
+.glass-site .g-person p{margin:0;font-size:.92rem}
+.glass-site .g-frames{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;margin-top:1.2rem}
+.glass-site .g-frame{margin:0;padding:.9rem;transition:border-color .3s,background .3s,box-shadow .3s}
+.glass-site .g-frame:hover{border-color:rgba(255,255,255,.55);box-shadow:0 24px 54px rgba(0,0,0,.34),0 0 38px rgba(246,201,120,.25),inset 0 1px 0 rgba(255,255,255,.5);background:linear-gradient(180deg,rgba(255,255,255,.2),rgba(255,255,255,.12))}
+.glass-site .g-frame-img{overflow:hidden;border-radius:16px;aspect-ratio:4/3}
+.glass-site .g-frame img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s ease}
+.glass-site .g-frame:hover img{transform:scale(1.06)}
+.glass-site .g-frame figcaption{display:flex;flex-direction:column;gap:.45rem;padding:.9rem .4rem .3rem}
+.glass-site .g-frame strong{font:700 1.05rem 'Poppins',sans-serif;color:#fff}
+.glass-site .g-credit{font-size:.8rem;color:var(--muted);line-height:1.5}
+.glass-site .g-placeholder{display:flex;flex-direction:column;gap:.3rem;padding:1.4rem;margin-top:1rem;border:2px dashed rgba(255,157,138,.7);border-radius:18px;background:rgba(255,157,138,.1);color:#ffd2c8;font-size:.9rem}
+.glass-site .g-placeholder strong{font-family:'Poppins',sans-serif;color:#ffd2c8}
+
+/* ---------- Mobile ---------- */
+@media(max-width:860px){
+  .glass-site{--blur:blur(12px) saturate(1.3)}
+  .glass-site .stage{min-height:0;display:flex;flex-direction:column;gap:1rem}
+  .glass-site .float{position:static;width:100%!important}
+  .glass-site .p-title .tilt{padding:1.6rem}
+  .glass-site .p-art{display:none}
+  .glass-site .g-frames{grid-template-columns:1fr}
+  .glass-site .profile-page{width:min(720px,92vw)}
+  .glass-site .profile{grid-template-columns:1fr;padding:1.4rem;gap:1.8rem}
+  .glass-site .profile-photo-wrap{position:static;width:min(100%,520px);margin:0 auto}
+  .glass-site .g-dialog{grid-template-columns:1fr}
+  .glass-site .g-dialog img{max-height:200px}
+}
+@media(max-width:560px){
+  .glass-site main{padding:5.4rem 4vw 8.5rem}
+  .glass-site .g-box,.glass-site .g-figure{padding:1.3rem 1.2rem}
+  .glass-site .g-car{--cw:min(300px,74vw);--step:min(290px,62vw)}
+  .glass-site .g-brand{font-size:.78rem;padding:.5rem .9rem}
+  .glass-site .g-dock-item{flex-direction:column;gap:.15rem;padding:.5rem .9rem;font-size:.66rem}
+  .glass-site .g-greek{font-size:2.2rem}
+}
+
+/* ---------- Reduced motion: no floating, tilt, drift, or reveal motion ---------- */
+@media(prefers-reduced-motion:reduce){
+  .glass-site .float,.glass-site .blob,.glass-site .g-page,.glass-site .g-modal{animation:none}
+  .glass-site .tilt{transform:none!important;transition:none}
+  .glass-site .reveal,.glass-site .fade{opacity:1}
+  .glass-site .reveal.show,.glass-site .fade.show,.glass-site .show .road-line{animation:none}
+  .glass-site .g-car-card,.glass-site .g-more,.glass-site .g-more>p,.glass-site .g-plus,.glass-site .g-frame img{transition:none}
+  .glass-site .g-lift:hover,.glass-site .g-person:hover,.glass-site .g-frame:hover img{transform:none}
+}
