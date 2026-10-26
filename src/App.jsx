@@ -6,8 +6,18 @@ import Analyses from './pages/Analyses.jsx'
 import Favorite from './pages/Favorite.jsx'
 import Summary from './pages/Summary.jsx'
 import Reflection from './pages/Reflection.jsx'
+import SymbolicRelics from './components/SymbolicRelics.jsx'
 
 const links = [['/', 'Home'], ['/profile', 'Profile'], ['/analyses', 'Analyses'], ['/favorite', 'Favorite'], ['/summary', 'Summary'], ['/reflection', 'Reflection']]
+
+const chapters = [
+  ['/', '⌂', 'The Threshold'],
+  ['/profile', '◈', 'The Reader'],
+  ['/analyses', '✦', 'Seven Works'],
+  ['/favorite', '≈', 'The Odyssey'],
+  ['/summary', '⌘', 'The Learning'],
+  ['/reflection', '☼', 'The Reflection'],
+]
 
 const icon = d => (
   <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -19,6 +29,9 @@ const icons = {
   works: icon(<path d="M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2zM4 19V5M9 7h6" />),
   analyses: icon(<path d="M12 2l9 5v10l-9 5-9-5V7zM12 12l9-5M12 12v10M12 12L3 7" />),
   about: icon(<path d="M12 12a4 4 0 100-8 4 4 0 000 8zM4 21a8 8 0 0116 0" />),
+  favorite: icon(<path d="M6 3h12v18l-6-4-6 4z" />),
+  summary: icon(<><path d="M4 5a2 2 0 012-2h12v18H6a2 2 0 01-2-2z" /><path d="M8 8h6M8 12h6M8 16h4" /></>),
+  reflection: icon(<><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></>),
 }
 
 const Credit = () => (
@@ -91,14 +104,25 @@ export default function App() {
       <div className="g-bg" aria-hidden="true">
         <div className="g-bg-img" />
         <div className="g-bg-shade" />
+        <div className="epic-sky"><i /><i /><i /><i /><i /><i /><i /></div>
         <i className="blob b1" />
         <i className="blob b2" />
         <i className="blob b3" />
       </div>
-      <Link className="g-brand glass" to="/">
-        <span className="g-brand-dot" aria-hidden="true" />
-        My Literary Journey
-      </Link>
+      <SymbolicRelics pathname={pathname} />
+      <header className="lore-header">
+        <Link className="lore-brand" to="/">
+          <span className="lore-mark" aria-hidden="true">VII</span>
+          <span><b>The Seven Chronicles</b><small>A Great Books Portfolio</small></span>
+        </Link>
+        <nav className="lore-nav" aria-label="Primary navigation">
+          {chapters.map(([to, sigil, label]) => (
+            <NavLink key={to} to={to} end={to === '/'} title={label} aria-label={label} className={({ isActive }) => isActive ? 'active' : ''}>
+              <i aria-hidden="true">{sigil}</i><span>{label}</span>
+            </NavLink>
+          ))}
+        </nav>
+      </header>
       <main>
         <div className="g-page" key={pathname}>
           <Routes>
@@ -111,6 +135,8 @@ export default function App() {
         </div>
       </main>
       <footer>
+        <div className="lore-footer-mark" aria-hidden="true"><span>VII</span></div>
+        <strong className="lore-footer-title">The Seven Chronicles</strong>
         <p className="g-foot-links">
           <Link to="/favorite">Favorite</Link>
           <Link to="/summary">Summary</Link>

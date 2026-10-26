@@ -8,6 +8,15 @@ const SPACING = 5.2
 const PED_Z = -2.2
 const px = i => (i - 3) * SPACING
 const ROOM_W = 44, ROOM_D = 14, ROOM_H = 6
+const RELICS = {
+  'Voice out of the Whirlwind': 'relics/job-whirlwind.png',
+  'The Panchatantra': 'relics/panchatantra-manuscript.png',
+  'The Ramayana': 'relics/rama-bow.png',
+  'The Mahabharata': 'relics/sudarshana-chakra.png',
+  'The Iliad': 'relics/achilles-shield.png',
+  'The Odyssey': 'relics/odysseus-bow.png',
+  'The Song of Roland': 'relics/roland-oliphant.png',
+}
 
 function makeFloor() {
   const c = document.createElement('canvas')
@@ -125,6 +134,7 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
     // Exhibits
     const hit = []
     const frames = []
+    const relicDisplays = []
     const spots = []
     const canvases = []
     const textures = []
@@ -132,6 +142,7 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
     const pedMat = new THREE.MeshStandardMaterial({ color: 0xf4f0e8, roughness: 0.6 })
     const glassMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: 0.1, roughness: 0, side: THREE.DoubleSide, depthWrite: false })
     const fixMat = new THREE.MeshStandardMaterial({ color: 0x222222, emissive: 0xffe9b8, emissiveIntensity: 1.2 })
+    const relicLoader = new THREE.TextureLoader()
 
     function framed(i, fw, fh) {
       const grp = new THREE.Group()
@@ -166,6 +177,29 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
       g.traverse(o => { o.userData.index = i; if (o.isMesh) hit.push(o) })
       scene.add(g)
       frames.push({ frame, scale: 1 })
+
+      // Companion glass case containing the symbolic object for this work.
+      const relicGroup = new THREE.Group()
+      relicGroup.position.set(x + 1.65, 0, PED_Z + 0.1)
+      const relicBase = new THREE.Mesh(new THREE.BoxGeometry(1.25, 0.13, 1.25), pedMat); relicBase.position.y = 0.065
+      const relicBody = new THREE.Mesh(new THREE.BoxGeometry(1.05, 0.62, 1.05), pedMat); relicBody.position.y = 0.43
+      const relicTop = new THREE.Mesh(new THREE.BoxGeometry(1.25, 0.09, 1.25), pedMat); relicTop.position.y = 0.785
+      const relicGlass = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.15, 1.1), glassMat); relicGlass.position.y = 1.4
+      const relicEdges = new THREE.LineSegments(new THREE.EdgesGeometry(relicGlass.geometry), new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 }))
+      relicEdges.position.copy(relicGlass.position)
+      const relicTexture = relicLoader.load(import.meta.env.BASE_URL + RELICS[work.title])
+      relicTexture.colorSpace = THREE.SRGBColorSpace
+      relicTexture.anisotropy = 8
+      textures.push(relicTexture)
+      const relicArt = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.94, 0.94),
+        new THREE.MeshStandardMaterial({ map: relicTexture, transparent: true, alphaTest: 0.025, side: THREE.DoubleSide, roughness: 0.55, depthWrite: false })
+      )
+      relicArt.position.set(0, 1.4, 0.03)
+      relicGroup.add(relicBase, relicBody, relicTop, relicGlass, relicEdges, relicArt)
+      relicGroup.traverse(o => { o.userData.index = i; if (o.isMesh) hit.push(o) })
+      scene.add(relicGroup)
+      relicDisplays.push({ art: relicArt, index: i })
 
       // Large framed piece on the wall
       const wall = framed(i, 1.7, 2.2)
@@ -223,7 +257,8 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
       g.font = 'italic 32px Georgia, serif'
       y = wrapText(g, `${wk.author}  ·  ${wk.lens}`, 50, y + 6, 700, 40)
       g.fillStyle = '#eee'
-      for (const [h, t] of [['Description', wk.description], ['Themes', wk.themes], ['Imagery', wk.imagery]]) {
+      const themeText = Array.isArray(wk.themes) ? wk.themes.map(item => item.name).join(' · ') : wk.themes
+      for (const [h, t] of [['Description', wk.description], ['Themes', themeText], ['Imagery', wk.imagery]]) {
         g.font = '600 30px Montserrat, sans-serif'; g.fillStyle = '#d8b86a'
         y = wrapText(g, h, 50, y + 20, 700, 38)
         g.font = '26px Montserrat, sans-serif'; g.fillStyle = '#eee'
@@ -262,8 +297,11 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
     }
 
     // XR session handling and controllers
-    const vr = VRButton.createButton(renderer)
-    el.appendChild(vr)
+    // Only show the VR control when this browser can actually start an immersive session.
+    // VRButton otherwise renders a distracting "VR NOT SUPPORTED" badge.
+    navigator.xr?.isSessionSupported?.('immersive-vr').then(supported => {
+      if (supported && !disposed) el.appendChild(VRButton.createButton(renderer))
+    }).catch(() => {})
     renderer.xr.addEventListener('sessionstart', () => {
       dolly.position.set(px(activeIdx) + 0.2, 0, PED_Z + 3.0)
       xrPanel.visible = true
@@ -378,6 +416,12 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
         f.frame.scale.setScalar(f.scale)
         f.frame.rotation.y = i === activeIdx && cb.current.autoRotate ? Math.sin(t * 0.6) * 0.28 : f.frame.rotation.y * 0.9
         spots[i].intensity += ((i === activeIdx ? 90 : i === hover ? 60 : 25) - spots[i].intensity) * 0.1
+      })
+      relicDisplays.forEach(({ art, index }) => {
+        const wanted = index === activeIdx && cb.current.autoRotate ? Math.sin(t * 0.55) * 0.32 : 0
+        art.rotation.y += (wanted - art.rotation.y) * 0.08
+        const s = index === hover ? 1.08 : 1
+        art.scale.lerp(new THREE.Vector3(s, s, s), 0.12)
       })
       renderer.render(scene, camera)
     })
