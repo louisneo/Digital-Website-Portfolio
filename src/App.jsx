@@ -6,148 +6,70 @@ import Analyses from './pages/Analyses.jsx'
 import Favorite from './pages/Favorite.jsx'
 import Summary from './pages/Summary.jsx'
 import Reflection from './pages/Reflection.jsx'
-import SymbolicRelics from './components/SymbolicRelics.jsx'
+import MuseumPage from './pages/MuseumPage.jsx'
 
-const links = [['/', 'Home'], ['/profile', 'Profile'], ['/analyses', 'Analyses'], ['/favorite', 'Favorite'], ['/summary', 'Summary'], ['/reflection', 'Reflection']]
+const I = d => (
+  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{d}</svg>
+)
 
-const chapters = [
-  ['/', '⌂', 'The Threshold'],
-  ['/profile', '◈', 'The Reader'],
-  ['/analyses', '✦', 'Seven Works'],
-  ['/favorite', '≈', 'The Odyssey'],
-  ['/summary', '⌘', 'The Learning'],
-  ['/reflection', '☼', 'The Reflection'],
+const links = [
+  ['/', 'Home', I(<path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z" />)],
+  ['/analyses', 'Analyses', I(<><path d="M4 4h6a2 2 0 012 2v14a2 2 0 00-2-2H4z" /><path d="M20 4h-6a2 2 0 00-2 2v14a2 2 0 012-2h6z" /></>)],
+  ['/favorite', 'Masterpiece', I(<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z" />)],
+  ['/summary', 'Learning', I(<><rect x="4" y="3" width="16" height="18" rx="2" /><path d="M8 8h8M8 12h8M8 16h5" /></>)],
+  ['/reflection', 'Reflection', I(<><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></>)],
+  ['/profile', 'Profile', I(<><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" /></>)],
 ]
 
-const icon = d => (
-  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    {d}
-  </svg>
-)
-const icons = {
-  home: icon(<path d="M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10" />),
-  works: icon(<path d="M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2zM4 19V5M9 7h6" />),
-  analyses: icon(<path d="M12 2l9 5v10l-9 5-9-5V7zM12 12l9-5M12 12v10M12 12L3 7" />),
-  about: icon(<path d="M12 12a4 4 0 100-8 4 4 0 000 8zM4 21a8 8 0 0116 0" />),
-  favorite: icon(<path d="M6 3h12v18l-6-4-6 4z" />),
-  summary: icon(<><path d="M4 5a2 2 0 012-2h12v18H6a2 2 0 01-2-2z" /><path d="M8 8h6M8 12h6M8 16h4" /></>),
-  reflection: icon(<><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></>),
-}
-
-const Credit = () => (
-  <>My Literary Journey: A Great Books Digital Portfolio &middot; Images: Wikimedia Commons / own work</>
-)
-
-function Dock({ pathname, search }) {
-  const works = pathname === '/' && search.includes('s=works')
-  const items = [
-    ['/', 'Home', icons.home, pathname === '/' && !works],
-    ['/?s=works', 'Works', icons.works, works],
-    ['/analyses', 'Analyses', icons.analyses, false],
-    ['/profile', 'About', icons.about, pathname === '/profile'],
-  ]
-  return (
-    <div className="g-dock glass" role="navigation" aria-label="Main">
-      {items.map(([to, label, ic, on]) => (
-        <Link key={label} to={to} className={`g-dock-item${on ? ' active' : ''}`} aria-current={on ? 'page' : undefined}>
-          {ic}
-          <span>{label}</span>
-        </Link>
-      ))}
-    </div>
-  )
-}
-
 export default function App() {
-  const { pathname, search } = useLocation()
-  const isAnalyses = pathname === '/analyses'
+  const { pathname } = useLocation()
 
-  // Scroll to top (or to the works section) and reveal elements on each route change
-  useEffect(() => {
-    if (pathname === '/' && search.includes('s=works')) {
-      const t = setTimeout(() => document.getElementById('works')?.scrollIntoView({ behavior: 'smooth' }), 60)
-      return () => clearTimeout(t)
-    }
-    window.scrollTo(0, 0)
-  }, [pathname, search])
+  useEffect(() => { window.scrollTo(0, 0) }, [pathname])
+  useEffect(() => { document.title = 'Myth & Mind | A Great Books Digital Portfolio' }, [])
 
-  useEffect(() => {
-    const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add('show')), { threshold: 0.1 })
-    document.querySelectorAll('.fade, .reveal').forEach(el => io.observe(el))
-    return () => io.disconnect()
-  }, [pathname])
-
-  // The Analyses page keeps its original layout and styles.
-  if (isAnalyses) {
-    return (
-      <>
-        <nav>
-          <Link className="brand" to="/">My Literary Journey</Link>
-          <ul>
-            {links.map(([to, t]) => (
-              <li key={to}><NavLink to={to} end className={({ isActive }) => (isActive ? 'active' : '')}>{t}</NavLink></li>
-            ))}
-          </ul>
-        </nav>
-        <main>
-          <Routes>
-            <Route path="/analyses" element={<Analyses />} />
-          </Routes>
-        </main>
-        <footer><Credit /></footer>
-      </>
-    )
-  }
+  if (pathname === '/museum') return <MuseumPage />
 
   return (
-    <div className="glass-site">
-      <div className="g-bg" aria-hidden="true">
-        <div className="g-bg-img" />
-        <div className="g-bg-shade" />
-        <div className="epic-sky"><i /><i /><i /><i /><i /><i /><i /></div>
-        <i className="blob b1" />
-        <i className="blob b2" />
-        <i className="blob b3" />
-      </div>
-      <SymbolicRelics pathname={pathname} />
-      <header className="lore-header">
-        <Link className="lore-brand" to="/">
-          <span className="lore-mark" aria-hidden="true">VII</span>
-          <span><b>The Seven Chronicles</b><small>A Great Books Portfolio</small></span>
+    <div className="app">
+      <a className="skip" href="#main">Skip to content</a>
+      <nav className="rail" aria-label="Main">
+        <Link to="/" className="rail-logo" aria-label="Myth & Mind home">
+          <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 26V8l11 11L27 8v18" /><circle cx="16" cy="6" r="2" /></svg>
         </Link>
-        <nav className="lore-nav" aria-label="Primary navigation">
-          {chapters.map(([to, sigil, label]) => (
-            <NavLink key={to} to={to} end={to === '/'} title={label} aria-label={label} className={({ isActive }) => isActive ? 'active' : ''}>
-              <i aria-hidden="true">{sigil}</i><span>{label}</span>
-            </NavLink>
+        <ul className="rail-nav">
+          {links.map(([to, label, icon]) => (
+            <li key={to}>
+              <NavLink to={to} end={to === '/'} aria-label={label}>
+                {icon}<span className="rail-tip">{label}</span>
+              </NavLink>
+            </li>
           ))}
-        </nav>
-      </header>
-      <main>
-        <div className="g-page" key={pathname}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/favorite" element={<Favorite />} />
-            <Route path="/summary" element={<Summary />} />
-            <Route path="/reflection" element={<Reflection />} />
-          </Routes>
-        </div>
+        </ul>
+        <Link to="/museum" className="rail-museum" aria-label="3D Museum">
+          {I(<path d="M3 21h18M5 21V10M19 21V10M9 21v-7M15 21v-7M2 10l10-6 10 6z" />)}
+          <span className="rail-tip">3D Museum</span>
+        </Link>
+      </nav>
+
+      <main id="main" className="content" key={pathname}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/analyses" element={<Analyses />} />
+          <Route path="/favorite" element={<div className="page"><Favorite /></div>} />
+          <Route path="/masterpiece" element={<div className="page"><Favorite /></div>} />
+          <Route path="/summary" element={<div className="page"><Summary /></div>} />
+          <Route path="/learning" element={<div className="page"><Summary /></div>} />
+          <Route path="/reflection" element={<div className="page"><Reflection /></div>} />
+          <Route path="/profile" element={<div className="page"><Profile /></div>} />
+          <Route path="*" element={<div className="page"><h1>Page not found</h1><p><Link to="/">Back to home</Link></p></div>} />
+        </Routes>
+
+        <footer className="foot">
+          <p className="foot-brand">Myth &amp; Mind</p>
+          <p>A Great Books Digital Portfolio by Louis Neo M. Lok · BS Information Technology · University of Nueva Caceres</p>
+          <p className="foot-small">Artwork is credited where known and used for educational purposes.</p>
+        </footer>
       </main>
-      <footer>
-        <div className="lore-footer-mark" aria-hidden="true"><span>VII</span></div>
-        <strong className="lore-footer-title">The Seven Chronicles</strong>
-        <p className="g-foot-links">
-          <Link to="/favorite">Favorite</Link>
-          <Link to="/summary">Summary</Link>
-          <Link to="/reflection">Reflection</Link>
-        </p>
-        <p><Credit /></p>
-        <p>
-          Background: J. M. W. Turner, <i>Ulysses Deriding Polyphemus</i> (1829), National Gallery, London, via Wikimedia Commons (public domain).
-        </p>
-      </footer>
-      <Dock pathname={pathname} search={search} />
     </div>
   )
 }

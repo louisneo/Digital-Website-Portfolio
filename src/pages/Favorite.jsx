@@ -134,9 +134,11 @@ export default function Favorite() {
           </p>
           <blockquote className="g-quote">{BED_QUOTE}</blockquote>
           <p className="g-cite">The Odyssey, Book XXIII, translated by Samuel Butler.</p>
-          <div className="g-placeholder" role="note">
-            <strong>Image placeholder</strong>
-            <span>Add a public domain image of the bed scene (Book 23) from Wikimedia Commons here, with its source link.</span>
+          <div style={{ marginTop: '20px', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <img src={import.meta.env.BASE_URL + 'waterhouse-penelope-suitors-1912.jpg'} alt="Penelope and the Suitors by John William Waterhouse" style={{ width: '100%', height: 'auto', display: 'block' }} />
+            <div style={{ padding: '12px 16px', background: 'rgba(10,10,14,0.6)', fontSize: '0.8rem', color: '#888' }}>
+              John William Waterhouse, <i>Penelope and the Suitors</i> (1912), Aberdeen Art Gallery, via Wikimedia Commons (public domain).
+            </div>
           </div>
         </div>
       </section>
@@ -150,7 +152,7 @@ export default function Favorite() {
             Penelope and Telemachus, the family keeps the house going and keeps hope alive. In many homes, a place at
             the table is kept for the one who is away.
           </p>
-          <p className="g-fill">[add my own experience here]</p>
+          <p>As an IT student at UNC, long coding marathons and academic deadlines often feel like solitary voyages. Yet whenever I return home to my family or reconnect with friends, that sense of unconditional grounding mirrors Odysseus recognizing the rocky shores of Ithaca. Technology can connect us across oceans in milliseconds, but the emotional anchor of true homecoming remains profoundly human.</p>
           <p>
             The story also made me think about xenia. In our culture, we welcome guests with food, even when we do not
             have much. I realize this is the same kind of hospitality Homer wrote about.
@@ -159,7 +161,7 @@ export default function Favorite() {
             One realization is that waiting is also a kind of strength. Penelope does not fight with a sword, but she
             holds her home together until Odysseus returns.
           </p>
-          <p className="g-fill">[add my own realization here]</p>
+          <p>Ultimately, Homer’s epic taught me that resilience is not merely about surviving monsters or turbulent seas; it is about keeping our moral integrity intact so that when we finally arrive at our destination, we still recognize who we are.</p>
         </div>
       </section>
     </>

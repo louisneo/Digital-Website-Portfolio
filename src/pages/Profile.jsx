@@ -12,15 +12,16 @@ export default function Profile() {
             <li><b>Course</b> BS Information Technology</li>
             <li><b>Year</b> 4th Year</li>
             <li><b>Section</b> GEC-GB-NRn 1454</li>
-            <li><b>Subject</b> Great Books</li>
+            <li><b>Subject</b> Great Books (World Literature)</li>
             <li><b>School</b> University of Nueva Caceres</li>
+            <li><b>Portfolio</b> Myth &amp; Mind</li>
           </ul>
           <h3>About Me</h3>
-          <p>Hello! My name is Louis Neo M. Lok, and I am a 4th year BS Information Technology student at the University of Nueva Caceres. In my free time, I play online games like Wild Rift or scroll through social media. I did not expect to enjoy a literature course, but Great Books proved me wrong.</p>
-          <h3>Reading &amp; Literature Interests</h3>
-          <p>I do not read classic literature often. Most of what I read are Wattpad stories, like the university series by 4reuminct (Gwy Saludes). I prefer long stories because I like getting to know the characters over time and seeing how they change. I also enjoy watching the MCU for the same reason. Its story runs across many films, with heroes who make mistakes, friends who lose each other, and sacrifices that cost something. After Great Books, I noticed that these are the same things ancient epics are built on. Thor’s story even borrows from old myths, and the idea of a hero facing a hard choice is as old as the epics we read in class.</p>
-          <h3>My Expectations in Great Books</h3>
-          <p>I used to think epics were long, difficult poems that only scholars could read. I expected to memorize plots and characters for exams and then move on. Instead, I found families, friends, and leaders dealing with problems I could understand. The course taught me to read one story in different ways and to connect old epics to my own family and community. Now I read more slowly and ask better questions, about books and about the people around me.</p>
+          <p>Hello! My name is Louis Neo M. Lok, a 4th-year BS Information Technology student at the University of Nueva Caceres. I’m not a literature major, but I have always gravitated toward stories that examine what drives people under extreme pressure—whether in tactical online games like Wild Rift, serialized long-form fiction, or the Marvel Cinematic Universe.</p>
+          <h3>Reading &amp; Narrative Interests</h3>
+          <p>Before Great Books, most of what I read was online fiction like the university series by 4reuminct (Gwy Saludes) on Wattpad, alongside epic movie franchises. I loved stories that span multiple arcs because you get to see characters fail, battle internal doubts, and change over time. In Great Books, I was surprised to find that ancient epics were the original masters of this: Achilles wrestling with unmanageable rage and grief in The Iliad, Rama’s moral struggle between private affection and public duty in The Ramayana, and the tragedy of impulsive assumption in The Panchatantra.</p>
+          <h3>My Expectations vs. Reality</h3>
+          <p>Going into Great Books, I honestly expected rote memorization: endless family trees, strange ancient gods, and archaic verses meant only for exams. What I actually found was a psychological mirror. These stories dissect fear, loyalty, pride, and homecoming with surgical precision. Rather than memorizing plots, learning to look through critical lenses—especially psychological and moral-philosophical—turned world classics into practical lessons in human nature, leadership, and emotional resilience.</p>
         </div>
       </div>
     </section>
