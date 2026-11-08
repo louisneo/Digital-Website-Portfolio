@@ -738,7 +738,8 @@ button { font: inherit; }
 .museum-help h2 { font-size: 1.8rem; color: var(--gold2); margin: 0 0 14px; }
 .museum-help p { font-size: 0.88rem; line-height: 1.7; color: #cfd4df; text-align: left; margin-bottom: 22px; }
 .museum-help b { color: #f3dfba; }
-.museum-strip { position: absolute; z-index: 10; left: 0; right: 0; bottom: 0; display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; padding: 14px; background: linear-gradient(0deg, rgba(11, 12, 15, .85), transparent); }
+.museum-strip { position: absolute; z-index: 10; left: 0; right: 0; bottom: 0; display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; padding: 14px; background: linear-gradient(0deg, rgba(11, 12, 15, .85), transparent); pointer-events: none; }
+.museum-strip > * { pointer-events: auto; }
 .museum-strip button { background: rgba(36, 40, 47, .85); border: 1px solid var(--line-2); color: var(--text); border-radius: 999px; padding: 6px 12px; font: 500 .72rem var(--cond); letter-spacing: .1em; text-transform: uppercase; cursor: pointer; }
 .museum-strip button[aria-pressed='true'] { background: var(--gold-grad); color: #1b1712; border-color: transparent; }
 .museum-modal {
