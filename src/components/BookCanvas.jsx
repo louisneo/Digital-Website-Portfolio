@@ -3,31 +3,56 @@ import * as THREE from 'three'
 
 /**
  * BookCanvas - Interactive 3D Hardcover Book (Spline / WebGL style)
- * Inspired by the "The Black Book" showcase on Pinterest / Spline.
  * Features:
- * - Dynamic Canvas Texture with gold foil borders, classical art, typography
+ * - Initial dramatic zoom-in animation on mount / page refresh
+ * - 3D 360-degree Flip spin animation whenever flipKey / work changes
+ * - Dynamic Canvas Texture with gold foil borders, classical artwork, and typography
  * - Gold-embossed leather spine with realistic ribs
- * - Textured cream paper edges
+ * - Cream textured paper edges
  * - Real-time 3D tilt tracking with smooth damping (lerp)
  * - Orbiting stardust motes
  * - Automatic ResizeObserver handling
  */
-export default function BookCanvas({ image, title, author, roman, orig, era }) {
+export default function BookCanvas({
+  image,
+  title,
+  author,
+  roman,
+  orig,
+  era,
+  flipKey = 0,
+  onClick
+}) {
   const mountRef = useRef(null)
+  const flipRef = useRef({ isFlipping: false, progress: 1, startAngle: 0 })
+  const initialZoomRef = useRef({ progress: 0, duration: 1.7 })
+  const prevFlipKeyRef = useRef(flipKey)
+
+  // Trigger 3D flip animation when flipKey changes
+  useEffect(() => {
+    if (prevFlipKeyRef.current !== flipKey) {
+      prevFlipKeyRef.current = flipKey
+      flipRef.current.isFlipping = true
+      flipRef.current.progress = 0
+    }
+  }, [flipKey])
 
   useEffect(() => {
     const el = mountRef.current
     if (!el) return
 
-    let width = el.clientWidth || 360
-    let height = el.clientHeight || 460
-    if (width <= 0) width = 360
-    if (height <= 0) height = 460
+    let width = el.clientWidth || 380
+    let height = el.clientHeight || 480
+    if (width <= 0) width = 380
+    if (height <= 0) height = 480
 
     // 1. Scene, Camera, Renderer
     const scene = new THREE.Scene()
+    const targetCameraZ = 4.4
+    const startCameraZ = 13.5 // starts far away for the zoom-in effect
+
     const camera = new THREE.PerspectiveCamera(36, width / height, 0.1, 50)
-    camera.position.set(0, 0, 4.4)
+    camera.position.set(0, 0, startCameraZ)
 
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
@@ -41,18 +66,19 @@ export default function BookCanvas({ image, title, author, roman, orig, era }) {
     el.appendChild(renderer.domElement)
 
     // 2. Lighting
-    const ambLight = new THREE.AmbientLight(0xffffff, 1.1)
+    const ambLight = new THREE.AmbientLight(0xffffff, 1.2)
     scene.add(ambLight)
 
-    const mainLight = new THREE.DirectionalLight(0xfff3e0, 3.6)
+    const mainLight = new THREE.DirectionalLight(0xfff5e4, 3.8)
     mainLight.position.set(3, 4.5, 3.5)
     scene.add(mainLight)
 
-    const goldRim = new THREE.DirectionalLight(0xd8bd92, 2.4)
+    const goldRim = new THREE.DirectionalLight(0xd8bd92, 2.6)
     goldRim.position.set(-3.5, -2, -2.5)
     scene.add(goldRim)
 
     const bookGroup = new THREE.Group()
+    bookGroup.scale.set(0.2, 0.2, 0.2) // starts small for the zoom-in effect
     scene.add(bookGroup)
 
     // 3. Dynamic High-Resolution Cover Texture (Canvas 2D)
@@ -72,13 +98,12 @@ export default function BookCanvas({ image, title, author, roman, orig, era }) {
     coverImg.src = import.meta.env.BASE_URL + image
 
     const drawCover = () => {
-      // Background / Leather Base
+      // Leather base
       ctx.fillStyle = '#14171d'
       ctx.fillRect(0, 0, coverCanvas.width, coverCanvas.height)
 
-      // Classic painting artwork
+      // Artwork
       if (coverImg.complete && coverImg.naturalWidth) {
-        // Draw artwork in upper-middle area
         ctx.save()
         ctx.beginPath()
         ctx.rect(50, 50, coverCanvas.width - 100, coverCanvas.height - 100)
@@ -87,7 +112,7 @@ export default function BookCanvas({ image, title, author, roman, orig, era }) {
         ctx.restore()
       }
 
-      // Dark moody gradient overlay for editorial elegance
+      // Dark moody gradient overlay
       const grad = ctx.createLinearGradient(0, 0, 0, coverCanvas.height)
       grad.addColorStop(0, 'rgba(12, 14, 18, 0.88)')
       grad.addColorStop(0.25, 'rgba(12, 14, 18, 0.4)')
@@ -137,7 +162,7 @@ export default function BookCanvas({ image, title, author, roman, orig, era }) {
         ctx.fillText(title || 'Great Book', coverCanvas.width / 2, 205)
       }
 
-      // Thin divider
+      // Divider
       ctx.strokeStyle = '#c5a059'
       ctx.lineWidth = 1.5
       ctx.beginPath()
@@ -161,12 +186,10 @@ export default function BookCanvas({ image, title, author, roman, orig, era }) {
       // Draw Spine
       sCtx.fillStyle = '#161920'
       sCtx.fillRect(0, 0, spineCanvas.width, spineCanvas.height)
-      // Gold ribs on spine
       sCtx.fillStyle = '#d8bd92'
       for (let y of [120, 280, 440, 600, 760, 920]) {
         sCtx.fillRect(10, y, spineCanvas.width - 20, 6)
       }
-      // Vertical text on spine
       sCtx.save()
       sCtx.translate(spineCanvas.width / 2, spineCanvas.height / 2)
       sCtx.rotate(-Math.PI / 2)
@@ -190,7 +213,6 @@ export default function BookCanvas({ image, title, author, roman, orig, era }) {
     const spineTexture = new THREE.CanvasTexture(spineCanvas)
     spineTexture.colorSpace = THREE.SRGBColorSpace
 
-    // Front/Back Cover material
     const coverMat = new THREE.MeshStandardMaterial({
       map: coverTexture,
       roughness: 0.28,
@@ -209,7 +231,6 @@ export default function BookCanvas({ image, title, author, roman, orig, era }) {
       metalness: 0.05,
     })
 
-    // Materials order: [Right (pages), Left (spine), Top (pages), Bottom (pages), Front (cover), Back (cover)]
     const materials = [
       pagesMat,
       spineMat,
@@ -219,13 +240,11 @@ export default function BookCanvas({ image, title, author, roman, orig, era }) {
       spineMat,
     ]
 
-    // Realistic Hardcover Book Geometry
-    // Width: 1.52, Height: 2.18, Thickness: 0.26
     const bookGeo = new THREE.BoxGeometry(1.52, 2.18, 0.26)
     const bookMesh = new THREE.Mesh(bookGeo, materials)
     bookGroup.add(bookMesh)
 
-    // Initial angled pose matching Pinterest Spline showcase
+    // Initial pose
     bookGroup.rotation.y = -0.32
     bookGroup.rotation.x = 0.12
     bookGroup.rotation.z = -0.04
@@ -242,14 +261,14 @@ export default function BookCanvas({ image, title, author, roman, orig, era }) {
     pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3))
     const pMat = new THREE.PointsMaterial({
       color: 0xd8bd92,
-      size: 0.03,
+      size: 0.032,
       transparent: true,
-      opacity: 0.65,
+      opacity: 0.7,
     })
     const particles = new THREE.Points(pGeo, pMat)
     scene.add(particles)
 
-    // Window-Wide Pointer Move Tracking with Distance Falloff
+    // Mouse Tracking
     let mouseX = 0
     let mouseY = 0
     let targetX = 0
@@ -257,13 +276,10 @@ export default function BookCanvas({ image, title, author, roman, orig, era }) {
 
     const onPointerMove = (e) => {
       const rect = el.getBoundingClientRect()
-      // Center of element
       const cx = rect.left + rect.width / 2
       const cy = rect.top + rect.height / 2
-      // Normalize relative to viewport
       mouseX = (e.clientX - cx) / (window.innerWidth * 0.5)
       mouseY = -(e.clientY - cy) / (window.innerHeight * 0.5)
-      // Clamp between -1.2 and 1.2
       mouseX = Math.max(-1.2, Math.min(1.2, mouseX))
       mouseY = Math.max(-1.2, Math.min(1.2, mouseY))
     }
@@ -288,19 +304,51 @@ export default function BookCanvas({ image, title, author, roman, orig, era }) {
     let animId
     const clock = new THREE.Clock()
 
+    // Smooth cubic ease out
+    const easeOutCubic = (x) => 1 - Math.pow(1 - x, 3)
+    // Smooth ease in out for flip
+    const easeInOutQuad = (x) => (x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2)
+
     const animate = () => {
       animId = requestAnimationFrame(animate)
+      const delta = clock.getDelta()
       const t = clock.getElapsedTime()
 
+      // 1. Initial Zoom-In Animation on Mount/Refresh
+      if (initialZoomRef.current.progress < 1) {
+        initialZoomRef.current.progress += delta / initialZoomRef.current.duration
+        if (initialZoomRef.current.progress > 1) initialZoomRef.current.progress = 1
+        const easedZoom = easeOutCubic(initialZoomRef.current.progress)
+        camera.position.z = startCameraZ - (startCameraZ - targetCameraZ) * easedZoom
+        const scaleVal = 0.2 + 0.8 * easedZoom
+        bookGroup.scale.set(scaleVal, scaleVal, scaleVal)
+      } else {
+        camera.position.z = targetCameraZ
+        bookGroup.scale.set(1, 1, 1)
+      }
+
+      // 2. 3D 360-degree Flip Spin Animation on Flip
+      let flipAngle = 0
+      if (flipRef.current.isFlipping) {
+        flipRef.current.progress += delta / 0.85 // flip takes ~0.85s
+        if (flipRef.current.progress >= 1) {
+          flipRef.current.progress = 1
+          flipRef.current.isFlipping = false
+        }
+        const easedFlip = easeInOutQuad(flipRef.current.progress)
+        flipAngle = Math.PI * 2 * easedFlip
+      }
+
+      // Mouse Parallax Lerp
       targetX += (mouseX - targetX) * 0.06
       targetY += (mouseY - targetY) * 0.06
 
-      // Fluid 3D interactive tilt with natural breathing float
-      bookGroup.rotation.y = -0.32 + targetX * 0.52 + Math.sin(t * 0.85) * 0.04
+      // Combined 3D Rotation (Flip + Mouse Tilt + Ambient Float)
+      bookGroup.rotation.y = -0.32 + flipAngle + targetX * 0.52 + Math.sin(t * 0.85) * 0.04
       bookGroup.rotation.x = 0.12 - targetY * 0.42 + Math.cos(t * 0.65) * 0.03
       bookGroup.position.y = Math.sin(t * 1.1) * 0.08
 
-      particles.rotation.y = t * 0.03
+      particles.rotation.y = t * 0.035
 
       renderer.render(scene, camera)
     }
@@ -330,6 +378,7 @@ export default function BookCanvas({ image, title, author, roman, orig, era }) {
     <div
       ref={mountRef}
       className="book-3d-stage"
+      onClick={onClick}
       aria-label={`Interactive 3D Hardcover Book for ${title}`}
     />
   )

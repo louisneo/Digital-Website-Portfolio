@@ -3,9 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { works } from '../data/works.js'
 import { meta, roman } from '../data/meta.js'
-import HeroCanvas from '../components/HeroCanvas.jsx'
 import BookCanvas from '../components/BookCanvas.jsx'
-import { KrakenEngraving, ChimeraEngraving } from '../components/MythicalEngravings.jsx'
 
 const img = file => import.meta.env.BASE_URL + file
 
@@ -28,27 +26,35 @@ const byYear = [...meta].sort((a, b) => a.year - b.year).map(m => m.id)
 export default function Home() {
   const root = useRef(null)
   const [activeIdx, setActiveIdx] = useState(0)
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [flipCount, setFlipCount] = useState(0)
 
   const activeWork = works[activeIdx]
   const activeMeta = meta[activeIdx]
 
-  // Keyboard navigation for Showcase (ArrowLeft / ArrowRight)
+  // Function to flip to next work
+  const flipNext = () => {
+    setActiveIdx(i => (i + 1) % works.length)
+    setFlipCount(c => c + 1)
+  }
+
+  // Function to flip to previous work
+  const flipPrev = () => {
+    setActiveIdx(i => (i - 1 + works.length) % works.length)
+    setFlipCount(c => c + 1)
+  }
+
+  // Keyboard navigation: Left / Right arrows to flip
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (isExpanded && e.key === 'Escape') {
-        setIsExpanded(false)
-        return
-      }
-      if (e.key === 'ArrowRight') {
-        setActiveIdx(i => (i + 1) % works.length)
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        flipNext()
       } else if (e.key === 'ArrowLeft') {
-        setActiveIdx(i => (i - 1 + works.length) % works.length)
+        flipPrev()
       }
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [isExpanded])
+  }, [])
 
   // Parallax on scroll for intro, timeline, and quote
   useEffect(() => {
@@ -91,106 +97,188 @@ export default function Home() {
     <div className="home pinterest-theme" ref={root}>
       {/* 
         =========================================================
-        HERO SECTION: "Welcome to Myth & Mind"
-        - Slow zoom out on whole hero on load
-        - Left illustration slides from bottom-left (slow with ease-out)
-        - Right illustration slides from top-right (slow with ease-out)
-        - Staggered fade-ins: Title -> Tagline -> Paragraph -> Buttons
-          (each 0.4 to 0.6s apart with small upward drift)
-        - No scrollbar / scroll indicator
-        - 3D armillary relic fully contained without clipping
+        HERO SECTION: "The Book" (Pinterest Spline Style)
+        - Panoramic artwork background corresponding to active work
+        - On load / refresh: Dramatic 3D Zoom-In animation into center stage
+        - When book is flipped:
+          * 3D book spins 360-degrees
+          * Background crossfades to that work's classical painting
+          * Giant footer title ghost-morphs
+          * Editorial text updates smoothly
         ========================================================= 
       */}
-      <section className="spline-hero" aria-labelledby="spline-hero-title">
-        {/* Slow zoom out on the whole hero background on load */}
-        <motion.div
-          className="px-layer px-bg spline-hero-bg-zoom"
-          initial={{ scale: 1.14 }}
-          animate={{ scale: 1.0 }}
-          transition={{ duration: 4.8, ease: [0.16, 1, 0.3, 1] }}
-          style={{ backgroundImage: `url(${img('bg-turner-polyphemus.jpg')})` }}
-        />
-        <div className="spline-hero-vignette" aria-hidden="true" />
+      <section className="the-book-hero" aria-labelledby="the-book-title">
+        {/* Crossfading Background with Slight Zoom on New Work Image (~1.0s) */}
+        <AnimatePresence initial={false}>
+          <motion.div
+            key={activeWork.image}
+            className="px-layer px-bg the-book-hero-bg"
+            initial={{ opacity: 0, scale: 1.08 }}
+            animate={{ opacity: 1, scale: 1.0 }}
+            exit={{ opacity: 0, scale: 1.0 }}
+            transition={{ duration: 1.0, ease: [0.22, 1, 0.36, 1] }}
+            style={{ backgroundImage: `url(${img(activeWork.image)})` }}
+          />
+        </AnimatePresence>
+        <div className="the-book-hero-vignette" aria-hidden="true" />
 
-        {/* Right illustration slides in from TOP-RIGHT (slow with ease-out) */}
-        <motion.div
-          className="hero-engraving-top-right"
-          aria-hidden="true"
-          initial={{ x: 140, y: -140, opacity: 0 }}
-          animate={{ x: 0, y: 0, opacity: 0.85 }}
-          transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1] }}
+        {/* Top Control Bar: Work Selector Pills & Counter */}
+        <header className="the-book-top-bar">
+          <div className="the-book-brand">
+            <span className="brand-dot" />
+            <b>Myth &amp; Mind</b>
+            <span className="brand-sep">·</span>
+            <small>Louis Neo M. Lok</small>
+          </div>
+
+          <div className="the-book-pills" role="tablist" aria-label="Select work">
+            {works.map((w, idx) => (
+              <button
+                key={w.title}
+                role="tab"
+                aria-selected={activeIdx === idx}
+                className={`book-pill-nav ${activeIdx === idx ? 'is-active' : ''}`}
+                onClick={() => {
+                  if (activeIdx !== idx) {
+                    setActiveIdx(idx)
+                    setFlipCount(c => c + 1)
+                  }
+                }}
+              >
+                <span>{roman[idx]}</span>
+                <small>{meta[idx].short}</small>
+              </button>
+            ))}
+          </div>
+
+          <div className="the-book-counter">
+            <b>{String(activeIdx + 1).padStart(2, '0')}</b>
+            <span>/ 07</span>
+          </div>
+        </header>
+
+        {/* Previous / Next Flip Arrow Buttons */}
+        <button
+          className="book-arrow-btn prev"
+          onClick={flipPrev}
+          aria-label="Flip to previous work"
+          title="Previous work (or press Left arrow)"
         >
-          <KrakenEngraving />
-        </motion.div>
-
-        {/* Left illustration slides in from BOTTOM-LEFT (slow with ease-out) */}
-        <motion.div
-          className="hero-engraving-bottom-left"
-          aria-hidden="true"
-          initial={{ x: -140, y: 140, opacity: 0 }}
-          animate={{ x: 0, y: 0, opacity: 0.85 }}
-          transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1] }}
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 19l-7-7 7-7" /></svg>
+        </button>
+        <button
+          className="book-arrow-btn next"
+          onClick={flipNext}
+          aria-label="Flip to next work"
+          title="Next work (or press Right arrow)"
         >
-          <ChimeraEngraving />
-        </motion.div>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
+        </button>
 
-        {/* Interactive 3D Armillary Celestial Relic (never cut out) */}
-        <div className="spline-hero-canvas-wrap" aria-hidden="true">
-          <HeroCanvas />
+        {/* Main Stage Grid: Left Editorial Card + Center 3D Book */}
+        <div className="the-book-hero-grid">
+          {/* Left: Editorial Narrative Hook Card (Smooth Fades on Change) */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeWork.title}
+              className="the-book-editorial"
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -18 }}
+              transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <p className="the-book-eyebrow">
+                {roman[activeIdx]} · {activeMeta.era.toUpperCase()} · {activeMeta.date}
+              </p>
+
+              <h2 className="the-book-hook">
+                “{activeMeta.hook}”
+              </h2>
+
+              <p className="the-book-author">
+                <b>{activeWork.author}</b>
+                <span lang="und">{activeMeta.orig}</span>
+              </p>
+
+              <p className="the-book-desc">
+                {activeWork.context}
+              </p>
+
+              <ul className="the-book-chips">
+                {activeWork.themes.slice(0, 3).map(t => (
+                  <li key={t.name}>{t.name}</li>
+                ))}
+              </ul>
+
+              <div className="the-book-actions">
+                <Link className="btn-pill-gold" to={`/analyses?work=${activeMeta.id}`}>
+                  <span className="dot" />
+                  READ ANALYSIS
+                </Link>
+                <button
+                  className="btn-pill-flip"
+                  onClick={flipNext}
+                  title="Flip book to next masterpiece"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  FLIP BOOK
+                </button>
+                <Link className="btn-pill-glass" to="/museum">
+                  3D MUSEUM ↗
+                </Link>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Center: 3D Hardcover Book with Initial Zoom-In and 3D Flip Spin */}
+          <motion.div
+            className="the-book-centerpiece"
+            initial={{ scale: 0.22, opacity: 0 }}
+            animate={{ scale: 1.0, opacity: 1 }}
+            transition={{ duration: 1.7, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <div
+              className="the-book-3d-interactive"
+              onClick={flipNext}
+              role="button"
+              tabIndex={0}
+              title="Click to flip the book and change the work"
+            >
+              <BookCanvas
+                image={activeWork.image}
+                title={activeMeta.short}
+                author={activeWork.author}
+                roman={roman[activeIdx]}
+                orig={activeMeta.orig}
+                era={activeMeta.era}
+                flipKey={flipCount}
+              />
+              <div className="the-book-click-hint">
+                <span className="hint-pulse" />
+                <span className="hint-text">✦ CLICK BOOK TO FLIP ({activeIdx + 1}/7)</span>
+              </div>
+            </div>
+          </motion.div>
         </div>
 
-        {/* Center Editorial Content with Staggered Upward Drift */}
-        <div className="spline-hero-content">
-          {/* 1. Title (fades in first with small upward drift) */}
-          <motion.h1
-            id="spline-hero-title"
-            className="spline-hero-title"
-            initial={{ opacity: 0, y: 28 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.0, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <span>Welcome to</span>
-            <em>Myth &amp; Mind</em>
-          </motion.h1>
-
-          {/* 2. Tagline / Eyebrow (0.5s after title) */}
-          <motion.p
-            className="spline-hero-eyebrow"
-            initial={{ opacity: 0, y: 22 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.9, ease: [0.16, 1, 0.3, 1] }}
-          >
-            A GREAT BOOKS DIGITAL PORTFOLIO · LOUIS NEO M. LOK · 4TH YEAR BS IT
-          </motion.p>
-
-          {/* 3. Paragraph (0.5s after tagline) */}
-          <motion.p
-            className="spline-hero-sub"
-            initial={{ opacity: 0, y: 22 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 1.4, ease: [0.16, 1, 0.3, 1] }}
-          >
-            A PSYCHOLOGICAL AND PHILOSOPHICAL LENS ON ANCIENT HEROIC EPICS
-          </motion.p>
-
-          {/* 4. Buttons (0.5s after paragraph) */}
-          <motion.div
-            className="spline-hero-actions"
-            initial={{ opacity: 0, y: 22 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 1.9, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <a href="#showcase" className="btn-pill-gold">
-              <span className="dot" />
-              EXPLORE THE SEVEN WORKS
-            </a>
-            <Link to="/analyses" className="btn-pill-glass">
-              READ ANALYSES
-            </Link>
-            <Link to="/museum" className="btn-pill-glass">
-              3D MUSEUM ↗
-            </Link>
-          </motion.div>
+        {/* Giant Serif Italic Title Across the Bottom (matching "The Book" in screenshot) */}
+        <div className="the-book-giant-title" aria-hidden="true">
+          <AnimatePresence initial={false}>
+            <motion.div
+              key={activeWork.title}
+              className="ghost-morph-title-wrap"
+              initial={{ opacity: 0, filter: 'blur(18px)', y: 26 }}
+              animate={{ opacity: 1, filter: 'blur(0px)', y: 0 }}
+              exit={{ opacity: 0, filter: 'blur(20px)', y: -26 }}
+              transition={{ duration: 1.0, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <Link to={`/analyses?work=${activeMeta.id}`}>
+                <em>{activeWork.title}</em>
+              </Link>
+            </motion.div>
+          </AnimatePresence>
         </div>
       </section>
 
@@ -218,247 +306,6 @@ export default function Home() {
             </li>
           ))}
         </ul>
-      </section>
-
-      {/* 
-        =========================================================
-        SHOWCASE SECTION ("The Black Book" Style)
-        - When active item changes:
-          * Crossfade background with slight zoom on new image (~1s)
-          * Fade and swap center 3D book object (~1s)
-          * Ghost morph on big title (old & new overlap & blur before settling ~1s)
-          * Fade side text at the same time (~1s)
-        - Click interaction: center object scales up to fill most of screen
-          and scales back down.
-        ========================================================= 
-      */}
-      <section id="showcase" className="spline-works-stage" aria-labelledby="showcase-heading">
-        <div className="spline-works-header rv">
-          <p className="eyebrow">The Seven Foundational Epics</p>
-          <h2 id="showcase-heading" className="h-serif">Curated Masterpieces</h2>
-          <p className="spline-works-subtitle">
-            Interactive 3D hardcover editions. Click the center book to inspect in full scale.
-          </p>
-
-          {/* Interactive Navigation Pills for switching works */}
-          <div className="showcase-nav-pills" role="tablist" aria-label="Select work">
-            {works.map((w, idx) => (
-              <button
-                key={w.title}
-                role="tab"
-                aria-selected={activeIdx === idx}
-                className={`showcase-pill-btn ${activeIdx === idx ? 'is-active' : ''}`}
-                onClick={() => setActiveIdx(idx)}
-              >
-                <span>{roman[idx]}</span>
-                <small>{meta[idx].short}</small>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* The Active Showcase Stage */}
-        <div className="spline-work-slide active-showcase-stage">
-          {/* 1. Crossfading Background with Slight Zoom on New Image (~1.0s) */}
-          <AnimatePresence initial={false}>
-            <motion.div
-              key={activeWork.image}
-              className="px-layer px-bg spline-slide-bg"
-              initial={{ opacity: 0, scale: 1.08 }}
-              animate={{ opacity: 1, scale: 1.0 }}
-              exit={{ opacity: 0, scale: 1.0 }}
-              transition={{ duration: 1.0, ease: [0.22, 1, 0.36, 1] }}
-              style={{ backgroundImage: `url(${img(activeWork.image)})` }}
-            />
-          </AnimatePresence>
-          <div className="spline-slide-shade" aria-hidden="true" />
-
-          {/* Navigation Arrows for Previous / Next */}
-          <button
-            className="showcase-arrow-btn prev"
-            onClick={() => setActiveIdx((activeIdx - 1 + works.length) % works.length)}
-            aria-label="Previous work"
-          >
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 19l-7-7 7-7" /></svg>
-          </button>
-          <button
-            className="showcase-arrow-btn next"
-            onClick={() => setActiveIdx((activeIdx + 1) % works.length)}
-            aria-label="Next work"
-          >
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
-          </button>
-
-          <div className="spline-slide-grid">
-            {/* 2. Side Editorial Text: Fades simultaneously (~1.0s) */}
-            <AnimatePresence mode="wait">
-              <motion.article
-                key={activeWork.title}
-                className="spline-slide-card"
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -16 }}
-                transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-              >
-                <div className="spline-card-meta">
-                  <span className="card-roman">{roman[activeIdx]}</span>
-                  <span className="card-separator">·</span>
-                  <span className="card-era">{activeMeta.era}</span>
-                  <span className="card-separator">·</span>
-                  <span className="card-date">{activeMeta.date}</span>
-                </div>
-
-                <h3 className="spline-card-hook">
-                  “{activeMeta.hook}”
-                </h3>
-
-                <p className="spline-card-author">
-                  <b>{activeWork.author}</b>
-                  <span lang="und">{activeMeta.orig}</span>
-                </p>
-
-                <p className="spline-card-desc">
-                  {activeWork.context}
-                </p>
-
-                <ul className="spline-card-chips">
-                  {activeWork.themes.slice(0, 3).map(t => (
-                    <li key={t.name}>{t.name}</li>
-                  ))}
-                </ul>
-
-                <div className="spline-card-actions">
-                  <Link className="btn-work-pill" to={`/analyses?work=${activeMeta.id}`}>
-                    <span>READ ANALYSIS</span>
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M5 12h14M12 5l7 7-7 7" />
-                    </svg>
-                  </Link>
-                  <button
-                    className="btn-work-ghost"
-                    onClick={() => setIsExpanded(true)}
-                    title="Scale up 3D book inspection"
-                  >
-                    ✦ INSPECT 3D
-                  </button>
-                </div>
-              </motion.article>
-            </AnimatePresence>
-
-            {/* 3. Center 3D Book Object: Fades and Swaps (~1.0s) + Click to Scale Up */}
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeWork.title}
-                className="spline-slide-book-wrap"
-                initial={{ opacity: 0, scale: 0.94 }}
-                animate={{ opacity: 1, scale: 1.0 }}
-                exit={{ opacity: 0, scale: 0.94 }}
-                transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-              >
-                <div
-                  className="spline-book-link is-clickable"
-                  onClick={() => setIsExpanded(true)}
-                  role="button"
-                  tabIndex={0}
-                  title={`Click to inspect 3D edition of ${activeWork.title}`}
-                >
-                  <BookCanvas
-                    image={activeWork.image}
-                    title={activeMeta.short}
-                    author={activeWork.author}
-                    roman={roman[activeIdx]}
-                    orig={activeMeta.orig}
-                    era={activeMeta.era}
-                  />
-                  <div className="spline-book-badge">
-                    <span className="badge-glow" />
-                    <span className="badge-text">✦ CLICK TO EXPAND · TILT &amp; ROTATE</span>
-                  </div>
-                </div>
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          {/* 4. Big Title with Ghost Morph: Old and New Overlap & Blur Before Settling (~1.0s) */}
-          <div className="spline-grand-footer-title" aria-hidden="true">
-            <AnimatePresence initial={false}>
-              <motion.div
-                key={activeWork.title}
-                className="ghost-morph-title-wrap"
-                initial={{ opacity: 0, filter: 'blur(16px)', y: 24 }}
-                animate={{ opacity: 1, filter: 'blur(0px)', y: 0 }}
-                exit={{ opacity: 0, filter: 'blur(18px)', y: -24 }}
-                transition={{ duration: 1.0, ease: [0.22, 1, 0.36, 1] }}
-              >
-                <Link to={`/analyses?work=${activeMeta.id}`}>
-                  <em>{activeWork.title}</em>
-                </Link>
-              </motion.div>
-            </AnimatePresence>
-          </div>
-        </div>
-
-        {/* 
-          =========================================================
-          CLICK INTERACTION: 3D Center Object Scales Up to Fill Most of Screen
-          ========================================================= 
-        */}
-        <AnimatePresence>
-          {isExpanded && (
-            <motion.div
-              className="book-expanded-overlay"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-              onClick={() => setIsExpanded(false)}
-            >
-              <motion.div
-                className="book-expanded-card"
-                initial={{ scale: 0.55, opacity: 0 }}
-                animate={{ scale: 1.0, opacity: 1 }}
-                exit={{ scale: 0.55, opacity: 0 }}
-                transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <button
-                  className="book-expanded-close"
-                  onClick={() => setIsExpanded(false)}
-                  aria-label="Close 3D inspection view"
-                >
-                  ✕
-                </button>
-
-                <div className="book-expanded-canvas-wrap">
-                  <BookCanvas
-                    image={activeWork.image}
-                    title={activeMeta.short}
-                    author={activeWork.author}
-                    roman={roman[activeIdx]}
-                    orig={activeMeta.orig}
-                    era={activeMeta.era}
-                  />
-                </div>
-
-                <div className="book-expanded-info">
-                  <span className="expanded-tag">{roman[activeIdx]} · {activeMeta.era} · {activeMeta.date}</span>
-                  <h3 className="expanded-title">{activeWork.title}</h3>
-                  <p className="expanded-desc">“{activeMeta.hook}”</p>
-                  <p className="expanded-context">{activeWork.context}</p>
-                  <div className="expanded-actions">
-                    <Link className="btn-work-pill" to={`/analyses?work=${activeMeta.id}`}>
-                      <span>READ FULL ANALYSIS</span>
-                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-                    </Link>
-                    <button className="btn-work-ghost" onClick={() => setIsExpanded(false)}>
-                      SCALE BACK DOWN
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </section>
 
       {/* 
