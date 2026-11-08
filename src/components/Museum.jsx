@@ -142,7 +142,7 @@ function makeFloorTexture() {
   c.width = c.height = 1024
   const g = c.getContext('2d')
 
-  g.fillStyle = '#140c07'
+  g.fillStyle = '#22150c'
   g.fillRect(0, 0, 1024, 1024)
 
   const tiles = 8
@@ -155,11 +155,11 @@ function makeFloorTexture() {
 
       const hueVar = (Math.sin(tx * 3.7 + ty * 2.1) * 6) | 0
       const lightVar = (Math.cos(tx * 1.9 + ty * 4.3) * 6) | 0
-      g.fillStyle = `hsl(${25 + hueVar}, 26%, ${14 + lightVar}%)`
+      g.fillStyle = `hsl(${28 + hueVar}, 30%, ${20 + lightVar}%)`
       g.fillRect(x + 1, y + 1, tileSize - 2, tileSize - 2)
 
       for (let p = 0; p < 4; p++) {
-        g.strokeStyle = 'rgba(8, 4, 2, 0.55)'
+        g.strokeStyle = 'rgba(14, 8, 4, 0.45)'
         g.lineWidth = 2
         if (isAlt) {
           g.strokeRect(x, y + (p * tileSize) / 4, tileSize, tileSize / 4)
@@ -477,23 +477,23 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate,
       /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
     )
 
-    // Renderer Setup (Toned exposure to ~0.6 to prevent nuclear whiteout)
+    // Renderer Setup (Balanced exposure for warm, bright museum atmosphere)
     const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' })
     renderer.setPixelRatio(isTouchDevice ? Math.min(window.devicePixelRatio, 1.5) : Math.min(window.devicePixelRatio, 2))
     renderer.setSize(w0, h0)
     renderer.outputColorSpace = THREE.SRGBColorSpace
     renderer.toneMapping = THREE.ACESFilmicToneMapping
-    renderer.toneMappingExposure = lightingRef.current?.exposure ?? 0.6
+    renderer.toneMappingExposure = lightingRef.current?.exposure ?? DEFAULT_MUSEUM_LIGHTING.exposure
     renderer.shadowMap.enabled = true
     renderer.shadowMap.type = THREE.PCFSoftShadowMap
     renderer.xr.enabled = true
     el.appendChild(renderer.domElement)
     rendererRef.current = renderer
 
-    // 2. Scene & Camera
+    // 2. Scene & Camera (Gentle atmospheric haze that keeps distant wings bright and visible)
     const scene = new THREE.Scene()
-    scene.background = new THREE.Color(0x131518)
-    scene.fog = new THREE.FogExp2(0x131518, 0.012)
+    scene.background = new THREE.Color(0x1a1c21)
+    scene.fog = new THREE.FogExp2(0x1a1c21, 0.0035)
     sceneRef.current = scene
 
     const camera = new THREE.PerspectiveCamera(50, w0 / h0, 0.1, 100)
@@ -553,12 +553,12 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate,
     scene.environment = envTexture
     scene.environmentIntensity = lightingRef.current?.envIntensity ?? 0.3
 
-    // 5. Materials (Darker tones and higher roughness to suppress washed-out reflections)
+    // 5. Materials (Warm gallery hardwood and museum matte surfaces)
     const floorTex = makeFloorTexture()
     const floorMat = new THREE.MeshStandardMaterial({
       map: floorTex,
-      roughness: 0.52,
-      metalness: 0.02,
+      roughness: 0.42,
+      metalness: 0.04,
     })
 
     const wallMat = new THREE.MeshStandardMaterial({
@@ -676,54 +676,79 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate,
     wallEast.receiveShadow = true
     scene.add(wallEast)
 
-    const ceilMat = new THREE.MeshStandardMaterial({ color: 0x14161a, roughness: 0.95 })
+    // Modern Architectural Gallery Ceiling (Clean light gypsum finish reflecting soft bounce light)
+    const ceilMat = new THREE.MeshStandardMaterial({
+      color: 0xe6e1d7,
+      roughness: 0.9,
+      metalness: 0.0,
+    })
     const ceil = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_D), ceilMat)
     ceil.rotation.x = Math.PI / 2
     ceil.position.y = ROOM_H
     scene.add(ceil)
 
-    const louverMat = new THREE.MeshStandardMaterial({ color: 0x181a1f, roughness: 0.85 })
-    for (let z = -ROOM_D / 2 + 1.2; z < ROOM_D / 2; z += 0.55) {
-      const slat = new THREE.Mesh(new RoundedBoxGeometry(ROOM_W - 2, 0.14, 0.08, 2, 0.01), louverMat)
-      slat.position.set(0, ROOM_H - 0.07, z)
-      scene.add(slat)
-    }
+    // Recessed Black Architectural Lighting Channels in Ceiling
+    const trackSlotMat = new THREE.MeshStandardMaterial({ color: 0x16181d, roughness: 0.75 })
+    ;[-12, -4, 4, 12].forEach(cx => {
+      const slot = new THREE.Mesh(new THREE.PlaneGeometry(0.2, ROOM_D - 4), trackSlotMat)
+      slot.rotation.x = Math.PI / 2
+      slot.position.set(cx, ROOM_H - 0.01, 0)
+      scene.add(slot)
+    })
+    ;[-9.5, 0, 9.5].forEach(cz => {
+      const slot = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W - 4, 0.2), trackSlotMat)
+      slot.rotation.x = Math.PI / 2
+      slot.position.set(0, ROOM_H - 0.012, cz)
+      scene.add(slot)
+    })
 
-    // Architectural Museum Ceiling Skylight / Troffer Panels (like in modern museum galleries)
+    // Large Architectural Museum Luminous Ceiling Panels (Warm diffuse gallery skylights)
     const trofferLocations = [
-      [-12, -3.5], [-12, 4.5],
+      [-12, -7], [-12, 7],
+      [-4, -7], [-4, 7],
+      [4, -7], [4, 7],
+      [12, -7], [12, 7],
       [0, -4.5], [0, 4.5],
-      [12, -3.5], [12, 4.5],
     ]
     trofferLocations.forEach(([tx, tz]) => {
       const trofferGrp = new THREE.Group()
       trofferGrp.position.set(tx, ROOM_H - 0.02, tz)
       trofferGrp.rotation.x = Math.PI / 2
 
-      const trofferFrame = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 1.4), trofferFrameMat)
-      const trofferLight = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 1.2), trofferPanelMat)
+      const trofferFrame = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 1.8), trofferFrameMat)
+      const trofferLight = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 1.6), trofferPanelMat)
       trofferLight.position.z = 0.005
       trofferGrp.add(trofferFrame, trofferLight)
       scene.add(trofferGrp)
 
-      // Soft architectural downlight from ceiling troffer
-      const downLight = new THREE.PointLight(0xfffaee, 1.8, 9, 1.8)
+      // Soft architectural downlight from ceiling troffer bathing walkways and floor
+      const downLight = new THREE.PointLight(0xfff5e6, 2.8, 13, 1.5)
       downLight.position.set(tx, ROOM_H - 0.45, tz)
       scene.add(downLight)
     })
 
-    // 7. Ambient Lighting (Tuned down to prevent room washout) & Tiny Dust Particles
+    // Central Atrium & Avenue Architectural Downlights (illuminating benches, floor & central aisle)
+    ;[
+      [0, 0], [-2, 2.5], [2, 2.5], [0, -2.5]
+    ].forEach(([ax, az]) => {
+      const avenueSpot = new THREE.SpotLight(0xfffaec, 6.5, 12, 0.72, 0.85, 1.4)
+      avenueSpot.position.set(ax, ROOM_H - 0.25, az)
+      avenueSpot.target.position.set(ax, 0.5, az)
+      scene.add(avenueSpot, avenueSpot.target)
+    })
+
+    // 7. Ambient Lighting & Tiny Dust Particles
     const hemiLight = new THREE.HemisphereLight(
       0xfffaed,
-      0x1f1914,
-      (lightingRef.current?.ambientIntensity ?? 0.15) * 1.5
+      0x241e17,
+      (lightingRef.current?.ambientIntensity ?? DEFAULT_MUSEUM_LIGHTING.ambientIntensity) * 1.5
     )
     scene.add(hemiLight)
     hemiLightRef.current = hemiLight
 
     const ambientLight = new THREE.AmbientLight(
       0xfff6ea,
-      lightingRef.current?.ambientIntensity ?? 0.15
+      lightingRef.current?.ambientIntensity ?? DEFAULT_MUSEUM_LIGHTING.ambientIntensity
     )
     scene.add(ambientLight)
     ambientLightRef.current = ambientLight
@@ -755,12 +780,12 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate,
       partition.add(trackLight)
 
       // Gallery Wall-Wash Spotlights aimed at Framed Art and Wall Text
-      const artWashSpot = new THREE.SpotLight(0xffeed6, 4.8, 8.5, 0.46, 0.85, 1.4)
+      const artWashSpot = new THREE.SpotLight(0xffeed6, 6.8, 10, 0.5, 0.85, 1.3)
       artWashSpot.position.set(-1.25, 5.12, 1.55)
       artWashSpot.target.position.set(-1.25, 2.5, 0.05)
       partition.add(artWashSpot, artWashSpot.target)
 
-      const textWashSpot = new THREE.SpotLight(0xfff3e2, 4.4, 8.5, 0.50, 0.85, 1.4)
+      const textWashSpot = new THREE.SpotLight(0xfff3e2, 6.4, 10, 0.54, 0.85, 1.3)
       textWashSpot.position.set(1.25, 5.12, 1.55)
       textWashSpot.target.position.set(1.25, 2.45, 0.03)
       partition.add(textWashSpot, textWashSpot.target)
@@ -816,7 +841,7 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate,
       textGroup.traverse(o => { o.userData.index = i; if (o.isMesh) hitObjects.push(o) })
 
       // Warm Spotlight with 2048 Soft Shadows aimed at Pedestal from front-top
-      const spotLight = new THREE.SpotLight(0xfff1dc, 12, 14, 0.35, 0.8, 1.6)
+      const spotLight = new THREE.SpotLight(0xfff1dc, 18, 15, 0.38, 0.8, 1.5)
       const dirX = st.camX - st.x
       const dirZ = st.camZ - st.z
       const len = Math.hypot(dirX, dirZ) || 1
@@ -824,6 +849,13 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate,
       const offZ = (dirZ / len) * 1.35
       spotLight.position.set(st.x + offX, ROOM_H - 0.25, st.z + offZ)
       spotLight.target.position.set(st.x, 1.45, st.z)
+      spotLight.shadow.mapSize.width = 2048
+      spotLight.shadow.mapSize.height = 2048
+      spotLight.shadow.bias = -0.00012
+      spotLight.shadow.radius = 2.4
+      spotLight.castShadow = (i === active || i === (active + 1) % works.length)
+      scene.add(spotLight, spotLight.target)
+      spots.push(spotLight)
       spotLight.shadow.mapSize.width = 2048
       spotLight.shadow.mapSize.height = 2048
       spotLight.shadow.bias = -0.00012
@@ -1098,11 +1130,11 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate,
         dustParticles.userData.update(dt, t)
       }
 
-      // Dynamic spotlight intensity (Tuned down to stay on pedestals without blowing out walls)
+      // Dynamic spotlight intensity (Active exhibit receives primary focus while other alcoves stay warmly visible)
       const currentLighting = lightingRef.current || DEFAULT_MUSEUM_LIGHTING
-      const spotBase = currentLighting.spotIntensity ?? 12
+      const spotBase = currentLighting.spotIntensity ?? 18
       spots.forEach((spot, i) => {
-        const targetIntensity = i === activeIdx ? spotBase : spotBase * 0.28
+        const targetIntensity = i === activeIdx ? spotBase : spotBase * 0.45
         spot.intensity += (targetIntensity - spot.intensity) * 0.1
       })
 
