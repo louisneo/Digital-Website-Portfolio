@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import Museum from '../components/Museum.jsx'
+import Museum, { DEFAULT_MUSEUM_LIGHTING } from '../components/Museum.jsx'
 import { works } from '../data/works.js'
 import { meta, roman } from '../data/meta.js'
 import { artifacts } from '../data/artifacts.js'
@@ -8,6 +8,8 @@ import { artifacts } from '../data/artifacts.js'
 export default function MuseumPage() {
   const [active, setActive] = useState(0)
   const [showArtifactCard, setShowArtifactCard] = useState(true)
+  const [showLightingPanel, setShowLightingPanel] = useState(false)
+  const [lighting, setLighting] = useState(DEFAULT_MUSEUM_LIGHTING)
   const [help, setHelp] = useState(false)
   const [showOverviewModal, setShowOverviewModal] = useState(false)
 
@@ -28,6 +30,7 @@ export default function MuseumPage() {
         onSelect={handleSelectExhibit}
         onHotspot={() => setHelp(true)}
         autoRotate
+        lighting={lighting}
       />
 
       <header className="museum-bar">
@@ -43,6 +46,14 @@ export default function MuseumPage() {
           </button>
           <button
             type="button"
+            className={`btn-dark ${showLightingPanel ? 'is-active' : ''}`}
+            onClick={() => setShowLightingPanel(p => !p)}
+            title="Fine-tune exposure, bloom, and light intensity live"
+          >
+            ⚙ Lighting
+          </button>
+          <button
+            type="button"
             className="btn-dark"
             onClick={() => setHelp(h => !h)}
             aria-expanded={help}
@@ -51,6 +62,129 @@ export default function MuseumPage() {
           </button>
         </div>
       </header>
+
+      {/* On-screen Live Lighting Tuning Slider Panel */}
+      {showLightingPanel && (
+        <aside className="museum-lighting-panel" role="region" aria-label="Lighting and Exposure Controls">
+          <div className="museum-lighting-header">
+            <h3>Lighting &amp; Exposure</h3>
+            <button
+              type="button"
+              className="museum-lighting-close"
+              onClick={() => setShowLightingPanel(false)}
+              aria-label="Close lighting controls"
+            >
+              ×
+            </button>
+          </div>
+
+          <div className="museum-lighting-row">
+            <div className="museum-lighting-label">
+              <span>Exposure</span>
+              <span className="museum-lighting-val">{lighting.exposure.toFixed(2)}</span>
+            </div>
+            <input
+              type="range"
+              className="museum-lighting-slider"
+              min="0.1"
+              max="1.4"
+              step="0.02"
+              value={lighting.exposure}
+              onChange={e => setLighting(l => ({ ...l, exposure: parseFloat(e.target.value) }))}
+            />
+          </div>
+
+          <div className="museum-lighting-row">
+            <div className="museum-lighting-label">
+              <span>Bloom Strength</span>
+              <span className="museum-lighting-val">{lighting.bloomStrength.toFixed(2)}</span>
+            </div>
+            <input
+              type="range"
+              className="museum-lighting-slider"
+              min="0.0"
+              max="0.8"
+              step="0.02"
+              value={lighting.bloomStrength}
+              onChange={e => setLighting(l => ({ ...l, bloomStrength: parseFloat(e.target.value) }))}
+            />
+          </div>
+
+          <div className="museum-lighting-row">
+            <div className="museum-lighting-label">
+              <span>Bloom Threshold</span>
+              <span className="museum-lighting-val">{lighting.bloomThreshold.toFixed(2)}</span>
+            </div>
+            <input
+              type="range"
+              className="museum-lighting-slider"
+              min="0.6"
+              max="1.0"
+              step="0.01"
+              value={lighting.bloomThreshold}
+              onChange={e => setLighting(l => ({ ...l, bloomThreshold: parseFloat(e.target.value) }))}
+            />
+          </div>
+
+          <div className="museum-lighting-row">
+            <div className="museum-lighting-label">
+              <span>Spotlight Intensity</span>
+              <span className="museum-lighting-val">{lighting.spotIntensity.toFixed(1)}</span>
+            </div>
+            <input
+              type="range"
+              className="museum-lighting-slider"
+              min="2"
+              max="28"
+              step="0.5"
+              value={lighting.spotIntensity}
+              onChange={e => setLighting(l => ({ ...l, spotIntensity: parseFloat(e.target.value) }))}
+            />
+          </div>
+
+          <div className="museum-lighting-row">
+            <div className="museum-lighting-label">
+              <span>Ambient Light</span>
+              <span className="museum-lighting-val">{lighting.ambientIntensity.toFixed(2)}</span>
+            </div>
+            <input
+              type="range"
+              className="museum-lighting-slider"
+              min="0.0"
+              max="0.5"
+              step="0.02"
+              value={lighting.ambientIntensity}
+              onChange={e => setLighting(l => ({ ...l, ambientIntensity: parseFloat(e.target.value) }))}
+            />
+          </div>
+
+          <div className="museum-lighting-row">
+            <div className="museum-lighting-label">
+              <span>Environment IBL</span>
+              <span className="museum-lighting-val">{lighting.envIntensity.toFixed(2)}</span>
+            </div>
+            <input
+              type="range"
+              className="museum-lighting-slider"
+              min="0.0"
+              max="0.8"
+              step="0.02"
+              value={lighting.envIntensity}
+              onChange={e => setLighting(l => ({ ...l, envIntensity: parseFloat(e.target.value) }))}
+            />
+          </div>
+
+          <div className="museum-lighting-footer">
+            <button
+              type="button"
+              className="museum-lighting-reset"
+              onClick={() => setLighting(DEFAULT_MUSEUM_LIGHTING)}
+            >
+              Reset to Tuned Defaults
+            </button>
+          </div>
+        </aside>
+      )}
 
       {help && (
         <div className="museum-help" role="note">

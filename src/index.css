@@ -554,6 +554,151 @@ button { font: inherit; }
   transform: translateY(-1px);
 }
 
+/* Museum Lighting & Exposure Fine-Tuning Slider Panel */
+.museum-lighting-panel {
+  position: absolute;
+  top: 76px;
+  right: 20px;
+  z-index: 30;
+  width: min(340px, calc(100vw - 40px));
+  background: rgba(16, 20, 26, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(216, 189, 146, 0.4);
+  border-radius: 14px;
+  padding: 18px 20px;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.75);
+  color: #eed6ad;
+  font-family: var(--cond);
+  animation: fadeInLightingPanel 0.2s ease-out;
+}
+
+@keyframes fadeInLightingPanel {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.museum-lighting-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(216, 189, 146, 0.22);
+}
+
+.museum-lighting-header h3 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #eed6ad;
+  margin: 0;
+}
+
+.museum-lighting-close {
+  background: none;
+  border: none;
+  color: #9da3af;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+  transition: color 0.2s;
+}
+
+.museum-lighting-close:hover {
+  color: #ffffff;
+}
+
+.museum-lighting-row {
+  margin-bottom: 12px;
+}
+
+.museum-lighting-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #c4c8d4;
+  margin-bottom: 4px;
+}
+
+.museum-lighting-val {
+  font-weight: 700;
+  color: #d8bd92;
+  font-family: monospace;
+  font-size: 0.8rem;
+}
+
+.museum-lighting-slider {
+  width: 100%;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+}
+
+.museum-lighting-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #d8bd92;
+  box-shadow: 0 0 8px rgba(216, 189, 146, 0.6);
+  cursor: pointer;
+  transition: transform 0.15s, background-color 0.15s;
+}
+
+.museum-lighting-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  background: #ffffff;
+}
+
+.museum-lighting-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #d8bd92;
+  border: none;
+  box-shadow: 0 0 8px rgba(216, 189, 146, 0.6);
+  cursor: pointer;
+}
+
+.museum-lighting-footer {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.museum-lighting-reset {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(36, 42, 54, 0.85);
+  border: 1px solid rgba(216, 189, 146, 0.3);
+  color: #eed6ad;
+  font: 600 0.72rem var(--cond);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.museum-lighting-reset:hover {
+  background: rgba(52, 60, 78, 1);
+  border-color: #d8bd92;
+  color: #ffffff;
+}
+
 /* Museum Artifact Curatorial Card (matching reference media_1794126066152_2c336f39.jpg) */
 .artifact-inspector-drawer {
   position: absolute;

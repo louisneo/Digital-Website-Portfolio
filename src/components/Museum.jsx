@@ -135,13 +135,13 @@ const EXHIBIT_STATIONS = [
   },
 ]
 
-// High-DPI Procedural Parquet Hardwood Floor
+// High-DPI Procedural Parquet Hardwood Floor (Tuned darker & higher roughness to prevent glare)
 function makeFloorTexture() {
   const c = document.createElement('canvas')
   c.width = c.height = 1024
   const g = c.getContext('2d')
 
-  g.fillStyle = '#261810'
+  g.fillStyle = '#140c07'
   g.fillRect(0, 0, 1024, 1024)
 
   const tiles = 8
@@ -153,12 +153,12 @@ function makeFloorTexture() {
       const y = ty * tileSize
 
       const hueVar = (Math.sin(tx * 3.7 + ty * 2.1) * 6) | 0
-      const lightVar = (Math.cos(tx * 1.9 + ty * 4.3) * 8) | 0
-      g.fillStyle = `hsl(${26 + hueVar}, 34%, ${22 + lightVar}%)`
+      const lightVar = (Math.cos(tx * 1.9 + ty * 4.3) * 6) | 0
+      g.fillStyle = `hsl(${25 + hueVar}, 26%, ${14 + lightVar}%)`
       g.fillRect(x + 1, y + 1, tileSize - 2, tileSize - 2)
 
       for (let p = 0; p < 4; p++) {
-        g.strokeStyle = 'rgba(12, 7, 4, 0.45)'
+        g.strokeStyle = 'rgba(8, 4, 2, 0.55)'
         g.lineWidth = 2
         if (isAlt) {
           g.strokeRect(x, y + (p * tileSize) / 4, tileSize, tileSize / 4)
@@ -177,17 +177,17 @@ function makeFloorTexture() {
   return tex
 }
 
-// 2048x2048 Razor-Sharp High-DPI Wall Typography Plaque
+// 2048x2048 Razor-Sharp High-DPI Wall Typography Plaque (Soft muted parchment to prevent bloom blowout)
 function makeWallTextCanvas(work, station) {
   const c = document.createElement('canvas')
   c.width = 2048
   c.height = 2048
   const g = c.getContext('2d')
 
-  g.fillStyle = '#f8f4ee'
+  g.fillStyle = '#ece6da'
   g.fillRect(0, 0, 2048, 2048)
 
-  g.strokeStyle = '#ded4c0'
+  g.strokeStyle = '#d0c6b4'
   g.lineWidth = 14
   g.strokeRect(50, 50, 1948, 1948)
 
@@ -385,11 +385,29 @@ function createSpotlightDustParticles(THREE, stations) {
   return dustCloud
 }
 
-export default function Museum({ works, active, onSelect, onHotspot, autoRotate }) {
+export const DEFAULT_MUSEUM_LIGHTING = {
+  exposure: 0.6,
+  bloomStrength: 0.2,
+  bloomThreshold: 0.9,
+  spotIntensity: 12,
+  ambientIntensity: 0.15,
+  envIntensity: 0.3,
+}
+
+export default function Museum({ works, active, onSelect, onHotspot, autoRotate, lighting = DEFAULT_MUSEUM_LIGHTING }) {
   const mount = useRef(null)
   const api = useRef({})
   const cb = useRef({})
   cb.current = { onSelect, onHotspot, autoRotate }
+
+  const lightingRef = useRef(lighting)
+  lightingRef.current = lighting
+
+  const rendererRef = useRef(null)
+  const bloomPassRef = useRef(null)
+  const hemiLightRef = useRef(null)
+  const ambientLightRef = useRef(null)
+  const sceneRef = useRef(null)
 
   useEffect(() => {
     const el = mount.current
@@ -406,22 +424,24 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
       /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
     )
 
-    // Renderer Setup
+    // Renderer Setup (Toned exposure to ~0.6 to prevent nuclear whiteout)
     const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' })
     renderer.setPixelRatio(isTouchDevice ? Math.min(window.devicePixelRatio, 1.5) : Math.min(window.devicePixelRatio, 2))
     renderer.setSize(w0, h0)
     renderer.outputColorSpace = THREE.SRGBColorSpace
     renderer.toneMapping = THREE.ACESFilmicToneMapping
-    renderer.toneMappingExposure = 1.15
+    renderer.toneMappingExposure = lightingRef.current?.exposure ?? 0.6
     renderer.shadowMap.enabled = true
     renderer.shadowMap.type = THREE.PCFSoftShadowMap
     renderer.xr.enabled = true
     el.appendChild(renderer.domElement)
+    rendererRef.current = renderer
 
     // 2. Scene & Camera
     const scene = new THREE.Scene()
     scene.background = new THREE.Color(0x131518)
     scene.fog = new THREE.FogExp2(0x131518, 0.012)
+    sceneRef.current = scene
 
     const camera = new THREE.PerspectiveCamera(50, w0 / h0, 0.1, 100)
     const dolly = new THREE.Group()
@@ -431,6 +451,7 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
     // 3. EffectComposer Post-Processing (Subtle Bloom, Soft Vignette, Faint Ambient Occlusion)
     // Disabled on touch devices to ensure 60 FPS performance
     let composer = null
+    let bloomPass = null
     if (!isTouchDevice) {
       composer = new EffectComposer(renderer)
       composer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
@@ -450,14 +471,15 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
         console.warn('Ambient occlusion pass fallback:', err)
       }
 
-      // C. Subtle Bloom (UnrealBloomPass)
-      const bloomPass = new UnrealBloomPass(
+      // C. Subtle Bloom (UnrealBloomPass) - Reduced strength to 0.2 and threshold raised to 0.9
+      bloomPass = new UnrealBloomPass(
         new THREE.Vector2(w0, h0),
-        0.22, // Subtle bloom strength
-        0.45, // Blur radius
-        0.84  // Luminance threshold
+        lightingRef.current?.bloomStrength ?? 0.2, // Subtle bloom strength
+        0.4, // Blur radius
+        lightingRef.current?.bloomThreshold ?? 0.9  // Luminance threshold: only highlights glow
       )
       composer.addPass(bloomPass)
+      bloomPassRef.current = bloomPass
 
       // D. Soft Vignette (ShaderPass with VignetteShader)
       const vignettePass = new ShaderPass(VignetteShader)
@@ -470,25 +492,26 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
       composer.addPass(outputPass)
     }
 
-    // 4. RoomEnvironment for soft IBL reflections
+    // 4. RoomEnvironment for soft IBL reflections (Intensity dialed to ~0.3)
     const pmremGenerator = new THREE.PMREMGenerator(renderer)
     pmremGenerator.compileEquirectangularShader()
     const roomEnv = new RoomEnvironment()
     const envTexture = pmremGenerator.fromScene(roomEnv, 0.04).texture
     scene.environment = envTexture
+    scene.environmentIntensity = lightingRef.current?.envIntensity ?? 0.3
 
-    // 5. Materials
+    // 5. Materials (Darker tones and higher roughness to suppress washed-out reflections)
     const floorTex = makeFloorTexture()
     const floorMat = new THREE.MeshStandardMaterial({
       map: floorTex,
-      roughness: 0.28,
-      metalness: 0.05,
+      roughness: 0.52,
+      metalness: 0.02,
     })
 
     const wallMat = new THREE.MeshStandardMaterial({
-      color: 0xf5efe7,
-      roughness: 0.92,
-      metalness: 0.02,
+      color: 0xbbb5aa,
+      roughness: 0.98,
+      metalness: 0.0,
     })
 
     const walnutMat = new THREE.MeshPhysicalMaterial({
@@ -514,8 +537,8 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
     })
 
     const marbleMat = new THREE.MeshStandardMaterial({
-      color: 0xf8f5f0,
-      roughness: 0.35,
+      color: 0xd8d4cc,
+      roughness: 0.75,
       metalness: 0.02,
     })
 
@@ -526,28 +549,29 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
     })
 
     const plinthMat = new THREE.MeshStandardMaterial({
-      color: 0xfaf7f2,
-      roughness: 0.35,
-      metalness: 0.02,
+      color: 0xc8c3ba,
+      roughness: 0.88,
+      metalness: 0.0,
     })
 
+    // Glass case material tuned: lower opacity, softer transmission, no glare
     const glassMat = new THREE.MeshPhysicalMaterial({
-      color: 0xffffff,
+      color: 0xdce0dc,
       transparent: true,
-      opacity: 0.18,
-      roughness: 0.04,
-      metalness: 0.05,
-      transmission: 0.95,
-      thickness: 0.45,
-      ior: 1.52,
+      opacity: 0.08,
+      roughness: 0.12,
+      metalness: 0.0,
+      transmission: 0.9,
+      thickness: 0.25,
+      ior: 1.45,
       side: THREE.DoubleSide,
       depthWrite: false,
     })
 
     const glassFrameMat = new THREE.MeshStandardMaterial({
-      color: 0xffffff,
-      roughness: 0.2,
-      metalness: 0.4,
+      color: 0x888888,
+      roughness: 0.4,
+      metalness: 0.2,
     })
 
     // 6. Room Construction
@@ -592,12 +616,21 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
       scene.add(slat)
     }
 
-    // 7. Ambient Lighting & Tiny Dust Particles in Spotlight Beams
-    const hemiLight = new THREE.HemisphereLight(0xfffaed, 0x2d241c, 0.85)
+    // 7. Ambient Lighting (Tuned down to prevent room washout) & Tiny Dust Particles
+    const hemiLight = new THREE.HemisphereLight(
+      0xfffaed,
+      0x1f1914,
+      (lightingRef.current?.ambientIntensity ?? 0.15) * 1.5
+    )
     scene.add(hemiLight)
+    hemiLightRef.current = hemiLight
 
-    const ambientLight = new THREE.AmbientLight(0xfff6ea, 0.42)
+    const ambientLight = new THREE.AmbientLight(
+      0xfff6ea,
+      lightingRef.current?.ambientIntensity ?? 0.15
+    )
     scene.add(ambientLight)
+    ambientLightRef.current = ambientLight
 
     // Floating dust particles within the spotlight beam cones
     const dustParticles = createSpotlightDustParticles(THREE, EXHIBIT_STATIONS)
@@ -671,8 +704,8 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
       partition.add(textGroup)
       textGroup.traverse(o => { o.userData.index = i; if (o.isMesh) hitObjects.push(o) })
 
-      // Warm Spotlight with 2048 Soft Shadows (at most two shadow casters active at once)
-      const spotLight = new THREE.SpotLight(0xfff3dc, 36, 14, 0.54, 0.5, 1.4)
+      // Warm Spotlight with 2048 Soft Shadows (Narrow 0.32 rad angle, 0.8 penumbra, toned intensity)
+      const spotLight = new THREE.SpotLight(0xfff1dc, 12, 12, 0.32, 0.8, 1.6)
       spotLight.position.set(st.x, ROOM_H - 0.25, st.z + 1.2)
       spotLight.target.position.set(st.x, 1.45, st.z)
       spotLight.shadow.mapSize.width = 2048
@@ -712,7 +745,7 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
 
       const caseEdges = new THREE.LineSegments(
         new THREE.EdgesGeometry(caseGlass.geometry),
-        new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.65 })
+        new THREE.LineBasicMaterial({ color: 0xcccccc, transparent: true, opacity: 0.25 })
       )
       caseEdges.position.copy(caseGlass.position)
 
@@ -733,7 +766,8 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
       relic3D.scale.set(0.92, 0.92, 0.92)
       pedGroup.add(relic3D)
 
-      const vitrineGlow = new THREE.PointLight(0xffe2a8, 2.8, 3.5)
+      // Vitrine interior point light: gentle warm accent, never overblown
+      const vitrineGlow = new THREE.PointLight(0xffe2a8, 1.2, 2.5)
       vitrineGlow.position.set(0, 1.46, 0)
       pedGroup.add(vitrineGlow)
 
@@ -948,8 +982,11 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
         dustParticles.userData.update(dt, t)
       }
 
+      // Dynamic spotlight intensity (Tuned down to stay on pedestals without blowing out walls)
+      const currentLighting = lightingRef.current || DEFAULT_MUSEUM_LIGHTING
+      const spotBase = currentLighting.spotIntensity ?? 12
       spots.forEach((spot, i) => {
-        const targetIntensity = i === activeIdx ? 48 : 22
+        const targetIntensity = i === activeIdx ? spotBase : spotBase * 0.28
         spot.intensity += (targetIntensity - spot.intensity) * 0.1
       })
 
@@ -967,10 +1004,10 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
 
         if (vc.isOpen) {
           vc.relic3D.rotation.y += 0.016
-          vc.vitrineGlow.intensity = 4.2 + Math.sin(t * 3) * 0.8
+          vc.vitrineGlow.intensity = 1.8 + Math.sin(t * 3) * 0.3
         } else {
           vc.relic3D.rotation.y += 0.005
-          vc.vitrineGlow.intensity = 2.0
+          vc.vitrineGlow.intensity = 1.0
         }
       })
 
@@ -1010,8 +1047,35 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
       })
       renderer.dispose()
       el.innerHTML = ''
+      rendererRef.current = null
+      bloomPassRef.current = null
+      hemiLightRef.current = null
+      ambientLightRef.current = null
+      sceneRef.current = null
     }
   }, [works])
+
+  // Reactive live lighting adjustments without re-initializing WebGL or re-compiling shaders
+  useEffect(() => {
+    lightingRef.current = lighting
+    if (!lighting) return
+    if (rendererRef.current) {
+      rendererRef.current.toneMappingExposure = lighting.exposure
+    }
+    if (bloomPassRef.current) {
+      bloomPassRef.current.strength = lighting.bloomStrength
+      bloomPassRef.current.threshold = lighting.bloomThreshold
+    }
+    if (hemiLightRef.current) {
+      hemiLightRef.current.intensity = lighting.ambientIntensity * 1.5
+    }
+    if (ambientLightRef.current) {
+      ambientLightRef.current.intensity = lighting.ambientIntensity
+    }
+    if (sceneRef.current) {
+      sceneRef.current.environmentIntensity = lighting.envIntensity
+    }
+  }, [lighting])
 
   useEffect(() => {
     api.current.setActive?.(active)
