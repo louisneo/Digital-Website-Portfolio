@@ -1,3 +1,5 @@
+import SymbolicRelics from '../components/SymbolicRelics.jsx'
+
 const matrix = [
   {
     title: 'Voice out of the Whirlwind',
@@ -128,6 +130,9 @@ export default function Summary() {
             </tbody>
           </table>
         </div>
+
+        {/* 3D Symbolic Relics Interactive Showcase */}
+        <SymbolicRelics />
       </section>
 
       <section className="glass g-box reveal" style={{ '--i': 1 }}>
