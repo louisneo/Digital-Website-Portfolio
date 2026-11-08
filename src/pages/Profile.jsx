@@ -1,10 +1,27 @@
+import { useState } from 'react'
+
 export default function Profile() {
+  const [photoError, setPhotoError] = useState(false)
+
   return (
     <section className="profile-page">
       <h1>Student Profile</h1><br />
       <div className="profile glass reveal">
         <div className="profile-photo-wrap">
-          <img className="photo" src="photo.jpg" alt="Photo of the student" onError={e => (e.currentTarget.style.visibility = 'hidden')} />
+          {!photoError ? (
+            <img
+              className="photo"
+              src={import.meta.env.BASE_URL + 'photo.jpg'}
+              alt="Portrait of Louis Neo M. Lok"
+              onError={() => setPhotoError(true)}
+            />
+          ) : (
+            <div className="profile-avatar-placeholder">
+              <div className="avatar-monogram">NL</div>
+              <span className="avatar-name">Louis Neo M. Lok</span>
+              <span className="avatar-caption">4th Year BS IT · UNC</span>
+            </div>
+          )}
         </div>
         <div className="profile-content">
           <h2>Louis Neo M. Lok</h2>

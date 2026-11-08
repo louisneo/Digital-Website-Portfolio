@@ -308,6 +308,45 @@ button { font: inherit; }
 .profile { display: grid; grid-template-columns: 260px 1fr; gap: clamp(24px, 4vw, 48px); padding: clamp(22px, 4vw, 40px); }
 .profile-photo-wrap { aspect-ratio: 3 / 4; border-radius: 8px; background: var(--panel-2) linear-gradient(160deg, rgba(216, 189, 146, .18), transparent 60%); border: 1px solid var(--line-2); overflow: hidden; }
 .photo { width: 100%; height: 100%; object-fit: cover; }
+.profile-avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  text-align: center;
+  background: radial-gradient(circle at 50% 35%, rgba(216, 189, 146, 0.18), rgba(18, 22, 28, 0.95));
+}
+.avatar-monogram {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #d8bd92, #967035);
+  color: #111317;
+  font-family: var(--serif);
+  font-size: 2rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5);
+}
+.avatar-name {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #f5eedf;
+  margin-bottom: 4px;
+}
+.avatar-caption {
+  font: 500 0.72rem var(--cond);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
 .profile-content h2 { font-size: 2.2rem; color: var(--gold2); }
 .facts { list-style: none; margin: 0 0 26px; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
 .facts li { background: var(--panel-2); padding: 10px 14px; font-size: .9rem; color: var(--head); }
