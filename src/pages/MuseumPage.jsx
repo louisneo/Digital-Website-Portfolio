@@ -17,7 +17,7 @@ export default function MuseumPage() {
   const [joystickVector, setJoystickVector] = useState({ x: 0, y: 0 })
   const [isTouchDevice, setIsTouchDevice] = useState(false)
   const [isPortraitMobile, setIsPortraitMobile] = useState(false)
-  const [dismissLandscapePrompt, setDismissLandscapePrompt] = useState(false)
+  const [dismissRotateGate, setDismissRotateGate] = useState(false)
 
   const activeWork = works[active]
   const activeMeta = meta[active]
@@ -32,7 +32,7 @@ export default function MuseumPage() {
     setIsTouchDevice(isTouch)
 
     const checkOrientation = () => {
-      const isMobile = window.innerWidth <= 840 || isTouch
+      const isMobile = window.innerWidth <= 960 || isTouch
       const isPortrait = window.innerHeight > window.innerWidth
       setIsPortraitMobile(isMobile && isPortrait)
     }
@@ -45,6 +45,31 @@ export default function MuseumPage() {
       window.removeEventListener('orientationchange', checkOrientation)
     }
   }, [])
+
+  // Attempt auto-rotation to landscape on mobile / touch devices
+  useEffect(() => {
+    const tryAutoOrient = async () => {
+      try {
+        if (screen.orientation && screen.orientation.lock) {
+          await screen.orientation.lock('landscape').catch(() => {})
+        }
+      } catch {}
+    }
+    if (isTouchDevice && isPortraitMobile) {
+      tryAutoOrient()
+    }
+  }, [isTouchDevice, isPortraitMobile])
+
+  const handleRequestAutoRotate = async () => {
+    try {
+      if (document.documentElement.requestFullscreen) {
+        await document.documentElement.requestFullscreen().catch(() => {})
+      }
+      if (screen.orientation && screen.orientation.lock) {
+        await screen.orientation.lock('landscape').catch(() => {})
+      }
+    } catch {}
+  }
 
   const handleSelectExhibit = (i, openInfo = false) => {
     setActive(i)
@@ -76,26 +101,49 @@ export default function MuseumPage() {
         moveVector={joystickVector}
       />
 
-      {/* Landscape Experience Suggestion Banner on Mobile */}
-      {isPortraitMobile && !dismissLandscapePrompt && (
-        <aside className="museum-landscape-toast" role="alert">
-          <span className="toast-rotate-icon" aria-hidden="true">⟲</span>
-          <div className="toast-content">
-            <strong>Landscape Mode Recommended</strong>
-            <span>Rotate your phone for an immersive widescreen gallery view &amp; joystick controls.</span>
+      {/* Fullscreen Black Screen Gate for Mobile Portrait Mode */}
+      {isPortraitMobile && !dismissRotateGate && (
+        <div className="museum-rotate-gate" role="dialog" aria-modal="true" aria-label="Rotate device to landscape">
+          <div className="rotate-gate-content">
+            <div className="rotate-gate-device-anim" aria-hidden="true">
+              <div className="device-phone">
+                <span className="device-notch" />
+                <span className="device-screen-glow" />
+              </div>
+              <svg className="rotate-arrow-svg" viewBox="0 0 100 100">
+                <path d="M 24 74 A 36 36 0 0 1 76 22" fill="none" stroke="#eed6ad" strokeWidth="3.5" strokeLinecap="round" strokeDasharray="5 5" />
+                <polygon points="76,14 88,23 75,32" fill="#eed6ad" />
+              </svg>
+            </div>
+
+            <span className="rotate-gate-kicker">3D GALLERY REQUIREMENT</span>
+            <h2 className="rotate-gate-title">Rotate to Landscape</h2>
+            <p className="rotate-gate-desc">
+              The 3D Gallery requires <b>Landscape orientation</b> for cinematic museum architecture,
+              responsive lighting, and dual touch controls without overlap.
+            </p>
+
+            <div className="rotate-gate-actions">
+              <button
+                type="button"
+                className="btn-gold rotate-action-btn"
+                onClick={handleRequestAutoRotate}
+              >
+                ⟲ Enter Fullscreen Landscape
+              </button>
+              <button
+                type="button"
+                className="rotate-bypass-btn"
+                onClick={() => setDismissRotateGate(true)}
+              >
+                Continue in Portrait
+              </button>
+            </div>
           </div>
-          <button
-            type="button"
-            className="toast-dismiss"
-            onClick={() => setDismissLandscapePrompt(true)}
-            aria-label="Dismiss orientation notice"
-          >
-            Got it
-          </button>
-        </aside>
+        </div>
       )}
 
-      {/* Virtual Analog Touch Joystick for Mobile / Tablet (Hidden when artifact infos or modals are displayed to eliminate overlap) */}
+      {/* Virtual Analog Touch Joystick for Mobile / Tablet (Hidden when artifact infos or modals are displayed) */}
       {isTouchDevice && (
         <VirtualJoystick
           onMove={setJoystickVector}
