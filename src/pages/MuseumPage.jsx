@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import Museum from '../components/Museum.jsx'
+import VirtualJoystick from '../components/VirtualJoystick.jsx'
 import { DEFAULT_MUSEUM_LIGHTING } from '../data/museumLighting.js'
 import { works } from '../data/works.js'
 import { meta, roman } from '../data/meta.js'
@@ -13,13 +14,54 @@ export default function MuseumPage() {
   const [lighting, setLighting] = useState(DEFAULT_MUSEUM_LIGHTING)
   const [help, setHelp] = useState(false)
   const [showOverviewModal, setShowOverviewModal] = useState(false)
+  const [joystickVector, setJoystickVector] = useState({ x: 0, y: 0 })
+  const [isTouchDevice, setIsTouchDevice] = useState(false)
+  const [isPortraitMobile, setIsPortraitMobile] = useState(false)
+  const [dismissLandscapePrompt, setDismissLandscapePrompt] = useState(false)
 
   const activeWork = works[active]
   const activeMeta = meta[active]
   const activeArtifact = artifacts[active] || artifacts[0]
 
+  useEffect(() => {
+    const isTouch = (
+      'ontouchstart' in window ||
+      navigator.maxTouchPoints > 0 ||
+      window.matchMedia('(pointer: coarse)').matches
+    )
+    setIsTouchDevice(isTouch)
+
+    const checkOrientation = () => {
+      const isMobile = window.innerWidth <= 840 || isTouch
+      const isPortrait = window.innerHeight > window.innerWidth
+      setIsPortraitMobile(isMobile && isPortrait)
+    }
+
+    checkOrientation()
+    window.addEventListener('resize', checkOrientation)
+    window.addEventListener('orientationchange', checkOrientation)
+    return () => {
+      window.removeEventListener('resize', checkOrientation)
+      window.removeEventListener('orientationchange', checkOrientation)
+    }
+  }, [])
+
   const handleSelectExhibit = i => {
     setActive(i)
+    setHelp(false)
+    if (!showOverviewModal) {
+      setShowArtifactCard(true)
+    }
+  }
+
+  const handleOpenOverview = () => {
+    setHelp(false)
+    setShowArtifactCard(false) // Close artifact drawer so cards never overlap
+    setShowOverviewModal(true)
+  }
+
+  const handleCloseOverview = () => {
+    setShowOverviewModal(false)
     setShowArtifactCard(true)
   }
 
@@ -32,7 +74,35 @@ export default function MuseumPage() {
         onHotspot={() => setHelp(true)}
         autoRotate
         lighting={lighting}
+        moveVector={joystickVector}
       />
+
+      {/* Landscape Experience Suggestion Banner on Mobile */}
+      {isPortraitMobile && !dismissLandscapePrompt && (
+        <aside className="museum-landscape-toast" role="alert">
+          <span className="toast-rotate-icon" aria-hidden="true">⟲</span>
+          <div className="toast-content">
+            <strong>Landscape Mode Recommended</strong>
+            <span>Rotate your phone for an immersive widescreen gallery view &amp; joystick controls.</span>
+          </div>
+          <button
+            type="button"
+            className="toast-dismiss"
+            onClick={() => setDismissLandscapePrompt(true)}
+            aria-label="Dismiss orientation notice"
+          >
+            Got it
+          </button>
+        </aside>
+      )}
+
+      {/* Virtual Analog Touch Joystick for Mobile / Tablet */}
+      {isTouchDevice && (
+        <VirtualJoystick
+          onMove={setJoystickVector}
+          visible={!showOverviewModal && !help}
+        />
+      )}
 
       <header className="museum-bar">
         <Link to="/analyses" className="btn-dark">← Back to the analyses</Link>
@@ -41,7 +111,11 @@ export default function MuseumPage() {
           <button
             type="button"
             className="btn-dark"
-            onClick={() => setShowArtifactCard(c => !c)}
+            onClick={() => {
+              if (showOverviewModal) setShowOverviewModal(false)
+              if (help) setHelp(false)
+              setShowArtifactCard(c => !c)
+            }}
           >
             {showArtifactCard ? 'Hide Artifact Card' : 'Inspect Artifact'}
           </button>
@@ -56,7 +130,11 @@ export default function MuseumPage() {
           <button
             type="button"
             className="btn-dark"
-            onClick={() => setHelp(h => !h)}
+            onClick={() => {
+              if (showOverviewModal) setShowOverviewModal(false)
+              if (showArtifactCard) setShowArtifactCard(false)
+              setHelp(h => !h)
+            }}
             aria-expanded={help}
           >
             Gallery Guide
@@ -187,21 +265,39 @@ export default function MuseumPage() {
         </aside>
       )}
 
+      {/* Dynamic Gallery Guide with Mobile / Touch vs Desktop instructions */}
       {help && (
-        <div className="museum-help" role="note">
-          <h2>Welcome to the 3D Gallery</h2>
-          <p>
-            • <b>Explore &amp; Inspect</b>: Click &amp; drag to rotate camera. Scroll to zoom in on 3D relics.<br />
-            • <b>Non-Linear Architecture</b>: Use <b>W, A, S, D</b> or <b>Arrow Keys</b> to walk between gallery wings.<br />
-            • <b>Glass Vitrines</b>: Click any glass case to open the vitrine and float the 3D relic!<br />
-            • <b>Art &amp; Placards</b>: Click paintings or high-DPI wall plaques to focus that masterpiece.
-          </p>
-          <button type="button" className="btn-gold" onClick={() => setHelp(false)}>Start Exploring</button>
+        <div
+          className="museum-modal museum-guide-backdrop"
+          role="dialog"
+          aria-modal="true"
+          onClick={e => e.target === e.currentTarget && setHelp(false)}
+        >
+          <div className="museum-help" role="note">
+            <h2>Welcome to the 3D Gallery</h2>
+            {isTouchDevice ? (
+              <p>
+                • <b>Walk &amp; Explore</b>: Use the glowing <b>Touch Joystick</b> in the bottom-left to walk smoothly between wings.<br />
+                • <b>Look Around</b>: Swipe with one finger anywhere on the room to turn camera view.<br />
+                • <b>Glass Vitrines</b>: Tap any glass case to open the vitrine and float the 3D relic!<br />
+                • <b>Zoom In</b>: Pinch with two fingers to zoom in on intricate relic craftsmanship.<br />
+                • <b>Best Experience</b>: Rotate device to <b>Landscape</b> for the wide cinematic gallery view.
+              </p>
+            ) : (
+              <p>
+                • <b>Explore &amp; Inspect</b>: Click &amp; drag to rotate camera. Scroll to zoom in on 3D relics.<br />
+                • <b>Non-Linear Architecture</b>: Use <b>W, A, S, D</b> or <b>Arrow Keys</b> to walk between gallery wings.<br />
+                • <b>Glass Vitrines</b>: Click any glass case to open the vitrine and float the 3D relic!<br />
+                • <b>Art &amp; Placards</b>: Click paintings or high-DPI wall plaques to focus that masterpiece.
+              </p>
+            )}
+            <button type="button" className="btn-gold" onClick={() => setHelp(false)}>Start Exploring</button>
+          </div>
         </div>
       )}
 
-      {/* DEDICATED ARTIFACT CARD OVERLAY (Modeled after user reference media_1794126066152_2c336f39.jpg) */}
-      {showArtifactCard && activeArtifact && (
+      {/* DEDICATED ARTIFACT CARD OVERLAY (Only shows when overview modal and guide are closed to eliminate overlap) */}
+      {!showOverviewModal && !help && showArtifactCard && activeArtifact && (
         <aside className="artifact-inspector-drawer" aria-label="Artifact Information">
           <div className="artifact-topbar">
             <span className="artifact-label">ARTIFACT</span>
@@ -233,7 +329,7 @@ export default function MuseumPage() {
             <button
               type="button"
               className="btn-hud-open"
-              onClick={() => setShowOverviewModal(true)}
+              onClick={handleOpenOverview}
             >
               Read Overview
             </button>
@@ -247,8 +343,8 @@ export default function MuseumPage() {
         </aside>
       )}
 
-      {/* Floating HUD Exhibit Badge in Lower Left when artifact drawer is hidden */}
-      {!showArtifactCard && (
+      {/* Floating HUD Exhibit Badge in Lower Left when artifact drawer and guide are hidden */}
+      {!showOverviewModal && !help && !showArtifactCard && (
         <div className="museum-hud-card">
           <div className="hud-meta">
             <span className="hud-roman">{roman[active]}</span>
@@ -292,20 +388,20 @@ export default function MuseumPage() {
         ))}
       </nav>
 
-      {/* Full Curatorial Overview Modal */}
+      {/* Full Curatorial Overview Modal (Guaranteed single active card, z-index 200, no stacking) */}
       {showOverviewModal && (
         <div
           className="museum-modal"
           role="dialog"
           aria-modal="true"
           aria-labelledby="mm-title"
-          onClick={e => e.target === e.currentTarget && setShowOverviewModal(false)}
+          onClick={e => e.target === e.currentTarget && handleCloseOverview()}
         >
           <div className="museum-card">
             <button
               type="button"
               className="museum-x"
-              onClick={() => setShowOverviewModal(false)}
+              onClick={handleCloseOverview}
               aria-label="Close"
             >
               ×
@@ -319,14 +415,14 @@ export default function MuseumPage() {
                 <li key={t.name}>{t.name}</li>
               ))}
             </ul>
-            <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+            <div style={{ display: 'flex', gap: '12px', marginTop: '20px', flexWrap: 'wrap' }}>
               <Link className="btn-gold" to={`/analyses?work=${activeMeta.id}`}>
                 Read the full analysis
               </Link>
               <button
                 type="button"
                 className="btn-dark"
-                onClick={() => setShowOverviewModal(false)}
+                onClick={handleCloseOverview}
               >
                 Return to 3D Museum
               </button>

@@ -452,7 +452,7 @@ function makeMuseumTrackLight(THREE, metalMat, emissiveMat) {
   return grp
 }
 
-export default function Museum({ works, active, onSelect, onHotspot, autoRotate, lighting = DEFAULT_MUSEUM_LIGHTING }) {
+export default function Museum({ works, active, onSelect, onHotspot, autoRotate, lighting = DEFAULT_MUSEUM_LIGHTING, moveVector = { x: 0, y: 0 } }) {
   const mount = useRef(null)
   const api = useRef({})
   const cb = useRef({})
@@ -460,6 +460,9 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate,
 
   const lightingRef = useRef(lighting)
   lightingRef.current = lighting
+
+  const moveVectorRef = useRef(moveVector)
+  moveVectorRef.current = moveVector
 
   const rendererRef = useRef(null)
   const bloomPassRef = useRef(null)
@@ -1120,6 +1123,14 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate,
       if (keys.s || keys.arrowdown) mv.sub(fwd)
       if (keys.d || keys.arrowright) mv.add(side)
       if (keys.a || keys.arrowleft) mv.sub(side)
+
+      // Virtual Touch Joystick input
+      const jx = moveVectorRef.current?.x || 0
+      const jy = moveVectorRef.current?.y || 0
+      if (jx !== 0 || jy !== 0) {
+        if (jy !== 0) mv.addScaledVector(fwd, jy)
+        if (jx !== 0) mv.addScaledVector(side, jx)
+      }
       if (mv.lengthSq() > 0) {
         goal = null
         mv.normalize().multiplyScalar(3.4 * dt)

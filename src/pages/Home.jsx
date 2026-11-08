@@ -157,24 +157,6 @@ export default function Home() {
           </div>
         </header>
 
-        {/* Previous / Next Flip Arrow Buttons */}
-        <button
-          className="book-arrow-btn prev"
-          onClick={flipPrev}
-          aria-label="Flip to previous work"
-          title="Previous work (or press Left arrow)"
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 19l-7-7 7-7" /></svg>
-        </button>
-        <button
-          className="book-arrow-btn next"
-          onClick={flipNext}
-          aria-label="Flip to next work"
-          title="Next work (or press Right arrow)"
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
-        </button>
-
         {/* Main Stage Grid: Left Editorial Card + Center 3D Book */}
         <div className="the-book-hero-grid">
           {/* Left: Editorial Narrative Hook Card (Smooth Fades on Change) */}
@@ -232,33 +214,53 @@ export default function Home() {
             </motion.div>
           </AnimatePresence>
 
-          {/* Center: 3D Hardcover Book with Initial Zoom-In and 3D Flip Spin */}
+          {/* Center: 3D Hardcover Book Flanked by Previous / Next Arrow Controls */}
           <motion.div
             className="the-book-centerpiece"
             initial={{ scale: 0.22, opacity: 0 }}
             animate={{ scale: 1.0, opacity: 1 }}
             transition={{ duration: 1.7, ease: [0.16, 1, 0.3, 1] }}
           >
-            <div
-              className="the-book-3d-interactive"
-              onClick={flipNext}
-              role="button"
-              tabIndex={0}
-              title="Click to flip the book and change the work"
-            >
-              <BookCanvas
-                image={activeWork.image}
-                title={activeMeta.short}
-                author={activeWork.author}
-                roman={roman[activeIdx]}
-                orig={activeMeta.orig}
-                era={activeMeta.era}
-                flipKey={flipCount}
-              />
-              <div className="the-book-click-hint">
-                <span className="hint-pulse" />
-                <span className="hint-text">✦ CLICK BOOK TO FLIP ({activeIdx + 1}/7)</span>
+            <div className="the-book-stage-row">
+              <button
+                className="book-arrow-btn prev"
+                onClick={flipPrev}
+                aria-label="Flip to previous work"
+                title="Previous work (or press Left arrow)"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 19l-7-7 7-7" /></svg>
+              </button>
+
+              <div
+                className="the-book-3d-interactive"
+                onClick={flipNext}
+                role="button"
+                tabIndex={0}
+                title="Click to flip the book and change the work"
+              >
+                <BookCanvas
+                  image={activeWork.image}
+                  title={activeMeta.short}
+                  author={activeWork.author}
+                  roman={roman[activeIdx]}
+                  orig={activeMeta.orig}
+                  era={activeMeta.era}
+                  flipKey={flipCount}
+                />
+                <div className="the-book-click-hint">
+                  <span className="hint-pulse" />
+                  <span className="hint-text">✦ CLICK BOOK TO FLIP ({activeIdx + 1}/7)</span>
+                </div>
               </div>
+
+              <button
+                className="book-arrow-btn next"
+                onClick={flipNext}
+                aria-label="Flip to next work"
+                title="Next work (or press Right arrow)"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
+              </button>
             </div>
           </motion.div>
         </div>
