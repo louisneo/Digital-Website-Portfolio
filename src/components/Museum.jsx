@@ -41,10 +41,10 @@ const EXHIBIT_STATIONS = [
   {
     x: -12.5,
     z: 7.5,
-    rotY: -Math.PI / 2,
+    rotY: Math.PI / 2,
     wallX: -14.6,
     wallZ: 7.5,
-    wallRotY: -Math.PI / 2,
+    wallRotY: Math.PI / 2,
     camX: -8.6,
     camY: 1.75,
     camZ: 7.5,
@@ -89,10 +89,10 @@ const EXHIBIT_STATIONS = [
   {
     x: 13.5,
     z: 2.5,
-    rotY: Math.PI / 2,
+    rotY: -Math.PI / 2,
     wallX: 15.6,
     wallZ: 2.5,
-    wallRotY: Math.PI / 2,
+    wallRotY: -Math.PI / 2,
     camX: 9.5,
     camY: 1.75,
     camZ: 2.5,
@@ -385,6 +385,67 @@ function createSpotlightDustParticles(THREE, stations) {
   return dustCloud
 }
 
+// Authentic Museum Track Light Fixture (matching user reference media_1794129761156_67bb5837.png)
+function makeMuseumTrackLight(THREE, metalMat, emissiveMat) {
+  const grp = new THREE.Group()
+
+  // Track Rail (horizontal extruded dark matte bar)
+  const trackLength = 4.4
+  const rail = new THREE.Mesh(
+    new RoundedBoxGeometry(trackLength, 0.045, 0.055, 2, 0.008),
+    metalMat
+  )
+  rail.position.set(0, 5.15, 1.55)
+  grp.add(rail)
+
+  // Suspension stems connecting to ceiling
+  ;[-1.5, 1.5].forEach(rx => {
+    const stem = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.009, 0.009, 1.05, 8),
+      metalMat
+    )
+    stem.position.set(rx, 5.67, 1.55)
+    grp.add(stem)
+  })
+
+  // Three adjustable cylindrical track canisters (Painting, Pedestal, Wall Plaque)
+  const spotPositions = [-1.25, 0, 1.25]
+  spotPositions.forEach((sx) => {
+    const spotUnit = new THREE.Group()
+    spotUnit.position.set(sx, 5.12, 1.55)
+
+    // Swivel mount bracket
+    const mountJoint = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.012, 0.012, 0.08, 8),
+      metalMat
+    )
+    mountJoint.position.y = -0.04
+    spotUnit.add(mountJoint)
+
+    // Cylindrical Canister Light (angled toward artwork on wall)
+    const can = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.055, 0.065, 0.22, 16),
+      metalMat
+    )
+    can.rotation.x = -Math.PI * 0.26
+    can.position.set(0, -0.13, -0.04)
+
+    // Glowing front lens disc inside canister
+    const lens = new THREE.Mesh(
+      new THREE.CircleGeometry(0.052, 16),
+      emissiveMat
+    )
+    lens.position.set(0, -0.11, 0)
+    lens.rotation.x = Math.PI / 2
+    can.add(lens)
+
+    spotUnit.add(can)
+    grp.add(spotUnit)
+  })
+
+  return grp
+}
+
 export const DEFAULT_MUSEUM_LIGHTING = {
   exposure: 0.6,
   bloomStrength: 0.2,
@@ -574,6 +635,26 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate,
       metalness: 0.2,
     })
 
+    const trackMetalMat = new THREE.MeshStandardMaterial({
+      color: 0x14161a,
+      roughness: 0.42,
+      metalness: 0.65,
+    })
+
+    const trackLensMat = new THREE.MeshBasicMaterial({
+      color: 0xfff2dc,
+    })
+
+    const trofferPanelMat = new THREE.MeshBasicMaterial({
+      color: 0xfff8ee,
+    })
+
+    const trofferFrameMat = new THREE.MeshStandardMaterial({
+      color: 0x1c1f24,
+      roughness: 0.7,
+      metalness: 0.2,
+    })
+
     // 6. Room Construction
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_D), floorMat)
     floor.rotation.x = -Math.PI / 2
@@ -616,6 +697,29 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate,
       scene.add(slat)
     }
 
+    // Architectural Museum Ceiling Skylight / Troffer Panels (like in modern museum galleries)
+    const trofferLocations = [
+      [-12, -3.5], [-12, 4.5],
+      [0, -4.5], [0, 4.5],
+      [12, -3.5], [12, 4.5],
+    ]
+    trofferLocations.forEach(([tx, tz]) => {
+      const trofferGrp = new THREE.Group()
+      trofferGrp.position.set(tx, ROOM_H - 0.02, tz)
+      trofferGrp.rotation.x = Math.PI / 2
+
+      const trofferFrame = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 1.4), trofferFrameMat)
+      const trofferLight = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 1.2), trofferPanelMat)
+      trofferLight.position.z = 0.005
+      trofferGrp.add(trofferFrame, trofferLight)
+      scene.add(trofferGrp)
+
+      // Soft architectural downlight from ceiling troffer
+      const downLight = new THREE.PointLight(0xfffaee, 1.8, 9, 1.8)
+      downLight.position.set(tx, ROOM_H - 0.45, tz)
+      scene.add(downLight)
+    })
+
     // 7. Ambient Lighting (Tuned down to prevent room washout) & Tiny Dust Particles
     const hemiLight = new THREE.HemisphereLight(
       0xfffaed,
@@ -653,6 +757,21 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate,
       partition.position.set(st.wallX, 0, st.wallZ)
       partition.rotation.y = st.wallRotY
       scene.add(partition)
+
+      // Authentic Museum Track Light Rail with Canister Spots (media_1794129761156_67bb5837.png)
+      const trackLight = makeMuseumTrackLight(THREE, trackMetalMat, trackLensMat)
+      partition.add(trackLight)
+
+      // Gallery Wall-Wash Spotlights aimed at Framed Art and Wall Text
+      const artWashSpot = new THREE.SpotLight(0xffeed6, 4.8, 8.5, 0.46, 0.85, 1.4)
+      artWashSpot.position.set(-1.25, 5.12, 1.55)
+      artWashSpot.target.position.set(-1.25, 2.5, 0.05)
+      partition.add(artWashSpot, artWashSpot.target)
+
+      const textWashSpot = new THREE.SpotLight(0xfff3e2, 4.4, 8.5, 0.50, 0.85, 1.4)
+      textWashSpot.position.set(1.25, 5.12, 1.55)
+      textWashSpot.target.position.set(1.25, 2.45, 0.03)
+      partition.add(textWashSpot, textWashSpot.target)
 
       const frameGroup = new THREE.Group()
       frameGroup.position.set(-1.25, 2.5, wallD / 2 + 0.05)
@@ -704,9 +823,14 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate,
       partition.add(textGroup)
       textGroup.traverse(o => { o.userData.index = i; if (o.isMesh) hitObjects.push(o) })
 
-      // Warm Spotlight with 2048 Soft Shadows (Narrow 0.32 rad angle, 0.8 penumbra, toned intensity)
-      const spotLight = new THREE.SpotLight(0xfff1dc, 12, 12, 0.32, 0.8, 1.6)
-      spotLight.position.set(st.x, ROOM_H - 0.25, st.z + 1.2)
+      // Warm Spotlight with 2048 Soft Shadows aimed at Pedestal from front-top
+      const spotLight = new THREE.SpotLight(0xfff1dc, 12, 14, 0.35, 0.8, 1.6)
+      const dirX = st.camX - st.x
+      const dirZ = st.camZ - st.z
+      const len = Math.hypot(dirX, dirZ) || 1
+      const offX = (dirX / len) * 1.35
+      const offZ = (dirZ / len) * 1.35
+      spotLight.position.set(st.x + offX, ROOM_H - 0.25, st.z + offZ)
       spotLight.target.position.set(st.x, 1.45, st.z)
       spotLight.shadow.mapSize.width = 2048
       spotLight.shadow.mapSize.height = 2048
