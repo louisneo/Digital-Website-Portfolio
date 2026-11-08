@@ -410,81 +410,305 @@ function buildPanchatantra(THREE, mat) {
 // Rama's bow with an arrow (The Kodanda)
 // Symbol of Dharma, duty, and righteous kingship
 // -------------------------------------------------------------
+// -------------------------------------------------------------
+// 3. THE RAMAYANA
+// Rama's Kodanda Bow, Celestial Arrow, and Sacred Paduka Sandals
+// Symbol of Dharma, duty, righteous kingship, and selfless devotion
+// -------------------------------------------------------------
 function buildRamayana(THREE, mat) {
   const model = new THREE.Group()
-  const bow = new THREE.Group()
-  bow.name = 'ramayana-bow'
-  bow.userData.motion = { type: 'sway', axis: 'y', amount: 0.12, speed: 0.4 }
-  model.add(bow)
+  const displayGrp = new THREE.Group()
+  displayGrp.name = 'ramayana-exhibition-ensemble'
+  displayGrp.userData.motion = { type: 'sway', axis: 'y', amount: 0.08, speed: 0.35 }
+  model.add(displayGrp)
 
-  // 1. Classical Recurve Bow Curve with gracefully sweeping limbs
-  const bowPoints = [
-    [0.18, 0.44, 0],
-    [0.08, 0.36, 0.01],
-    [-0.05, 0.24, 0.01],
-    [-0.14, 0.1, 0.005],
-    [-0.16, 0, 0],
-    [-0.14, -0.1, 0.005],
-    [-0.05, -0.24, 0.01],
-    [0.08, -0.36, 0.01],
-    [0.18, -0.44, 0],
-  ]
-  bow.add(tube(THREE, bowPoints, 0.024, mat.gold, 'kodanda-limb-gold', 84, 14))
+  // 1. Classical Museum Presentation Stand (Carved Mysore Rosewood & Velvet Pad)
+  const standBase = mesh(
+    THREE,
+    new THREE.BoxGeometry(0.74, 0.035, 0.34),
+    mat.darkWood,
+    'rosewood-stand-base'
+  )
+  standBase.position.y = -0.22
+  displayGrp.add(standBase)
 
-  const backingPoints = bowPoints.map(([x, y, z]) => [x - 0.012, y, z])
-  bow.add(tube(THREE, backingPoints, 0.018, mat.teakWood, 'kodanda-limb-horn', 84, 12))
+  const velvetCushion = mesh(
+    THREE,
+    new THREE.BoxGeometry(0.68, 0.018, 0.28),
+    mat.crimsonSilk,
+    'velvet-cushion-pad'
+  )
+  velvetCushion.position.y = -0.195
+  displayGrp.add(velvetCushion)
 
-  // 2. Chased Golden Makara Dragon Head Finials at each tip
-  ;[-1, 1].forEach((side, i) => {
-    const finial = mesh(THREE, new THREE.ConeGeometry(0.038, 0.11, 10), mat.gold, `makara-finial-${i}`)
-    finial.position.set(0.18, side * 0.46, 0)
-    finial.rotation.z = side * 0.45
-    bow.add(finial)
+  // Gold inlay fillet border
+  const borderFrame = mesh(
+    THREE,
+    new THREE.BoxGeometry(0.70, 0.006, 0.30),
+    mat.gold,
+    'stand-gold-fillet'
+  )
+  borderFrame.position.y = -0.185
+  displayGrp.add(borderFrame)
 
-    const makaraEye = mesh(THREE, new THREE.SphereGeometry(0.009, 10, 8), mat.peacockBlue, `makara-gem-${i}`)
-    makaraEye.position.set(0.165, side * 0.43, 0.022)
-    bow.add(makaraEye)
+  // Twin Polished Brass Weapon Cradle Pillars to hold the Kodanda Bow horizontally
+  ;[-0.22, 0.22].forEach((px, idx) => {
+    // Vertical riser pillar
+    const pillar = mesh(
+      THREE,
+      new THREE.CylinderGeometry(0.014, 0.018, 0.24, 16),
+      mat.gold,
+      `bow-riser-pillar-${idx}`
+    )
+    pillar.position.set(px, -0.07, -0.02)
+    displayGrp.add(pillar)
+
+    // Base ring
+    const pBase = mesh(
+      THREE,
+      new THREE.CylinderGeometry(0.028, 0.032, 0.02, 16),
+      mat.gold,
+      `pillar-base-${idx}`
+    )
+    pBase.position.set(px, -0.18, -0.02)
+    displayGrp.add(pBase)
+
+    // U-shaped brass cradle fork for bow
+    const cradleCurve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(px - 0.028, 0.08, -0.02),
+      new THREE.Vector3(px - 0.022, 0.05, -0.02),
+      new THREE.Vector3(px, 0.045, -0.02),
+      new THREE.Vector3(px + 0.022, 0.05, -0.02),
+      new THREE.Vector3(px + 0.028, 0.08, -0.02),
+    ])
+    const cradleFork = new THREE.Mesh(
+      new THREE.TubeGeometry(cradleCurve, 16, 0.008, 8, false),
+      mat.gold
+    )
+    displayGrp.add(cradleFork)
+
+    // Forward brass cradle fork for the Surya arrow
+    const arrowPillar = mesh(
+      THREE,
+      new THREE.CylinderGeometry(0.009, 0.012, 0.09, 12),
+      mat.gold,
+      `arrow-pillar-${idx}`
+    )
+    arrowPillar.position.set(px, -0.14, 0.09)
+    displayGrp.add(arrowPillar)
+
+    const arrowForkCurve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(px - 0.016, -0.08, 0.09),
+      new THREE.Vector3(px, -0.095, 0.09),
+      new THREE.Vector3(px + 0.016, -0.08, 0.09),
+    ])
+    const arrowFork = new THREE.Mesh(
+      new THREE.TubeGeometry(arrowForkCurve, 12, 0.005, 8, false),
+      mat.gold
+    )
+    displayGrp.add(arrowFork)
   })
 
-  // 3. Taut Celestial Bowstring
-  const stringPoints = [
-    [0.18, 0.44, 0],
-    [0.02, 0, 0.01],
-    [0.18, -0.44, 0],
+  // 2. The Kodanda Recurve Bow (Masterfully arched horizontally across the twin pillars)
+  const bowGrp = new THREE.Group()
+  bowGrp.position.set(0, 0.05, -0.02)
+
+  // Classical recurve double-curved composite stave points
+  const bowCurvePoints = [
+    [-0.46, 0.04, -0.02], // Left tip nock
+    [-0.42, 0.09, -0.01],
+    [-0.34, 0.14, 0.01],  // Left limb crest
+    [-0.20, 0.09, 0.01],
+    [-0.06, 0.02, 0.0],   // Approach handle
+    [0.0, 0.01, 0.0],     // Riser center
+    [0.06, 0.02, 0.0],
+    [0.20, 0.09, 0.01],
+    [0.34, 0.14, 0.01],   // Right limb crest
+    [0.42, 0.09, -0.01],
+    [0.46, 0.04, -0.02],  // Right tip nock
   ]
-  bow.add(tube(THREE, stringPoints, 0.005, mat.paleGold, 'kodanda-bowstring', 32, 8))
+  const bowPath = new THREE.CatmullRomCurve3(
+    bowCurvePoints.map(([x, y, z]) => new THREE.Vector3(x, y, z))
+  )
 
-  // 4. Wrapped Leather Grip with Braided Gold Wire & Red Lacquer
-  const grip = mesh(THREE, new THREE.CylinderGeometry(0.036, 0.036, 0.18, 16), mat.leather, 'kodanda-grip')
-  grip.position.set(-0.16, 0, 0)
-  bow.add(grip)
+  // Gold belly inlay
+  const bowMesh = new THREE.Mesh(
+    new THREE.TubeGeometry(bowPath, 72, 0.018, 12, false),
+    mat.gold
+  )
+  bowGrp.add(bowMesh)
 
-  ;[-0.07, -0.035, 0, 0.035, 0.07].forEach((y, i) => {
-    const ring = mesh(THREE, new THREE.TorusGeometry(0.038, 0.005, 8, 24), i % 2 ? mat.gold : mat.crimsonSilk, `grip-ring-${i}`)
-    ring.position.set(-0.16, y, 0)
-    ring.rotation.x = Math.PI / 2
-    bow.add(ring)
+  // Polished teak/rosewood core backing
+  const backingPath = new THREE.CatmullRomCurve3(
+    bowCurvePoints.map(([x, y, z]) => new THREE.Vector3(x, y - 0.007, z - 0.008))
+  )
+  const backingMesh = new THREE.Mesh(
+    new THREE.TubeGeometry(backingPath, 72, 0.014, 10, false),
+    mat.teakWood
+  )
+  bowGrp.add(backingMesh)
+
+  // Makara scroll tip finials at both ends (with delicate gem inserts)
+  ;[-0.46, 0.46].forEach((tx, idx) => {
+    const tipFinial = mesh(
+      THREE,
+      new THREE.SphereGeometry(0.022, 14, 12),
+      mat.gold,
+      `bow-tip-${idx}`
+    )
+    tipFinial.position.set(tx, 0.04, -0.02)
+    tipFinial.scale.set(1.4, 0.8, 0.8)
+    bowGrp.add(tipFinial)
+
+    const tipBead = mesh(
+      THREE,
+      new THREE.SphereGeometry(0.008, 10, 8),
+      mat.peacockBlue,
+      `tip-gem-${idx}`
+    )
+    tipBead.position.set(tx + (idx === 0 ? -0.01 : 0.01), 0.04, -0.02)
+    bowGrp.add(tipBead)
   })
 
-  // 5. The Surya Celestial Arrow
-  const arrow = new THREE.Group()
-  arrow.name = 'surya-arrow'
-  arrow.position.set(0, 0, 0.035)
+  // Taut Celestial Bowstring running tip-to-tip
+  const stringCurve = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(-0.46, 0.04, -0.02),
+    new THREE.Vector3(0.0, -0.04, -0.015),
+    new THREE.Vector3(0.46, 0.04, -0.02),
+  ])
+  const bowString = new THREE.Mesh(
+    new THREE.TubeGeometry(stringCurve, 40, 0.0035, 8, false),
+    mat.paleGold
+  )
+  bowGrp.add(bowString)
 
-  arrow.add(cylinderBetween(THREE, [-0.34, 0, 0], [0.38, 0, 0], 0.009, 0.009, mat.darkWood, 'arrow-shaft'))
+  // Embroidered Crimson Silk Velvet Handle Grip
+  const handleGrip = mesh(
+    THREE,
+    new THREE.CylinderGeometry(0.025, 0.025, 0.12, 16),
+    mat.crimsonSilk,
+    'kodanda-handle-grip'
+  )
+  handleGrip.rotation.z = Math.PI / 2
+  handleGrip.position.set(0, 0.01, 0)
+  bowGrp.add(handleGrip)
 
-  const arrowHead = mesh(THREE, new THREE.ConeGeometry(0.034, 0.12, 4), mat.gold, 'arrow-head')
-  arrowHead.position.set(0.42, 0, 0)
+  // Gold wire whipping rings on handle
+  ;[-0.05, -0.025, 0, 0.025, 0.05].forEach((gx, idx) => {
+    const gRing = mesh(
+      THREE,
+      new THREE.TorusGeometry(0.026, 0.0035, 8, 20),
+      mat.gold,
+      `grip-wire-ring-${idx}`
+    )
+    gRing.position.set(gx, 0.01, 0)
+    gRing.rotation.y = Math.PI / 2
+    bowGrp.add(gRing)
+  })
+
+  displayGrp.add(bowGrp)
+
+  // 3. The Sacred Surya Celestial Arrow (resting horizontally on forward brass cradle forks)
+  const arrowGrp = new THREE.Group()
+  arrowGrp.position.set(0, -0.09, 0.09)
+
+  // Polished dark reed shaft
+  const arrowShaft = mesh(
+    THREE,
+    new THREE.CylinderGeometry(0.006, 0.006, 0.68, 12),
+    mat.darkWood,
+    'surya-arrow-shaft'
+  )
+  arrowShaft.rotation.z = Math.PI / 2
+  arrowGrp.add(arrowShaft)
+
+  // Chased golden broadhead arrowhead
+  const arrowHead = mesh(
+    THREE,
+    new THREE.ConeGeometry(0.022, 0.11, 4),
+    mat.gold,
+    'surya-arrow-head'
+  )
+  arrowHead.position.set(0.39, 0, 0)
   arrowHead.rotation.z = -Math.PI / 2
-  arrow.add(arrowHead)
+  arrowHead.scale.set(1.5, 1.0, 0.35)
+  arrowGrp.add(arrowHead)
 
-  ;[0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2].forEach((ang, i) => {
-    const fletch = mesh(THREE, new THREE.BoxGeometry(0.12, 0.024, 0.004), i % 2 ? mat.peacockBlue : mat.peacockGreen, `arrow-fletch-${i}`)
-    fletch.position.set(-0.28, Math.sin(ang) * 0.02, Math.cos(ang) * 0.02)
-    fletch.rotation.x = ang
-    arrow.add(fletch)
+  // Gold ferrule ring
+  const arrowFerrule = mesh(
+    THREE,
+    new THREE.CylinderGeometry(0.008, 0.008, 0.03, 12),
+    mat.gold,
+    'arrow-ferrule'
+  )
+  arrowFerrule.rotation.z = Math.PI / 2
+  arrowFerrule.position.set(0.33, 0, 0)
+  arrowGrp.add(arrowFerrule)
+
+  // Four authentic peacock feather fletchings at nock
+  ;[0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2].forEach((fAng, fIdx) => {
+    const fletch = mesh(
+      THREE,
+      new THREE.BoxGeometry(0.09, 0.018, 0.002),
+      fIdx % 2 ? mat.peacockBlue : mat.peacockGreen,
+      `peacock-fletching-${fIdx}`
+    )
+    fletch.position.set(-0.27, Math.sin(fAng) * 0.014, Math.cos(fAng) * 0.014)
+    fletch.rotation.x = fAng
+    arrowGrp.add(fletch)
   })
-  bow.add(arrow)
+
+  // Aged ivory nock
+  const arrowNock = mesh(
+    THREE,
+    new THREE.CylinderGeometry(0.007, 0.007, 0.02, 10),
+    mat.agedIvory,
+    'arrow-nock'
+  )
+  arrowNock.rotation.z = Math.PI / 2
+  arrowNock.position.set(-0.34, 0, 0)
+  arrowGrp.add(arrowNock)
+
+  displayGrp.add(arrowGrp)
+
+  // 4. Sacred Wooden Paduka Sandals of Lord Rama (Syllabus performance task item)
+  const padukaGrp = new THREE.Group()
+  padukaGrp.position.set(0, -0.175, 0.02)
+
+  ;[-0.055, 0.055].forEach((sx, idx) => {
+    const sandal = new THREE.Group()
+    sandal.position.set(sx, 0, 0)
+
+    const sole = mesh(
+      THREE,
+      new THREE.BoxGeometry(0.065, 0.016, 0.15),
+      mat.teakWood,
+      `paduka-sole-${idx}`
+    )
+    sandal.add(sole)
+
+    const pegStem = mesh(
+      THREE,
+      new THREE.CylinderGeometry(0.004, 0.004, 0.025, 10),
+      mat.gold,
+      `peg-stem-${idx}`
+    )
+    pegStem.position.set(0, 0.018, -0.045)
+    sandal.add(pegStem)
+
+    const pegKnob = mesh(
+      THREE,
+      new THREE.SphereGeometry(0.012, 12, 10),
+      mat.gold,
+      `peg-knob-${idx}`
+    )
+    pegKnob.position.set(0, 0.03, -0.045)
+    sandal.add(pegKnob)
+
+    padukaGrp.add(sandal)
+  })
+
+  displayGrp.add(padukaGrp)
 
   return model
 }

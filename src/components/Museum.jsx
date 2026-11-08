@@ -409,36 +409,41 @@ function makeMuseumTrackLight(THREE, metalMat, emissiveMat) {
     grp.add(stem)
   })
 
-  // Three adjustable cylindrical track canisters (Painting, Pedestal, Wall Plaque)
-  const spotPositions = [-1.25, 0, 1.25]
-  spotPositions.forEach((sx) => {
+  // Three adjustable cylindrical track canisters aimed directly at the wall artwork & placard
+  const spotConfigs = [
+    { x: -1.25, targetX: -1.25, targetY: 2.5, targetZ: 0.35 }, // Aimed at framed painting
+    { x: 0.0, targetX: 0.0, targetY: 2.0, targetZ: 0.30 },     // Aimed at center partition wall
+    { x: 1.25, targetX: 1.25, targetY: 2.45, targetZ: 0.30 },  // Aimed at wall text plaque
+  ]
+
+  spotConfigs.forEach(cfg => {
     const spotUnit = new THREE.Group()
-    spotUnit.position.set(sx, 5.12, 1.55)
+    spotUnit.position.set(cfg.x, 5.12, 1.55)
 
     // Swivel mount bracket
     const mountJoint = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.012, 0.012, 0.08, 8),
+      new THREE.CylinderGeometry(0.012, 0.012, 0.07, 8),
       metalMat
     )
-    mountJoint.position.y = -0.04
+    mountJoint.position.y = -0.035
     spotUnit.add(mountJoint)
 
-    // Cylindrical Canister Light (angled toward artwork on wall)
-    const can = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.055, 0.065, 0.22, 16),
-      metalMat
-    )
-    can.rotation.x = -Math.PI * 0.26
-    can.position.set(0, -0.13, -0.04)
+    // Canister head with cylinder axis along Z
+    const canGeo = new THREE.CylinderGeometry(0.055, 0.065, 0.22, 16)
+    canGeo.rotateX(Math.PI / 2)
+    const can = new THREE.Mesh(canGeo, metalMat)
 
-    // Glowing front lens disc inside canister
+    // Glowing front lens disc inside canister at front (+Z)
     const lens = new THREE.Mesh(
       new THREE.CircleGeometry(0.052, 16),
       emissiveMat
     )
-    lens.position.set(0, -0.11, 0)
-    lens.rotation.x = Math.PI / 2
+    lens.position.set(0, 0, 0.105)
     can.add(lens)
+
+    // Point the canister and lens directly at the artwork/plaque on the wall!
+    can.lookAt(cfg.targetX - cfg.x, cfg.targetY - 5.12, cfg.targetZ - 1.55)
+    can.position.set(0, -0.1, -0.04)
 
     spotUnit.add(can)
     grp.add(spotUnit)
@@ -779,16 +784,17 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate,
       const trackLight = makeMuseumTrackLight(THREE, trackMetalMat, trackLensMat)
       partition.add(trackLight)
 
-      // Gallery Wall-Wash Spotlights aimed at Framed Art and Wall Text
-      const artWashSpot = new THREE.SpotLight(0xffeed6, 6.8, 10, 0.5, 0.85, 1.3)
+      // Gallery Wall-Wash Spotlights aimed directly at Framed Art and Wall Text on the wall
+      const artWashSpot = new THREE.SpotLight(0xffeed6, 9.5, 12, 0.52, 0.82, 1.2)
       artWashSpot.position.set(-1.25, 5.12, 1.55)
-      artWashSpot.target.position.set(-1.25, 2.5, 0.05)
+      artWashSpot.target.position.set(-1.25, 2.5, 0.35)
       partition.add(artWashSpot, artWashSpot.target)
 
-      const textWashSpot = new THREE.SpotLight(0xfff3e2, 6.4, 10, 0.54, 0.85, 1.3)
+      const textWashSpot = new THREE.SpotLight(0xfff3e2, 9.0, 12, 0.55, 0.82, 1.2)
       textWashSpot.position.set(1.25, 5.12, 1.55)
-      textWashSpot.target.position.set(1.25, 2.45, 0.03)
+      textWashSpot.target.position.set(1.25, 2.45, 0.30)
       partition.add(textWashSpot, textWashSpot.target)
+      partition.updateMatrixWorld(true)
 
       const frameGroup = new THREE.Group()
       frameGroup.position.set(-1.25, 2.5, wallD / 2 + 0.05)

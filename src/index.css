@@ -95,15 +95,26 @@ button { font: inherit; }
 
 @media (max-width: 760px) {
   :root { --rail: 0px; }
-  .rail { inset: auto 0 0 0; width: auto; height: 62px; flex-direction: row; padding: 0 6px; border-right: 0; border-top: 1px solid var(--line); }
+  .rail {
+    inset: auto 0 0 0;
+    width: auto;
+    height: calc(60px + env(safe-area-inset-bottom, 0px));
+    flex-direction: row;
+    padding: 0 4px env(safe-area-inset-bottom, 0px);
+    border-right: 0;
+    border-top: 1px solid var(--line);
+    background: rgba(24, 27, 32, 0.98);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
   .rail-logo { display: none; }
   .rail-nav { flex-direction: row; gap: 0; flex: 1; }
   .rail-nav li { flex: 1; }
-  .rail-nav a, .rail-museum { height: 62px; }
-  .rail-museum { margin: 0; width: 56px; }
-  .rail-nav a.active::after { right: 20%; left: 20%; top: auto; bottom: -1px; width: auto; height: 2px; }
+  .rail-nav a, .rail-museum { height: 60px; }
+  .rail-museum { margin: 0; width: 50px; flex-shrink: 0; }
+  .rail-nav a.active::after { right: 18%; left: 18%; top: auto; bottom: -1px; width: auto; height: 2px; }
   .rail-tip { display: none; }
-  .content { padding-bottom: 62px; }
+  .content { padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
 }
 
 /* =========================================================
@@ -447,7 +458,57 @@ button { font: inherit; }
 .museum-card { position: relative; width: min(640px, 100%); max-height: 86vh; overflow: auto; background: var(--panel); border: 1px solid var(--line-2); border-radius: 12px; padding: clamp(24px, 4vw, 40px); box-shadow: var(--shadow); }
 .museum-x { position: absolute; top: 12px; right: 14px; background: none; border: 0; color: var(--muted); font-size: 1.8rem; cursor: pointer; }
 .museum-x:hover { color: var(--head); }
-@media (max-width: 600px) { .museum-name { display: none; } }
+
+@media (max-width: 768px) {
+  .museum-bar {
+    padding: 10px 12px calc(10px + env(safe-area-inset-top, 0px));
+    gap: 8px;
+  }
+  .museum-name { display: none; }
+  .museum-bar .btn-dark {
+    padding: 6px 10px;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+  }
+  .museum-strip {
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px));
+    gap: 6px;
+    scrollbar-width: none;
+  }
+  .museum-strip::-webkit-scrollbar {
+    display: none;
+  }
+  .museum-strip button {
+    flex-shrink: 0;
+    white-space: nowrap;
+    padding: 6px 12px;
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .museum-bar {
+    padding: 8px 8px;
+    gap: 6px;
+  }
+  .museum-bar .btn-dark {
+    padding: 5px 8px;
+    font-size: 0.65rem;
+  }
+  .museum-modal {
+    padding: 12px;
+  }
+  .museum-card {
+    padding: 22px 18px 20px;
+  }
+  .museum-card h2 {
+    font-size: 1.5rem;
+  }
+}
 
 /* Museum HUD Floating Exhibit Badge (Bottom-Left) */
 .museum-hud-card {
@@ -818,27 +879,80 @@ button { font: inherit; }
   align-items: center;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 640px) {
   .artifact-inspector-drawer {
-    left: 12px;
-    right: 12px;
-    top: 68px;
-    max-height: calc(100vh - 160px);
+    left: 10px;
+    right: 10px;
+    top: auto;
+    bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+    max-height: 52vh;
     width: auto;
-    padding: 20px 20px 18px;
+    padding: 16px 16px 14px;
+    border-radius: 14px;
   }
   .artifact-title {
-    font-size: 1.85rem;
+    font-size: 1.45rem;
+    margin-bottom: 6px;
   }
-}
+  .artifact-subheading {
+    font-size: 0.88rem;
+    margin-bottom: 10px;
+  }
+  .artifact-narrative {
+    font-size: 0.85rem;
+    line-height: 1.55;
+    margin-bottom: 12px;
+  }
+  .artifact-drag-hint {
+    font-size: 0.74rem;
+    margin-bottom: 12px;
+  }
+  .artifact-actions {
+    gap: 8px;
+  }
+  .artifact-actions .btn-hud-open,
+  .artifact-actions .btn-hud-analysis {
+    padding: 6px 12px;
+    font-size: 0.68rem;
+  }
 
-@media (max-width: 600px) {
   .museum-hud-card {
-    left: 12px;
-    right: 12px;
-    bottom: 68px;
+    left: 10px;
+    right: 10px;
+    bottom: calc(56px + env(safe-area-inset-bottom, 0px));
     max-width: none;
-    padding: 14px 18px;
+    padding: 14px 16px;
+    border-radius: 12px;
+  }
+  .hud-title {
+    font-size: 1.15rem;
+  }
+  .hud-author {
+    font-size: 0.8rem;
+    margin-bottom: 6px;
+  }
+  .hud-hint {
+    font-size: 0.68rem;
+    padding: 3px 8px;
+    margin-bottom: 10px;
+  }
+  .hud-actions {
+    gap: 8px;
+  }
+  .hud-actions .btn-hud-open,
+  .hud-actions .btn-hud-analysis {
+    padding: 6px 12px;
+    font-size: 0.68rem;
+  }
+
+  .museum-lighting-panel {
+    top: calc(54px + env(safe-area-inset-top, 0px));
+    right: 10px;
+    left: 10px;
+    width: auto;
+    max-height: calc(100vh - 130px);
+    overflow-y: auto;
+    padding: 14px 16px;
   }
 }
 
@@ -2534,6 +2648,84 @@ button { font: inherit; }
   }
 }
 
+@media (max-width: 768px) {
+  .the-book-hero {
+    padding: 76px 16px 120px;
+    min-height: 100vh;
+  }
+
+  .the-book-top-bar {
+    top: 14px;
+    left: 16px;
+    right: 16px;
+  }
+
+  .book-arrow-btn {
+    width: 42px;
+    height: 42px;
+  }
+
+  .book-arrow-btn.prev {
+    left: 8px;
+  }
+
+  .book-arrow-btn.next {
+    right: 8px;
+  }
+
+  .book-arrow-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .the-book-editorial {
+    padding: 22px 18px;
+    border-radius: 14px;
+  }
+
+  .the-book-hook {
+    font-size: 1.35rem;
+  }
+
+  .the-book-giant-title em {
+    font-size: clamp(2.4rem, 11vw, 5.5rem);
+  }
+
+  .book-3d-stage {
+    width: min(290px, 85vw);
+    height: 380px;
+  }
+}
+
+@media (max-width: 480px) {
+  .the-book-hero {
+    padding: 70px 12px 105px;
+  }
+
+  .the-book-editorial {
+    padding: 18px 14px;
+  }
+
+  .the-book-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .the-book-actions .btn-gold,
+  .the-book-actions .btn-pill-flip {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .the-book-giant-title {
+    bottom: 12px;
+  }
+
+  .the-book-giant-title em {
+    font-size: clamp(2.2rem, 13vw, 4rem);
+  }
+}
+
 /* =========================================================
    3D SYMBOLIC RELICS SHOWCASE COMPONENT
    Interactive GLB viewer with pedestal, soft glow & particle system
@@ -2766,5 +2958,28 @@ button { font: inherit; }
   }
   .relic-canvas-wrapper {
     height: 380px;
+  }
+}
+
+@media (max-width: 600px) {
+  .symbolic-relics-showcase {
+    padding: 18px 14px;
+    margin: 24px 0;
+  }
+  .relic-canvas-wrapper {
+    height: 300px;
+  }
+  .relic-info-card {
+    padding: 16px;
+  }
+  .relic-title {
+    font-size: 1.5rem;
+  }
+  .relics-tabs {
+    gap: 6px;
+  }
+  .relic-tab-btn {
+    padding: 6px 12px;
+    font-size: 0.7rem;
   }
 }
