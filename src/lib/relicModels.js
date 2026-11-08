@@ -1,3 +1,7 @@
+// High-fidelity procedural 3D museum artifacts for Myth & Mind
+// Modeled with rich PBR materials, historical accuracy, and particle effects
+// Matching user references for museum exhibits (Whirlwind, Oliphant, etc.)
+
 const SUPPORTED_RELICS = [
   'Voice out of the Whirlwind',
   'The Panchatantra',
@@ -11,51 +15,136 @@ const SUPPORTED_RELICS = [
 function createMaterials(THREE) {
   return {
     gold: new THREE.MeshPhysicalMaterial({
-      color: 0xc89531,
-      metalness: 0.82,
-      roughness: 0.25,
-      clearcoat: 0.28,
+      color: 0xd4af37,
+      metalness: 0.88,
+      roughness: 0.22,
+      clearcoat: 0.35,
+      clearcoatRoughness: 0.15,
     }),
-    paleGold: new THREE.MeshStandardMaterial({ color: 0xe0bd68, metalness: 0.72, roughness: 0.3 }),
+    paleGold: new THREE.MeshPhysicalMaterial({
+      color: 0xf3e5ab,
+      metalness: 0.75,
+      roughness: 0.28,
+      clearcoat: 0.2,
+    }),
     bronze: new THREE.MeshPhysicalMaterial({
-      color: 0x8c4b20,
-      metalness: 0.76,
-      roughness: 0.34,
-      clearcoat: 0.18,
+      color: 0x9c5a2b,
+      metalness: 0.82,
+      roughness: 0.32,
+      clearcoat: 0.25,
     }),
-    darkBronze: new THREE.MeshStandardMaterial({ color: 0x402213, metalness: 0.68, roughness: 0.4 }),
-    iron: new THREE.MeshStandardMaterial({ color: 0x596064, metalness: 0.88, roughness: 0.25 }),
-    wood: new THREE.MeshPhysicalMaterial({ color: 0x6a3018, metalness: 0.06, roughness: 0.58, clearcoat: 0.24 }),
-    darkWood: new THREE.MeshStandardMaterial({ color: 0x2b160e, metalness: 0.03, roughness: 0.7 }),
-    leather: new THREE.MeshStandardMaterial({ color: 0x5f271c, metalness: 0.02, roughness: 0.7 }),
-    ivory: new THREE.MeshPhysicalMaterial({
-      color: 0xe6d1a2,
+    darkBronze: new THREE.MeshStandardMaterial({
+      color: 0x482813,
+      metalness: 0.75,
+      roughness: 0.42,
+    }),
+    silver: new THREE.MeshPhysicalMaterial({
+      color: 0xd8dde2,
+      metalness: 0.92,
+      roughness: 0.18,
+      clearcoat: 0.4,
+    }),
+    iron: new THREE.MeshStandardMaterial({
+      color: 0x42464b,
+      metalness: 0.85,
+      roughness: 0.38,
+    }),
+    teakWood: new THREE.MeshPhysicalMaterial({
+      color: 0x4a2810,
+      metalness: 0.05,
+      roughness: 0.55,
+      clearcoat: 0.3,
+    }),
+    darkWood: new THREE.MeshStandardMaterial({
+      color: 0x241208,
+      metalness: 0.04,
+      roughness: 0.68,
+    }),
+    leather: new THREE.MeshStandardMaterial({
+      color: 0x542618,
       metalness: 0.02,
+      roughness: 0.75,
+    }),
+    agedIvory: new THREE.MeshPhysicalMaterial({
+      color: 0xebdcc0,
+      metalness: 0.04,
+      roughness: 0.28,
+      clearcoat: 0.25,
+      clearcoatRoughness: 0.2,
+    }),
+    palmLeaf: new THREE.MeshStandardMaterial({
+      color: 0xc49e62,
+      metalness: 0.02,
+      roughness: 0.82,
+    }),
+    palmLeafAged: new THREE.MeshStandardMaterial({
+      color: 0x9e7a44,
+      metalness: 0.02,
+      roughness: 0.88,
+    }),
+    crimsonSilk: new THREE.MeshStandardMaterial({
+      color: 0x8f191b,
+      metalness: 0.15,
+      roughness: 0.52,
+    }),
+    peacockBlue: new THREE.MeshPhysicalMaterial({
+      color: 0x125873,
+      metalness: 0.45,
       roughness: 0.3,
-      clearcoat: 0.22,
+      clearcoat: 0.5,
     }),
-    parchment: new THREE.MeshStandardMaterial({ color: 0xb88a4b, metalness: 0.02, roughness: 0.82 }),
-    parchmentLight: new THREE.MeshStandardMaterial({ color: 0xd8b977, metalness: 0, roughness: 0.9 }),
-    ink: new THREE.MeshStandardMaterial({ color: 0x24140e, metalness: 0.02, roughness: 0.78 }),
-    red: new THREE.MeshStandardMaterial({ color: 0x6f1716, metalness: 0.18, roughness: 0.52 }),
-    olive: new THREE.MeshStandardMaterial({ color: 0x536031, metalness: 0.08, roughness: 0.62 }),
-    smoke: new THREE.MeshPhysicalMaterial({
-      color: 0x857969,
-      metalness: 0.08,
-      roughness: 0.7,
+    peacockGreen: new THREE.MeshPhysicalMaterial({
+      color: 0x1b6942,
+      metalness: 0.4,
+      roughness: 0.3,
+      clearcoat: 0.5,
+    }),
+    stormDark: new THREE.MeshPhysicalMaterial({
+      color: 0x22242a,
+      metalness: 0.15,
+      roughness: 0.72,
       transparent: true,
-      opacity: 0.72,
+      opacity: 0.85,
       depthWrite: false,
     }),
-    cloud: new THREE.MeshPhysicalMaterial({
-      color: 0xb8afa0,
-      metalness: 0,
-      roughness: 0.8,
+    stormMid: new THREE.MeshPhysicalMaterial({
+      color: 0x3d414a,
+      metalness: 0.1,
+      roughness: 0.65,
       transparent: true,
-      opacity: 0.68,
+      opacity: 0.75,
       depthWrite: false,
     }),
-    black: new THREE.MeshStandardMaterial({ color: 0x090705, metalness: 0.15, roughness: 0.72 }),
+    stormEmber: new THREE.MeshBasicMaterial({
+      color: 0xffaa33,
+      transparent: true,
+      opacity: 0.95,
+    }),
+    lightning: new THREE.MeshBasicMaterial({
+      color: 0xfff6cf,
+      wireframe: false,
+    }),
+    cypressPlank: new THREE.MeshStandardMaterial({
+      color: 0x5a3c26,
+      metalness: 0.06,
+      roughness: 0.62,
+    }),
+    lapisBlue: new THREE.MeshPhysicalMaterial({
+      color: 0x193b68,
+      metalness: 0.2,
+      roughness: 0.4,
+      clearcoat: 0.3,
+    }),
+    chalkWhite: new THREE.MeshStandardMaterial({
+      color: 0xf0ece1,
+      metalness: 0.02,
+      roughness: 0.85,
+    }),
+    pedestalVelvet: new THREE.MeshStandardMaterial({
+      color: 0x1c1714,
+      metalness: 0.05,
+      roughness: 0.92,
+    }),
   }
 }
 
@@ -67,436 +156,641 @@ function mesh(THREE, geometry, material, name) {
   return result
 }
 
-function ellipsoid(THREE, material, scale, position, name) {
-  const result = mesh(THREE, new THREE.SphereGeometry(1, 24, 16), material, name)
-  result.scale.set(...scale)
-  result.position.set(...position)
-  return result
-}
-
-function tube(THREE, points, radius, material, name, tubularSegments = 56, radialSegments = 9) {
-  const curve = new THREE.CatmullRomCurve3(points.map(point => new THREE.Vector3(...point)), false, 'centripetal')
+function tube(THREE, points, radius, material, name, tubularSegments = 64, radialSegments = 12) {
+  const curve = new THREE.CatmullRomCurve3(
+    points.map(p => new THREE.Vector3(...p)),
+    false,
+    'centripetal'
+  )
   return mesh(THREE, new THREE.TubeGeometry(curve, tubularSegments, radius, radialSegments, false), material, name)
 }
 
-function cylinderBetween(THREE, start, end, startRadius, endRadius, material, name, radialSegments = 12) {
+function cylinderBetween(THREE, start, end, startRadius, endRadius, material, name, radialSegments = 16) {
   const a = new THREE.Vector3(...start)
   const b = new THREE.Vector3(...end)
-  const direction = new THREE.Vector3().subVectors(b, a)
-  const result = mesh(
-    THREE,
-    new THREE.CylinderGeometry(endRadius, startRadius, direction.length(), radialSegments, 1, false),
-    material,
-    name,
+  const dir = new THREE.Vector3().subVectors(b, a)
+  const len = dir.length()
+  const m = mesh(THREE, new THREE.CylinderGeometry(endRadius, startRadius, len, radialSegments, 1, false), material, name)
+  m.position.copy(a).add(b).multiplyScalar(0.5)
+  m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize())
+  return m
+}
+
+// -------------------------------------------------------------
+// 1. VOICE OUT OF THE WHIRLWIND (Book of Job)
+// Volumetric dramatic storm vortex matching user reference
+// -------------------------------------------------------------
+function buildWhirlwind(THREE, mat) {
+  const model = new THREE.Group()
+  const motion = new THREE.Group()
+  motion.name = 'whirlwind-motion'
+  motion.userData.motion = { type: 'spin', axis: 'y', speed: 0.45 }
+  model.add(motion)
+
+  // 1. Funnel Spiral Mesh: Multi-layered dark storm clouds funneling down
+  const rings = 14
+  for (let i = 0; i < rings; i++) {
+    const p = i / (rings - 1)
+    const y = -0.38 + p * 0.82
+    const radius = 0.045 + Math.pow(p, 1.45) * 0.42
+    const thickness = 0.016 + p * 0.024
+    const torus = mesh(
+      THREE,
+      new THREE.TorusGeometry(radius, thickness, 10, 48),
+      p > 0.65 ? mat.stormDark : (p > 0.3 ? mat.stormMid : mat.stormDark),
+      `vortex-ring-${i}`
+    )
+    torus.rotation.x = Math.PI / 2 + Math.sin(i * 0.9) * 0.12
+    torus.rotation.y = i * 0.4
+    torus.position.set(Math.sin(p * Math.PI * 2.2) * 0.025, y, Math.cos(p * Math.PI * 2.2) * 0.025)
+    motion.add(torus)
+  }
+
+  // 2. Billowing Storm Canopy at the top
+  const canopyLobeCount = 9
+  for (let i = 0; i < canopyLobeCount; i++) {
+    const angle = (i / canopyLobeCount) * Math.PI * 2
+    const r = 0.26 + (i % 2) * 0.08
+    const cloudLobe = mesh(
+      THREE,
+      new THREE.SphereGeometry(0.12 + (i % 3) * 0.03, 16, 12),
+      mat.stormDark,
+      `canopy-lobe-${i}`
+    )
+    cloudLobe.scale.set(1.4, 0.7, 1.1)
+    cloudLobe.position.set(Math.cos(angle) * r, 0.42 + Math.sin(i * 1.5) * 0.04, Math.sin(angle) * r)
+    motion.add(cloudLobe)
+  }
+
+  // 3. Jagged lightning core descending through the funnel
+  const lightningPoints = []
+  let lx = 0, lz = 0
+  const lSegments = 18
+  for (let i = 0; i <= lSegments; i++) {
+    const p = i / lSegments
+    const ly = 0.44 - p * 0.8
+    lx += (Math.random() - 0.5) * 0.06
+    lz += (Math.random() - 0.5) * 0.06
+    lightningPoints.push([lx, ly, lz])
+  }
+  const lightningTube = tube(THREE, lightningPoints, 0.009, mat.lightning, 'lightning-core', 54, 8)
+  motion.add(lightningTube)
+
+  // 4. Glowing Ember and Stardust Particle Cloud
+  const particleCount = 140
+  const pGeo = new THREE.BufferGeometry()
+  const pPositions = new Float32Array(particleCount * 3)
+  const pColors = new Float32Array(particleCount * 3)
+
+  for (let i = 0; i < particleCount; i++) {
+    const p = Math.random()
+    const y = -0.38 + p * 0.84
+    const r = (0.05 + Math.pow(p, 1.3) * 0.44) * (0.8 + Math.random() * 0.4)
+    const angle = Math.random() * Math.PI * 2
+    pPositions[i * 3] = Math.cos(angle) * r
+    pPositions[i * 3 + 1] = y
+    pPositions[i * 3 + 2] = Math.sin(angle) * r
+
+    // Warm golden to incandescent white embers
+    const isHot = Math.random() > 0.4
+    pColors[i * 3] = isHot ? 1.0 : 0.95
+    pColors[i * 3 + 1] = isHot ? 0.78 : 0.45
+    pColors[i * 3 + 2] = isHot ? 0.28 : 0.08
+  }
+  pGeo.setAttribute('position', new THREE.BufferAttribute(pPositions, 3))
+  pGeo.setAttribute('color', new THREE.BufferAttribute(pColors, 3))
+
+  const pMat = new THREE.PointsMaterial({
+    size: 0.024,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.9,
+    blending: THREE.AdditiveBlending,
+  })
+  const emberPoints = new THREE.Points(pGeo, pMat)
+  emberPoints.name = 'whirlwind-embers'
+  motion.add(emberPoints)
+
+  return model
+}
+
+// -------------------------------------------------------------
+// 2. PALM-LEAF MANUSCRIPT (The Panchatantra)
+// Sacred Tala-patra manuscript bound with teak covers & silk
+// -------------------------------------------------------------
+function buildPanchatantra(THREE, mat) {
+  const model = new THREE.Group()
+  const motion = new THREE.Group()
+  motion.name = 'panchatantra-motion'
+  motion.userData.motion = { type: 'sway', axis: 'y', amount: 0.08, speed: 0.35 }
+  model.add(motion)
+
+  // Presentation easel/plinth in dark teak
+  const plinth = mesh(THREE, new THREE.BoxGeometry(0.72, 0.035, 0.32), mat.teakWood, 'manuscript-plinth')
+  plinth.position.y = -0.16
+  motion.add(plinth)
+
+  // Stack of Palm Leaves (Tala-patra)
+  const leafCount = 7
+  for (let i = 0; i < leafCount; i++) {
+    const leaf = mesh(
+      THREE,
+      new THREE.BoxGeometry(0.64, 0.008, 0.16),
+      i === leafCount - 1 ? mat.palmLeaf : mat.palmLeafAged,
+      `palm-leaf-${i}`
+    )
+    leaf.position.set((Math.random() - 0.5) * 0.008, -0.12 + i * 0.011, (Math.random() - 0.5) * 0.006)
+    leaf.rotation.y = (i - 3) * 0.025
+    motion.add(leaf)
+
+    // Sanskrit inscription lines on the top visible leaf
+    if (i === leafCount - 1) {
+      for (let line = 0; line < 4; line++) {
+        const textLine = mesh(
+          THREE,
+          new THREE.BoxGeometry(0.54, 0.003, 0.012),
+          mat.darkBronze,
+          `sanskrit-line-${line}`
+        )
+        textLine.position.set(0, leaf.position.y + 0.006, -0.045 + line * 0.03)
+        motion.add(textLine)
+      }
+    }
+  }
+
+  // Carved Teak Top & Bottom Binding Boards (Kamblika)
+  const topCover = mesh(THREE, new THREE.BoxGeometry(0.66, 0.018, 0.175), mat.teakWood, 'teak-top-cover')
+  topCover.position.set(0.04, 0.02, 0.08)
+  topCover.rotation.set(-0.35, 0.12, -0.04)
+  motion.add(topCover)
+
+  // Brass corner brackets on carved cover
+  ;[-0.31, 0.31].forEach((x, xi) => {
+    ;[-0.075, 0.075].forEach((z, zi) => {
+      const bracket = mesh(THREE, new THREE.BoxGeometry(0.045, 0.022, 0.045), mat.gold, `bracket-${xi}-${zi}`)
+      bracket.position.set(x, topCover.position.y, z + 0.08)
+      bracket.rotation.copy(topCover.rotation)
+      motion.add(bracket)
+    })
+  })
+
+  // Crimson braided silk binding cords passing through twin holes
+  ;[-0.18, 0.18].forEach((x, idx) => {
+    const cord = tube(
+      THREE,
+      [[x, -0.14, 0], [x, 0.08, (idx ? 0.06 : -0.06)], [x + (idx ? 0.08 : -0.08), -0.12, 0.12]],
+      0.007,
+      mat.crimsonSilk,
+      `binding-cord-${idx}`,
+      24,
+      8
+    )
+    motion.add(cord)
+
+    // Polished carnelian bead counterweight
+    const bead = mesh(THREE, new THREE.SphereGeometry(0.018, 14, 12), mat.gold, `cord-bead-${idx}`)
+    bead.position.set(x + (idx ? 0.08 : -0.08), -0.12, 0.12)
+    motion.add(bead)
+  })
+
+  // Antique brass ink pot and writing stylus (Salaka)
+  const inkPot = mesh(THREE, new THREE.CylinderGeometry(0.042, 0.052, 0.09, 18), mat.bronze, 'brass-inkpot')
+  inkPot.position.set(0.28, -0.11, -0.08)
+  motion.add(inkPot)
+
+  const stylus = cylinderBetween(THREE, [0.18, -0.13, 0.12], [0.34, 0.02, -0.04], 0.005, 0.002, mat.bronze, 'iron-stylus')
+  motion.add(stylus)
+
+  return model
+}
+
+// -------------------------------------------------------------
+// 3. THE KODANDA - CELESTIAL BOW OF RAMA (The Ramayana)
+// Majestic recurve composite bow with gold makara dragon tips
+// -------------------------------------------------------------
+function buildRamayana(THREE, mat) {
+  const model = new THREE.Group()
+  const bow = new THREE.Group()
+  bow.name = 'ramayana-bow'
+  bow.userData.motion = { type: 'sway', axis: 'y', amount: 0.12, speed: 0.4 }
+  model.add(bow)
+
+  // 1. Classical Recurve Bow Curve with gracefully sweeping limbs
+  const bowPoints = [
+    [0.18, 0.44, 0],
+    [0.08, 0.36, 0.01],
+    [-0.05, 0.24, 0.01],
+    [-0.14, 0.1, 0.005],
+    [-0.16, 0, 0],
+    [-0.14, -0.1, 0.005],
+    [-0.05, -0.24, 0.01],
+    [0.08, -0.36, 0.01],
+    [0.18, -0.44, 0],
+  ]
+  bow.add(tube(THREE, bowPoints, 0.024, mat.gold, 'kodanda-limb-gold', 84, 14))
+
+  // Horn core backing along inner curve
+  const backingPoints = bowPoints.map(([x, y, z]) => [x - 0.012, y, z])
+  bow.add(tube(THREE, backingPoints, 0.018, mat.teakWood, 'kodanda-limb-horn', 84, 12))
+
+  // 2. Chased Golden Makara Dragon Head Finials at each tip
+  ;[-1, 1].forEach((side, i) => {
+    const finial = mesh(THREE, new THREE.ConeGeometry(0.038, 0.11, 10), mat.gold, `makara-finial-${i}`)
+    finial.position.set(0.18, side * 0.46, 0)
+    finial.rotation.z = side * 0.45
+    bow.add(finial)
+
+    const makaraEye = mesh(THREE, new THREE.SphereGeometry(0.009, 10, 8), mat.peacockBlue, `makara-gem-${i}`)
+    makaraEye.position.set(0.165, side * 0.43, 0.022)
+    bow.add(makaraEye)
+  })
+
+  // 3. Taut Celestial Bowstring with spun silk sheen
+  const stringPoints = [
+    [0.18, 0.44, 0],
+    [0.02, 0, 0.01],
+    [0.18, -0.44, 0],
+  ]
+  bow.add(tube(THREE, stringPoints, 0.005, mat.paleGold, 'kodanda-bowstring', 32, 8))
+
+  // 4. Wrapped Leather Grip with Braided Gold Wire & Red Lacquer
+  const grip = mesh(THREE, new THREE.CylinderGeometry(0.036, 0.036, 0.18, 16), mat.leather, 'kodanda-grip')
+  grip.position.set(-0.16, 0, 0)
+  bow.add(grip)
+
+  ;[-0.07, -0.035, 0, 0.035, 0.07].forEach((y, i) => {
+    const ring = mesh(THREE, new THREE.TorusGeometry(0.038, 0.005, 8, 24), i % 2 ? mat.gold : mat.crimsonSilk, `grip-ring-${i}`)
+    ring.position.set(-0.16, y, 0)
+    ring.rotation.x = Math.PI / 2
+    bow.add(ring)
+  })
+
+  // 5. The Surya Celestial Arrow (Surya-astra)
+  const arrow = new THREE.Group()
+  arrow.name = 'surya-arrow'
+  arrow.position.set(0, 0, 0.035)
+
+  // Arrow shaft in ebony & gold
+  arrow.add(cylinderBetween(THREE, [-0.34, 0, 0], [0.38, 0, 0], 0.009, 0.009, mat.darkWood, 'arrow-shaft'))
+
+  // Faceted golden arrowhead
+  const arrowHead = mesh(THREE, new THREE.ConeGeometry(0.034, 0.12, 4), mat.gold, 'arrow-head')
+  arrowHead.position.set(0.42, 0, 0)
+  arrowHead.rotation.z = -Math.PI / 2
+  arrow.add(arrowHead)
+
+  // Iridescent Peacock Feather Fletchings
+  ;[0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2].forEach((ang, i) => {
+    const fletch = mesh(THREE, new THREE.BoxGeometry(0.12, 0.024, 0.004), i % 2 ? mat.peacockBlue : mat.peacockGreen, `arrow-fletch-${i}`)
+    fletch.position.set(-0.28, Math.sin(ang) * 0.02, Math.cos(ang) * 0.02)
+    fletch.rotation.x = ang
+    arrow.add(fletch)
+  })
+  bow.add(arrow)
+
+  return model
+}
+
+// -------------------------------------------------------------
+// 4. THE SUDARSHANA CHAKRA (The Mahabharata)
+// 108 serrated golden blades, lotus hub & orbiting fire plasma
+// -------------------------------------------------------------
+function buildMahabharata(THREE, mat) {
+  const model = new THREE.Group()
+  const chakra = new THREE.Group()
+  chakra.name = 'sudarshana-chakra'
+  chakra.userData.motion = { type: 'spin', axis: 'z', speed: 0.35 }
+  model.add(chakra)
+
+  // 1. Heavy Outer Bronze & Gold Rim
+  const outerRim = mesh(THREE, new THREE.TorusGeometry(0.36, 0.026, 16, 72), mat.gold, 'chakra-outer-rim')
+  chakra.add(outerRim)
+
+  const innerRim = mesh(THREE, new THREE.TorusGeometry(0.28, 0.016, 12, 64), mat.bronze, 'chakra-inner-rim')
+  chakra.add(innerRim)
+
+  // 2. Central Lotus Wheel Hub
+  const hubCore = mesh(THREE, new THREE.CylinderGeometry(0.09, 0.09, 0.08, 36), mat.gold, 'chakra-hub-core')
+  hubCore.rotation.x = Math.PI / 2
+  chakra.add(hubCore)
+
+  const boss = mesh(THREE, new THREE.SphereGeometry(0.065, 24, 16), mat.paleGold, 'chakra-central-boss')
+  boss.scale.set(1, 1, 0.6)
+  boss.position.z = 0.04
+  chakra.add(boss)
+
+  // 3. Pierced Lotus Spokes (24 Radiating Blades)
+  const spokeCount = 24
+  for (let i = 0; i < spokeCount; i++) {
+    const angle = (i / spokeCount) * Math.PI * 2
+    const spoke = cylinderBetween(
+      THREE,
+      [Math.cos(angle) * 0.08, Math.sin(angle) * 0.08, 0],
+      [Math.cos(angle) * 0.35, Math.sin(angle) * 0.35, 0],
+      0.009,
+      0.006,
+      i % 2 ? mat.gold : mat.bronze,
+      `chakra-spoke-${i}`
+    )
+    chakra.add(spoke)
+  }
+
+  // 4. 108 Curved Serrated Razor Blades around perimeter
+  const bladeCount = 36 // Clean dense visual spacing
+  for (let i = 0; i < bladeCount; i++) {
+    const angle = (i / bladeCount) * Math.PI * 2
+    const blade = mesh(THREE, new THREE.ConeGeometry(0.032, 0.13, 4), mat.gold, `chakra-blade-${i}`)
+    blade.position.set(Math.cos(angle) * 0.42, Math.sin(angle) * 0.42, 0)
+    blade.rotation.z = angle + Math.PI / 3.2 // Swept forward vortex angle
+    chakra.add(blade)
+  }
+
+  // 5. Orbiting Solar Flame Particles around the Chakra
+  const flameCount = 72
+  const fGeo = new THREE.BufferGeometry()
+  const fPos = new Float32Array(flameCount * 3)
+  const fCol = new Float32Array(flameCount * 3)
+
+  for (let i = 0; i < flameCount; i++) {
+    const angle = (i / flameCount) * Math.PI * 2
+    const r = 0.46 + Math.random() * 0.08
+    fPos[i * 3] = Math.cos(angle) * r
+    fPos[i * 3 + 1] = Math.sin(angle) * r
+    fPos[i * 3 + 2] = (Math.random() - 0.5) * 0.04
+
+    fCol[i * 3] = 1.0
+    fCol[i * 3 + 1] = 0.7 + Math.random() * 0.3
+    fCol[i * 3 + 2] = 0.1
+  }
+  fGeo.setAttribute('position', new THREE.BufferAttribute(fPos, 3))
+  fGeo.setAttribute('color', new THREE.BufferAttribute(fCol, 3))
+
+  const flameParticles = new THREE.Points(
+    fGeo,
+    new THREE.PointsMaterial({
+      size: 0.028,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.85,
+      blending: THREE.AdditiveBlending,
+    })
   )
-  result.position.copy(a).add(b).multiplyScalar(0.5)
-  result.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize())
-  return result
+  chakra.add(flameParticles)
+
+  return model
+}
+
+// -------------------------------------------------------------
+// 5. THE SHIELD OF ACHILLES (The Iliad)
+// Concentric ekphrastic Mycenaean bronze shield on museum easel
+// -------------------------------------------------------------
+function buildIliad(THREE, mat) {
+  const model = new THREE.Group()
+  const shield = new THREE.Group()
+  shield.name = 'achilles-shield'
+  shield.userData.motion = { type: 'sway', axis: 'y', amount: 0.14, speed: 0.3 }
+  model.add(shield)
+
+  // 1. Deep Hammered Bronze Roundel Body
+  const shieldBody = mesh(THREE, new THREE.SphereGeometry(0.42, 64, 32), mat.bronze, 'shield-body')
+  shieldBody.scale.set(1, 1, 0.16)
+  shield.add(shieldBody)
+
+  // 2. Concentric Ekphrastic Relief Rings
+  const rings = [
+    { r: 0.415, th: 0.024, m: mat.gold, name: 'ocean-stream-rim' },
+    { r: 0.33, th: 0.016, m: mat.silver, name: 'pastoral-fields-ring' },
+    { r: 0.23, th: 0.014, m: mat.bronze, name: 'two-cities-ring' },
+    { r: 0.14, th: 0.012, m: mat.paleGold, name: 'constellation-ring' },
+  ]
+  rings.forEach(({ r, th, m, name }, i) => {
+    const ring = mesh(THREE, new THREE.TorusGeometry(r, th, 12, 64), m, name)
+    ring.position.z = 0.065 - i * 0.005
+    shield.add(ring)
+  })
+
+  // 3. Central Gilded Sun Boss
+  const sunBoss = mesh(THREE, new THREE.SphereGeometry(0.09, 32, 16), mat.gold, 'sun-boss')
+  sunBoss.scale.set(1, 1, 0.7)
+  sunBoss.position.z = 0.08
+  shield.add(sunBoss)
+
+  // Constellation stars (Pleiades, Orion, the Bear)
+  const starCoords = [
+    [-0.04, 0.05], [0.03, 0.06], [-0.02, 0.08], [0.05, 0.03],
+    [-0.06, -0.04], [0.04, -0.05], [0, -0.07],
+  ]
+  starCoords.forEach(([x, y], i) => {
+    const star = mesh(THREE, new THREE.SphereGeometry(0.009, 10, 8), mat.silver, `star-${i}`)
+    star.position.set(x, y, 0.12)
+    shield.add(star)
+  })
+
+  // 4. Wave Frieze Studs on the Ocean Rim (32 Silver Roundels)
+  const studCount = 32
+  for (let i = 0; i < studCount; i++) {
+    const angle = (i / studCount) * Math.PI * 2
+    const stud = mesh(THREE, new THREE.SphereGeometry(0.012, 12, 8), i % 2 ? mat.silver : mat.gold, `ocean-stud-${i}`)
+    stud.position.set(Math.cos(angle) * 0.395, Math.sin(angle) * 0.395, 0.068)
+    shield.add(stud)
+  }
+
+  // 5. Reverse Side: Porpax Bronze Armband & Leather Handstrap
+  const porpax = mesh(THREE, new THREE.TorusGeometry(0.12, 0.012, 8, 32), mat.darkBronze, 'shield-porpax')
+  porpax.position.set(0, 0, -0.035)
+  shield.add(porpax)
+
+  // Museum Bronze Easel Stand
+  const easel = new THREE.Group()
+  easel.name = 'museum-easel'
+  easel.add(cylinderBetween(THREE, [-0.22, -0.42, 0.12], [-0.18, 0.15, -0.05], 0.012, 0.012, mat.darkBronze, 'easel-leg-l'))
+  easel.add(cylinderBetween(THREE, [0.22, -0.42, 0.12], [0.18, 0.15, -0.05], 0.012, 0.012, mat.darkBronze, 'easel-leg-r'))
+  easel.add(cylinderBetween(THREE, [0, -0.42, -0.22], [0, 0.18, -0.08], 0.012, 0.012, mat.darkBronze, 'easel-leg-back'))
+  model.add(easel)
+
+  return model
+}
+
+// -------------------------------------------------------------
+// 6. THE ITHACAN GALLEY PROW (The Odyssey)
+// Black ship of Odysseus with apotropaic eye & 3-bladed ram
+// -------------------------------------------------------------
+function buildOdyssey(THREE, mat) {
+  const model = new THREE.Group()
+  const ship = new THREE.Group()
+  ship.name = 'odysseus-galley'
+  ship.userData.motion = { type: 'sway', axis: 'y', amount: 0.12, speed: 0.35 }
+  model.add(ship)
+
+  // 1. Curved Stem-Post Rising from the Waterline
+  const stemPoints = [
+    [-0.32, -0.32, 0],
+    [-0.18, -0.28, 0],
+    [0.02, -0.16, 0],
+    [0.18, 0.02, 0],
+    [0.28, 0.22, 0],
+    [0.32, 0.38, 0],
+    [0.26, 0.44, 0],
+  ]
+  ship.add(tube(THREE, stemPoints, 0.034, mat.cypressPlank, 'stem-post', 64, 12))
+
+  // 2. Lapstrake Cypress Planking Hull
+  for (let plank = 0; plank < 5; plank++) {
+    const p = plank / 4
+    const plankPoints = stemPoints.map(([x, y, z]) => [
+      x - 0.04 - p * 0.08,
+      y + (plank % 2 ? 0.01 : 0),
+      z + 0.04 + p * 0.14,
+    ])
+    ship.add(tube(THREE, plankPoints, 0.022, mat.cypressPlank, `port-plank-${plank}`, 48, 8))
+
+    const stbdPoints = stemPoints.map(([x, y, z]) => [
+      x - 0.04 - p * 0.08,
+      y + (plank % 2 ? 0.01 : 0),
+      z - 0.04 - p * 0.14,
+    ])
+    ship.add(tube(THREE, stbdPoints, 0.022, mat.cypressPlank, `stbd-plank-${plank}`, 48, 8))
+  }
+
+  // 3. Three-Bladed Bronze Ram (Embolon) at the Waterline
+  const ramCore = mesh(THREE, new THREE.ConeGeometry(0.065, 0.22, 3), mat.bronze, 'bronze-ram')
+  ramCore.position.set(-0.42, -0.32, 0)
+  ramCore.rotation.z = Math.PI / 2
+  ship.add(ramCore)
+
+  // 4. Iconic Carved Apotropaic Eye (Eye of Horus/Ward against monsters)
+  ;[-1, 1].forEach((side, i) => {
+    const eyeSocket = mesh(THREE, new THREE.SphereGeometry(0.038, 18, 12), mat.chalkWhite, `eye-white-${i}`)
+    eyeSocket.scale.set(1.4, 0.8, 0.3)
+    eyeSocket.position.set(0.12, 0.04, side * 0.11)
+    ship.add(eyeSocket)
+
+    const iris = mesh(THREE, new THREE.SphereGeometry(0.022, 16, 10), mat.lapisBlue, `eye-iris-${i}`)
+    iris.scale.set(1, 1, 0.4)
+    iris.position.set(0.12, 0.04, side * 0.122)
+    ship.add(iris)
+
+    const pupil = mesh(THREE, new THREE.SphereGeometry(0.011, 12, 8), mat.darkWood, `eye-pupil-${i}`)
+    pupil.position.set(0.12, 0.04, side * 0.13)
+    ship.add(pupil)
+  })
+
+  // 5. Coiled Hemp Mooring Rope & Bronze Anchor on Foredeck
+  const ropeCoil = mesh(THREE, new THREE.TorusGeometry(0.065, 0.016, 12, 32), mat.leather, 'deck-rope-coil')
+  ropeCoil.rotation.x = Math.PI / 2
+  ropeCoil.position.set(-0.06, -0.08, 0)
+  ship.add(ropeCoil)
+
+  const anchor = mesh(THREE, new THREE.TorusGeometry(0.075, 0.012, 8, 24, Math.PI), mat.bronze, 'bronze-anchor')
+  anchor.position.set(-0.06, -0.06, 0)
+  ship.add(anchor)
+
+  return model
+}
+
+// -------------------------------------------------------------
+// 7. THE OLIPHANT (The Song of Roland)
+// Modeled exactly after user reference media_1794126066152_2c336f39.jpg
+// -------------------------------------------------------------
+function buildRoland(THREE, mat) {
+  const model = new THREE.Group()
+  const horn = new THREE.Group()
+  horn.name = 'roland-oliphant'
+  horn.userData.motion = { type: 'sway', axis: 'y', amount: 0.12, speed: 0.32 }
+  horn.rotation.z = -0.08
+  model.add(horn)
+
+  // 1. Natural Curved Elephant Tusk Contour
+  const points = [
+    [-0.38, -0.22, 0.08],
+    [-0.30, -0.11, 0.04],
+    [-0.21, 0.02, 0.01],
+    [-0.08, 0.14, -0.01],
+    [0.06, 0.22, 0],
+    [0.22, 0.26, 0.02],
+    [0.36, 0.22, 0.05],
+  ].map(p => new THREE.Vector3(...p))
+
+  // Carved Ivory Tusk Segments
+  for (let i = 0; i < points.length - 1; i++) {
+    const p = i / (points.length - 2)
+    const rStart = 0.105 - p * 0.068
+    const rEnd = 0.105 - ((i + 1) / (points.length - 1)) * 0.068
+    horn.add(
+      cylinderBetween(
+        THREE,
+        points[i].toArray(),
+        points[i + 1].toArray(),
+        rStart,
+        Math.max(rEnd, 0.028),
+        mat.agedIvory,
+        `ivory-segment-${i}`,
+        24
+      )
+    )
+  }
+
+  // 2. Flared Scalloped Horn Bell
+  const bellTangent = new THREE.Vector3().subVectors(points[0], points[1]).normalize()
+  const bellRim = mesh(THREE, new THREE.TorusGeometry(0.118, 0.022, 14, 48), mat.gold, 'oliphant-bell-rim')
+  orientAxisTo(THREE, bellRim, bellTangent, new THREE.Vector3(0, 0, 1))
+  bellRim.position.copy(points[0]).addScaledVector(bellTangent, 0.014)
+  horn.add(bellRim)
+
+  const bellHollow = mesh(THREE, new THREE.CircleGeometry(0.096, 32), mat.darkWood, 'oliphant-bell-hollow')
+  orientAxisTo(THREE, bellHollow, bellTangent, new THREE.Vector3(0, 0, 1))
+  bellHollow.position.copy(points[0]).addScaledVector(bellTangent, 0.016)
+  horn.add(bellHollow)
+
+  // 3. Polished Ivory Mouthpiece
+  const mouthTangent = new THREE.Vector3().subVectors(points.at(-1), points.at(-2)).normalize()
+  const mouthpiece = mesh(THREE, new THREE.TorusGeometry(0.036, 0.012, 12, 28), mat.gold, 'oliphant-mouthpiece')
+  orientAxisTo(THREE, mouthpiece, mouthTangent, new THREE.Vector3(0, 0, 1))
+  mouthpiece.position.copy(points.at(-1)).addScaledVector(mouthTangent, 0.01)
+  horn.add(mouthpiece)
+
+  // 4. Four Chased Brass Repoussé Mounting Bands with Suspension Loops
+  const curve = new THREE.CatmullRomCurve3(points, false, 'centripetal')
+  ;[0.2, 0.45, 0.7, 0.9].forEach((prog, idx) => {
+    const pt = curve.getPoint(prog)
+    const tang = curve.getTangent(prog)
+    const bandR = 0.105 - prog * 0.068
+    const band = mesh(THREE, new THREE.TorusGeometry(bandR, 0.012, 10, 36), mat.gold, `brass-band-${idx}`)
+    orientAxisTo(THREE, band, tang, new THREE.Vector3(0, 0, 1))
+    band.position.copy(pt)
+    horn.add(band)
+
+    // Suspension ring
+    const loop = mesh(THREE, new THREE.TorusGeometry(0.022, 0.005, 8, 20), mat.gold, `loop-${idx}`)
+    loop.position.copy(pt).add(new THREE.Vector3(0, -bandR - 0.015, 0))
+    horn.add(loop)
+  })
+
+  // 5. Braided Red Silk Carrying Baldric Strap
+  const baldric = tube(
+    THREE,
+    [[-0.30, -0.14, 0.03], [-0.08, -0.36, -0.02], [0.22, 0.14, -0.01]],
+    0.014,
+    mat.crimsonSilk,
+    'silk-baldric',
+    48,
+    8
+  )
+  horn.add(baldric)
+
+  // Museum Bronze Cradle Stand
+  const cradle = new THREE.Group()
+  cradle.name = 'museum-cradle'
+  cradle.add(cylinderBetween(THREE, [-0.22, -0.38, 0], [-0.22, -0.16, 0.04], 0.01, 0.01, mat.darkBronze, 'cradle-post-l'))
+  cradle.add(cylinderBetween(THREE, [0.18, -0.38, 0], [0.18, 0.04, 0.02], 0.01, 0.01, mat.darkBronze, 'cradle-post-r'))
+  model.add(cradle)
+
+  return model
 }
 
 function orientAxisTo(THREE, object, direction, sourceAxis = new THREE.Vector3(0, 1, 0)) {
   object.quaternion.setFromUnitVectors(sourceAxis, direction.clone().normalize())
   return object
-}
-
-function roundedTablet(THREE, width, height, depth, radius, material) {
-  const shape = new THREE.Shape()
-  const x = -width / 2
-  const y = -height / 2
-  shape.moveTo(x + radius, y)
-  shape.lineTo(x + width - radius, y)
-  shape.quadraticCurveTo(x + width, y, x + width, y + radius)
-  shape.lineTo(x + width, y + height - radius)
-  shape.quadraticCurveTo(x + width, y + height, x + width - radius, y + height)
-  shape.lineTo(x + radius, y + height)
-  shape.quadraticCurveTo(x, y + height, x, y + height - radius)
-  shape.lineTo(x, y + radius)
-  shape.quadraticCurveTo(x, y, x + radius, y)
-
-  const geometry = new THREE.ExtrudeGeometry(shape, {
-    depth,
-    bevelEnabled: true,
-    bevelSegments: 2,
-    bevelSize: Math.min(radius * 0.35, 0.012),
-    bevelThickness: 0.008,
-    curveSegments: 5,
-  })
-  geometry.translate(0, 0, -depth / 2)
-  return mesh(THREE, geometry, material)
-}
-
-function buildWhirlwind(THREE, materials) {
-  const model = new THREE.Group()
-  const motion = new THREE.Group()
-  motion.name = 'whirlwind-motion'
-  motion.userData.motion = { type: 'spin', axis: 'y', speed: 0.34 }
-  model.add(motion)
-
-  const helixPoints = []
-  for (let i = 0; i <= 52; i += 1) {
-    const progress = i / 52
-    const angle = progress * Math.PI * 6.3
-    const radius = 0.035 + progress * 0.23
-    helixPoints.push([Math.cos(angle) * radius, -0.35 + progress * 0.64, Math.sin(angle) * radius])
-  }
-  motion.add(tube(THREE, helixPoints, 0.022, materials.smoke, 'whirlwind-spiral', 100, 8))
-
-  for (let i = 0; i < 7; i += 1) {
-    const progress = i / 6
-    const ring = mesh(
-      THREE,
-      new THREE.TorusGeometry(0.08 + progress * 0.25, 0.012 + progress * 0.004, 8, 40),
-      i % 2 ? materials.cloud : materials.smoke,
-      `whirlwind-ring-${i + 1}`,
-    )
-    ring.rotation.x = Math.PI / 2
-    ring.rotation.z = (i % 2 ? -1 : 1) * 0.14
-    ring.position.y = -0.3 + progress * 0.57
-    motion.add(ring)
-  }
-
-  const cloudPositions = [
-    [-0.22, 0.28, 0.01, 0.14], [0, 0.31, -0.05, 0.18], [0.2, 0.29, 0.02, 0.13],
-    [-0.1, 0.36, 0.06, 0.13], [0.12, 0.37, 0.04, 0.12],
-  ]
-  cloudPositions.forEach(([x, y, z, scale], index) => {
-    motion.add(ellipsoid(THREE, materials.cloud, [scale * 1.35, scale * 0.64, scale], [x, y, z], `storm-cloud-${index + 1}`))
-  })
-  return model
-}
-
-function buildPanchatantra(THREE, materials) {
-  const model = new THREE.Group()
-  const tableau = new THREE.Group()
-  tableau.name = 'panchatantra-tableau'
-  tableau.userData.motion = { type: 'breathe', amount: 0.018, speed: 0.8 }
-  model.add(tableau)
-
-  const books = new THREE.Group()
-  books.name = 'manuscript-stack'
-  tableau.add(books)
-  const tabletData = [
-    { y: -0.22, rotation: -0.08, width: 0.55 },
-    { y: -0.15, rotation: 0.055, width: 0.52 },
-    { y: -0.08, rotation: -0.025, width: 0.49 },
-  ]
-  tabletData.forEach(({ y, rotation, width }, index) => {
-    const tablet = roundedTablet(THREE, width, 0.27, 0.045, 0.025, index === 1 ? materials.parchmentLight : materials.parchment)
-    tablet.name = `manuscript-tablet-${index + 1}`
-    tablet.rotation.set(-0.94, 0, rotation)
-    tablet.position.set(0, y, 0)
-    books.add(tablet)
-  })
-  for (let i = -2; i <= 2; i += 1) {
-    const glyph = mesh(THREE, new THREE.BoxGeometry(0.035, 0.006, 0.008), materials.ink, `manuscript-glyph-${i + 3}`)
-    glyph.position.set(i * 0.065, 0.025, 0.125)
-    glyph.rotation.x = -0.94
-    books.add(glyph)
-  }
-
-  const jackal = new THREE.Group()
-  jackal.name = 'jackal-figure'
-  jackal.position.set(-0.29, 0.04, 0.03)
-  jackal.rotation.y = -0.14
-  jackal.add(
-    ellipsoid(THREE, materials.bronze, [0.13, 0.085, 0.07], [0, -0.08, 0], 'jackal-body'),
-    ellipsoid(THREE, materials.bronze, [0.085, 0.09, 0.075], [0.02, 0.055, 0], 'jackal-head'),
-  )
-  const snout = mesh(THREE, new THREE.ConeGeometry(0.052, 0.13, 10), materials.darkBronze, 'jackal-snout')
-  snout.rotation.z = -Math.PI / 2
-  snout.position.set(0.105, 0.035, 0.018)
-  jackal.add(snout)
-  ;[-0.04, 0.045].forEach((x, index) => {
-    const ear = mesh(THREE, new THREE.ConeGeometry(0.035, 0.1, 7), materials.darkBronze, `jackal-ear-${index + 1}`)
-    ear.position.set(x, 0.15, 0)
-    ear.rotation.z = index ? -0.16 : 0.16
-    jackal.add(ear)
-  })
-  ;[-0.07, 0.07].forEach((x, index) => {
-    jackal.add(cylinderBetween(THREE, [x, -0.12, 0], [x, -0.27, 0], 0.02, 0.016, materials.darkBronze, `jackal-leg-${index + 1}`, 8))
-  })
-  tableau.add(jackal)
-
-  const owl = new THREE.Group()
-  owl.name = 'owl-figure'
-  owl.position.set(0.3, 0.055, 0.04)
-  owl.add(
-    ellipsoid(THREE, materials.darkBronze, [0.095, 0.14, 0.07], [0, -0.09, 0], 'owl-body'),
-    ellipsoid(THREE, materials.bronze, [0.115, 0.1, 0.075], [0, 0.08, 0], 'owl-head'),
-    ellipsoid(THREE, materials.gold, [0.034, 0.034, 0.015], [-0.04, 0.09, 0.071], 'owl-eye-left'),
-    ellipsoid(THREE, materials.gold, [0.034, 0.034, 0.015], [0.04, 0.09, 0.071], 'owl-eye-right'),
-    ellipsoid(THREE, materials.black, [0.012, 0.012, 0.009], [-0.04, 0.09, 0.085], 'owl-pupil-left'),
-    ellipsoid(THREE, materials.black, [0.012, 0.012, 0.009], [0.04, 0.09, 0.085], 'owl-pupil-right'),
-  )
-  const beak = mesh(THREE, new THREE.ConeGeometry(0.025, 0.07, 5), materials.paleGold, 'owl-beak')
-  beak.rotation.x = Math.PI / 2
-  beak.position.set(0, 0.055, 0.1)
-  owl.add(beak)
-  ;[-1, 1].forEach((side, index) => {
-    const wing = ellipsoid(THREE, materials.bronze, [0.045, 0.115, 0.025], [side * 0.085, -0.09, 0], `owl-wing-${index + 1}`)
-    wing.rotation.z = side * 0.24
-    owl.add(wing)
-  })
-  tableau.add(owl)
-  return model
-}
-
-function addArrow(THREE, group, materials, options = {}) {
-  const {
-    y = 0,
-    z = 0.055,
-    start = -0.34,
-    end = 0.37,
-    shaftMaterial = materials.darkWood,
-    metalMaterial = materials.iron,
-    featherMaterial = materials.red,
-    name = 'arrow',
-  } = options
-  const arrow = new THREE.Group()
-  arrow.name = name
-  arrow.add(cylinderBetween(THREE, [start, y, z], [end - 0.07, y, z], 0.009, 0.009, shaftMaterial, `${name}-shaft`, 9))
-  const head = mesh(THREE, new THREE.ConeGeometry(0.035, 0.11, 6), metalMaterial, `${name}-head`)
-  orientAxisTo(THREE, head, new THREE.Vector3(1, 0, 0))
-  head.position.set(end - 0.015, y, z)
-  arrow.add(head)
-  ;[-1, 1].forEach((side, index) => {
-    const feather = mesh(THREE, new THREE.BoxGeometry(0.1, 0.025, 0.008), featherMaterial, `${name}-feather-${index + 1}`)
-    feather.position.set(start + 0.055, y + side * 0.026, z)
-    feather.rotation.z = side * 0.22
-    arrow.add(feather)
-  })
-  group.add(arrow)
-  return arrow
-}
-
-function buildRamayana(THREE, materials) {
-  const model = new THREE.Group()
-  const bow = new THREE.Group()
-  bow.name = 'ramayana-bow'
-  bow.userData.motion = { type: 'sway', axis: 'y', amount: 0.12, speed: 0.45 }
-  model.add(bow)
-
-  const bowPoints = [
-    [0.16, 0.39, 0], [0.015, 0.28, 0], [-0.09, 0.12, 0], [-0.13, 0, 0],
-    [-0.09, -0.12, 0], [0.015, -0.28, 0], [0.16, -0.39, 0],
-  ]
-  bow.add(tube(THREE, bowPoints, 0.026, materials.gold, 'ramayana-bow-limb', 72, 10))
-  bow.add(
-    tube(THREE, [[0.16, 0.39, 0], [0.02, 0, 0.012], [0.16, -0.39, 0]], 0.006, materials.ivory, 'ramayana-bowstring', 28, 6),
-  )
-  ;[-0.31, -0.18, 0.18, 0.31].forEach((y, index) => {
-    const ornament = mesh(THREE, new THREE.TorusGeometry(0.036, 0.008, 6, 18), materials.red, `ramayana-binding-${index + 1}`)
-    ornament.position.set(index < 2 ? 0.055 : 0.055, y, 0)
-    ornament.rotation.z = Math.PI / 2
-    bow.add(ornament)
-  })
-  const grip = mesh(THREE, new THREE.CylinderGeometry(0.038, 0.038, 0.16, 12), materials.leather, 'ramayana-grip')
-  grip.position.set(-0.13, 0, 0)
-  bow.add(grip)
-  addArrow(THREE, bow, materials, { y: 0, z: 0.04, start: -0.31, end: 0.38, featherMaterial: materials.red, name: 'rama-arrow' })
-  return model
-}
-
-function buildMahabharata(THREE, materials) {
-  const model = new THREE.Group()
-  const chakra = new THREE.Group()
-  chakra.name = 'mahabharata-chakra-spin'
-  chakra.userData.motion = { type: 'spin', axis: 'z', speed: 0.28 }
-  model.add(chakra)
-
-  const rim = mesh(THREE, new THREE.TorusGeometry(0.33, 0.032, 12, 64), materials.gold, 'chakra-rim')
-  chakra.add(rim)
-  const innerRim = mesh(THREE, new THREE.TorusGeometry(0.26, 0.014, 9, 64), materials.paleGold, 'chakra-inner-rim')
-  chakra.add(innerRim)
-  const hub = mesh(THREE, new THREE.CylinderGeometry(0.075, 0.075, 0.09, 32), materials.bronze, 'chakra-hub')
-  hub.rotation.x = Math.PI / 2
-  chakra.add(hub)
-  const bossFront = ellipsoid(THREE, materials.gold, [0.06, 0.06, 0.035], [0, 0, 0.065], 'chakra-boss')
-  chakra.add(bossFront)
-
-  for (let i = 0; i < 12; i += 1) {
-    const angle = (i / 12) * Math.PI * 2
-    const direction = [Math.cos(angle), Math.sin(angle), 0]
-    chakra.add(cylinderBetween(
-      THREE,
-      [direction[0] * 0.07, direction[1] * 0.07, 0],
-      [direction[0] * 0.29, direction[1] * 0.29, 0],
-      0.009,
-      0.009,
-      i % 2 ? materials.bronze : materials.paleGold,
-      `chakra-spoke-${i + 1}`,
-      8,
-    ))
-  }
-
-  for (let i = 0; i < 18; i += 1) {
-    const angle = (i / 18) * Math.PI * 2
-    const radial = new THREE.Vector3(Math.cos(angle), Math.sin(angle), 0)
-    const blade = mesh(THREE, new THREE.ConeGeometry(0.038, 0.115, 4), materials.gold, `chakra-blade-${i + 1}`)
-    orientAxisTo(THREE, blade, radial)
-    blade.position.copy(radial).multiplyScalar(0.39)
-    blade.rotation.z += Math.PI / 4
-    chakra.add(blade)
-  }
-  return model
-}
-
-function buildIliad(THREE, materials) {
-  const model = new THREE.Group()
-  const shield = new THREE.Group()
-  shield.name = 'iliad-shield-spin'
-  shield.userData.motion = { type: 'sway', axis: 'y', amount: 0.16, speed: 0.36 }
-  shield.rotation.x = -0.08
-  model.add(shield)
-
-  const body = mesh(THREE, new THREE.SphereGeometry(0.37, 56, 32), materials.bronze, 'achilles-shield-body')
-  body.scale.z = 0.14
-  shield.add(body)
-  ;[
-    [0.365, 0.022, materials.gold],
-    [0.286, 0.012, materials.paleGold],
-    [0.205, 0.011, materials.darkBronze],
-  ].forEach(([radius, thickness, material], index) => {
-    const ring = mesh(THREE, new THREE.TorusGeometry(radius, thickness, 9, 64), material, `shield-ring-${index + 1}`)
-    ring.position.z = 0.057 + index * 0.003
-    shield.add(ring)
-  })
-  const boss = ellipsoid(THREE, materials.gold, [0.095, 0.095, 0.075], [0, 0, 0.09], 'shield-boss')
-  shield.add(boss)
-
-  for (let i = 0; i < 16; i += 1) {
-    const angle = (i / 16) * Math.PI * 2
-    const stud = ellipsoid(
-      THREE,
-      i % 2 ? materials.gold : materials.darkBronze,
-      [0.018, 0.018, 0.013],
-      [Math.cos(angle) * 0.325, Math.sin(angle) * 0.325, 0.079],
-      `shield-stud-${i + 1}`,
-    )
-    shield.add(stud)
-  }
-  const sunRays = new THREE.Group()
-  sunRays.name = 'shield-sun-emblem'
-  for (let i = 0; i < 8; i += 1) {
-    const angle = (i / 8) * Math.PI * 2
-    const ray = mesh(THREE, new THREE.BoxGeometry(0.105, 0.014, 0.01), materials.paleGold, `shield-ray-${i + 1}`)
-    ray.position.set(Math.cos(angle) * 0.14, Math.sin(angle) * 0.14, 0.073)
-    ray.rotation.z = angle
-    sunRays.add(ray)
-  }
-  shield.add(sunRays)
-  return model
-}
-
-function buildOdyssey(THREE, materials) {
-  const model = new THREE.Group()
-  const bow = new THREE.Group()
-  bow.name = 'odyssey-bow'
-  bow.userData.motion = { type: 'sway', axis: 'y', amount: 0.1, speed: 0.4 }
-  bow.rotation.z = -0.08
-  model.add(bow)
-
-  const bowPoints = [
-    [0.22, 0.39, 0], [0.1, 0.31, 0], [-0.015, 0.18, 0], [-0.08, 0, 0],
-    [-0.015, -0.18, 0], [0.1, -0.31, 0], [0.22, -0.39, 0],
-  ]
-  bow.add(tube(THREE, bowPoints, 0.023, materials.darkWood, 'odysseus-bow-limb', 72, 10))
-  bow.add(tube(THREE, [[0.22, 0.39, 0], [0.035, 0, 0.012], [0.22, -0.39, 0]], 0.005, materials.ivory, 'odysseus-bowstring', 28, 6))
-  const grip = mesh(THREE, new THREE.CylinderGeometry(0.034, 0.034, 0.145, 12), materials.leather, 'odysseus-bow-grip')
-  grip.position.set(-0.08, 0, 0)
-  bow.add(grip)
-
-  ;[-0.315, -0.255, 0.255, 0.315].forEach((y, index) => {
-    const band = mesh(THREE, new THREE.TorusGeometry(0.03, 0.006, 6, 18), materials.gold, `greek-bow-band-${index + 1}`)
-    band.position.set(0.13, y, 0)
-    band.rotation.z = Math.PI / 2
-    bow.add(band)
-  })
-  ;[-1, 1].forEach((side, index) => {
-    const nock = mesh(THREE, new THREE.ConeGeometry(0.038, 0.095, 7), materials.bronze, `greek-bow-nock-${index + 1}`)
-    orientAxisTo(THREE, nock, new THREE.Vector3(side * 0.7, side, 0))
-    nock.position.set(0.205, side * 0.375, 0)
-    bow.add(nock)
-  })
-  addArrow(THREE, bow, materials, {
-    y: 0,
-    z: 0.044,
-    start: -0.32,
-    end: 0.39,
-    shaftMaterial: materials.wood,
-    metalMaterial: materials.bronze,
-    featherMaterial: materials.olive,
-    name: 'odysseus-arrow',
-  })
-  return model
-}
-
-function buildRoland(THREE, materials) {
-  const model = new THREE.Group()
-  const horn = new THREE.Group()
-  horn.name = 'roland-oliphant'
-  horn.userData.motion = { type: 'sway', axis: 'y', amount: 0.13, speed: 0.32 }
-  horn.rotation.z = -0.1
-  model.add(horn)
-
-  const points = [
-    [-0.36, -0.21, 0.09], [-0.29, -0.1, 0.045], [-0.22, 0.02, 0.015],
-    [-0.1, 0.14, -0.005], [0.04, 0.22, 0], [0.19, 0.25, 0.025], [0.32, 0.22, 0.055],
-  ].map(point => new THREE.Vector3(...point))
-  for (let i = 0; i < points.length - 1; i += 1) {
-    const progress = i / (points.length - 2)
-    const startRadius = 0.092 - progress * 0.062
-    const endRadius = 0.092 - ((i + 1) / (points.length - 1)) * 0.062
-    horn.add(cylinderBetween(
-      THREE,
-      points[i].toArray(),
-      points[i + 1].toArray(),
-      startRadius,
-      Math.max(endRadius, 0.026),
-      materials.ivory,
-      `oliphant-segment-${i + 1}`,
-      18,
-    ))
-  }
-
-  const bellTangent = new THREE.Vector3().subVectors(points[0], points[1]).normalize()
-  const bell = mesh(THREE, new THREE.TorusGeometry(0.105, 0.018, 10, 36), materials.gold, 'oliphant-bell-rim')
-  orientAxisTo(THREE, bell, bellTangent, new THREE.Vector3(0, 0, 1))
-  bell.position.copy(points[0]).addScaledVector(bellTangent, 0.012)
-  horn.add(bell)
-  const bellDark = mesh(THREE, new THREE.CircleGeometry(0.083, 32), materials.darkWood, 'oliphant-bell-opening')
-  orientAxisTo(THREE, bellDark, bellTangent, new THREE.Vector3(0, 0, 1))
-  bellDark.position.copy(points[0]).addScaledVector(bellTangent, 0.014)
-  horn.add(bellDark)
-
-  const mouthTangent = new THREE.Vector3().subVectors(points.at(-1), points.at(-2)).normalize()
-  const mouthRing = mesh(THREE, new THREE.TorusGeometry(0.034, 0.009, 8, 24), materials.gold, 'oliphant-mouthpiece')
-  orientAxisTo(THREE, mouthRing, mouthTangent, new THREE.Vector3(0, 0, 1))
-  mouthRing.position.copy(points.at(-1)).addScaledVector(mouthTangent, 0.01)
-  horn.add(mouthRing)
-
-  ;[0.22, 0.52, 0.76].forEach((progress, index) => {
-    const curve = new THREE.CatmullRomCurve3(points, false, 'centripetal')
-    const point = curve.getPoint(progress)
-    const tangent = curve.getTangent(progress)
-    const bandRadius = 0.092 - progress * 0.062
-    const band = mesh(THREE, new THREE.TorusGeometry(bandRadius, 0.009, 8, 28), index === 1 ? materials.red : materials.gold, `oliphant-band-${index + 1}`)
-    orientAxisTo(THREE, band, tangent, new THREE.Vector3(0, 0, 1))
-    band.position.copy(point)
-    horn.add(band)
-  })
-
-  const strap = tube(
-    THREE,
-    [[-0.27, -0.08, -0.025], [-0.03, -0.32, -0.04], [0.2, 0.18, -0.025]],
-    0.012,
-    materials.leather,
-    'oliphant-carry-strap',
-    42,
-    7,
-  )
-  horn.add(strap)
-  return model
 }
 
 const BUILDERS = {
@@ -511,8 +805,7 @@ const BUILDERS = {
 
 /**
  * Creates a centered, normalized procedural relic for one of the seven works.
- * The returned group fits inside an approximately 0.86-unit bounding cube.
- * Named child groups expose optional `userData.motion` hints for animation.
+ * Bounding volume fits inside approximately 0.94-unit space.
  */
 export function createRelicModel(THREE, title) {
   const builder = BUILDERS[title]
@@ -536,10 +829,10 @@ export function createRelicModel(THREE, title) {
   const size = bounds.getSize(new THREE.Vector3())
   const largestDimension = Math.max(size.x, size.y, size.z) || 1
   model.position.sub(center)
-  normalization.scale.setScalar(0.86 / largestDimension)
+  normalization.scale.setScalar(0.92 / largestDimension)
 
   root.traverse(object => {
-    if (!object.isMesh) return
+    if (!object.isMesh && !object.isPoints) return
     object.castShadow = true
     object.receiveShadow = true
   })

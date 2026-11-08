@@ -554,6 +554,139 @@ button { font: inherit; }
   transform: translateY(-1px);
 }
 
+/* Museum Artifact Curatorial Card (matching reference media_1794126066152_2c336f39.jpg) */
+.artifact-inspector-drawer {
+  position: absolute;
+  top: 76px;
+  left: 28px;
+  z-index: 25;
+  width: min(440px, calc(100vw - 48px));
+  max-height: calc(100vh - 155px);
+  overflow-y: auto;
+  background: rgba(18, 19, 23, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 30px 30px 24px;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.85);
+  color: #e5e5e7;
+  font-family: var(--sans);
+  animation: artifactFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: auto;
+}
+
+@keyframes artifactFadeIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.artifact-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.artifact-label {
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  color: #9da1aa;
+  text-transform: uppercase;
+}
+
+.artifact-close-btn {
+  background: transparent;
+  border: 0;
+  color: #7b808a;
+  font-size: 1.6rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 4px;
+  transition: color 0.2s;
+}
+
+.artifact-close-btn:hover {
+  color: #ffffff;
+}
+
+.artifact-rule {
+  width: 100%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+  margin-bottom: 20px;
+}
+
+.artifact-title {
+  font-family: var(--serif);
+  font-size: 2.35rem;
+  font-weight: 500;
+  line-height: 1.1;
+  color: #ffffff;
+  margin: 0 0 12px;
+  letter-spacing: -0.01em;
+}
+
+.artifact-subheading {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.05rem;
+  line-height: 1.45;
+  color: #cbb47e;
+  margin: 0 0 20px;
+}
+
+.artifact-narrative {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #b8bcc8;
+  margin-bottom: 20px;
+}
+
+.artifact-drag-hint {
+  font-size: 0.82rem;
+  color: #8a8f9c;
+  margin-bottom: 20px;
+  font-style: italic;
+}
+
+.artifact-credit-line {
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: #6a6f7b;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 14px;
+  margin: 0 0 18px;
+}
+
+.artifact-credit-line a {
+  color: #cbb47e;
+  text-decoration: underline;
+}
+
+.artifact-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+@media (max-width: 600px) {
+  .artifact-inspector-drawer {
+    left: 12px;
+    right: 12px;
+    top: 68px;
+    max-height: calc(100vh - 160px);
+    width: auto;
+    padding: 20px 20px 18px;
+  }
+  .artifact-title {
+    font-size: 1.85rem;
+  }
+}
+
 @media (max-width: 600px) {
   .museum-hud-card {
     left: 12px;
