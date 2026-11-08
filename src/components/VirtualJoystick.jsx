@@ -90,3 +90,4 @@ export default function VirtualJoystick({ onMove, visible = true }) {
     </div>
   )
 }
+

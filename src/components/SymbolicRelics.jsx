@@ -85,16 +85,26 @@ function disposeObject(obj) {
   })
 }
 
-// Fit any loaded object into the target bounding box and center it
+// Fit any loaded object into the target bounding box, center horizontally, and align bottom surface to y = 0
 function fitToBoundingBox(object, targetSize = 1.35) {
   object.updateMatrixWorld(true)
   const box = new THREE.Box3().setFromObject(object)
   const center = box.getCenter(new THREE.Vector3())
   const size = box.getSize(new THREE.Vector3())
   const maxDim = Math.max(size.x, size.y, size.z) || 1
-  object.position.sub(center)
+  
+  // Center horizontally (X and Z) and scale
+  object.position.x -= center.x
+  object.position.z -= center.z
+  object.position.y -= center.y
+  
   const scale = targetSize / maxDim
   object.scale.setScalar(scale)
+
+  // Re-measure after scaling and adjust Y so lowest vertex rests at y = 0
+  object.updateMatrixWorld(true)
+  const scaledBox = new THREE.Box3().setFromObject(object)
+  object.position.y -= scaledBox.min.y
   return scale
 }
 
@@ -267,7 +277,7 @@ export default function SymbolicRelics({ pathname = '/' }) {
     // 2. Scene & Camera
     const scene = new THREE.Scene()
     const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 50)
-    camera.position.set(0, 0.75, 3.2)
+    camera.position.set(0, 0.95, 3.4)
 
     const controls = new OrbitControls(camera, renderer.domElement)
     controls.enableDamping = true
@@ -275,15 +285,15 @@ export default function SymbolicRelics({ pathname = '/' }) {
     controls.minDistance = 1.8
     controls.maxDistance = 6.0
     controls.maxPolarAngle = Math.PI * 0.52
-    controls.target.set(0, 0.15, 0)
+    controls.target.set(0, 0.50, 0)
 
     // 3. Lighting: Warm gallery keylight, fill, and soft hover glow point light
     const ambientLight = new THREE.AmbientLight(0xfff6ea, 0.7)
     scene.add(ambientLight)
 
     const keySpot = new THREE.SpotLight(0xfff4db, 28, 12, 0.52, 0.5, 1.4)
-    keySpot.position.set(1.8, 3.2, 2.4)
-    keySpot.target.position.set(0, 0.2, 0)
+    keySpot.position.set(1.8, 3.4, 2.4)
+    keySpot.target.position.set(0, 0.5, 0)
     keySpot.castShadow = true
     keySpot.shadow.mapSize.width = 1024
     keySpot.shadow.mapSize.height = 1024
@@ -291,17 +301,17 @@ export default function SymbolicRelics({ pathname = '/' }) {
     scene.add(keySpot, keySpot.target)
 
     const fillSpot = new THREE.PointLight(0xd4b886, 1.6, 6)
-    fillSpot.position.set(-2.2, 1.2, -1.2)
+    fillSpot.position.set(-2.2, 1.4, -1.2)
     scene.add(fillSpot)
 
     // Soft glow point light that brightens on hover
     const hoverGlow = new THREE.PointLight(0xffe2a4, 1.4, 4.5)
-    hoverGlow.position.set(0, 0.35, 0.8)
+    hoverGlow.position.set(0, 0.6, 0.8)
     scene.add(hoverGlow)
 
     // 4. Museum Pedestal (RoundedBoxGeometry edges)
     const pedestalGroup = new THREE.Group()
-    pedestalGroup.position.set(0, -0.75, 0)
+    pedestalGroup.position.set(0, -0.65, 0)
 
     const plinthMat = new THREE.MeshStandardMaterial({
       color: 0x181b22,
@@ -339,12 +349,12 @@ export default function SymbolicRelics({ pathname = '/' }) {
       new THREE.MeshBasicMaterial({ color: 0x050608, transparent: true, opacity: 0.55, side: THREE.DoubleSide })
     )
     shadowDisc.rotation.x = -Math.PI / 2
-    shadowDisc.position.y = -0.74
+    shadowDisc.position.y = -0.64
     scene.add(shadowDisc)
 
-    // 5. Model Container & Loader Setup
+    // 5. Model Container & Loader Setup (Positioned right at the top surface of the pedestal)
     const relicContainer = new THREE.Group()
-    relicContainer.position.set(0, 0.22, 0)
+    relicContainer.position.set(0, 0.19, 0)
     scene.add(relicContainer)
 
     const dracoLoader = new DRACOLoader()

@@ -10,7 +10,7 @@ export const answers = [
   {
     theme: 'From Passive Memorization to Narrative Systems Thinking',
     content:
-      'Entering Great Books as a 4th-year BS Information Technology student, I initially expected an archive of ancient texts to memorize for exams. Studying these seven masterpieces changed my perspective entirely: I realized that classic epics engineered the very narrative devices—concentric character arcs, frame structures, and moral dilemmas—that modern serialized media relies on. I now look past surface plots to analyze how form and structure generate meaning.',
+      'Entering Great Books as a 4th-year BS Information Technology student, I initially expected an archive of ancient texts to memorize for exams. Studying these seven masterpieces changed my perspective entirely: I realized that classic epics engineered the very narrative devices (concentric character arcs, frame structures, and moral dilemmas) that modern serialized media relies on. I now look past surface plots to analyze how form and structure generate meaning.',
   },
   {
     theme: 'Navigating Epic Scale, Unfamiliar Civilizations & Moral Ambiguity',

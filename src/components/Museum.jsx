@@ -1059,7 +1059,7 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate,
           if (hitObj && hitObj.userData.index !== undefined) {
             const hitIndex = hitObj.userData.index
             setActive(hitIndex)
-            cb.current.onSelect(hitIndex)
+            cb.current.onSelect(hitIndex, true)
           }
         }
       }

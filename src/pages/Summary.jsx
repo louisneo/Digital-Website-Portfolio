@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import SymbolicRelics from '../components/SymbolicRelics.jsx'
 
 const matrix = [
@@ -75,7 +76,7 @@ const lenses = [
   {
     name: 'Moral & Philosophical Lens',
     focus: 'Ethical Dilemmas & Dharma',
-    desc: 'Examined how characters navigate competing duties—Job rejecting retributive platitudes, Rama and Arjuna confronting moral conflict, and Roland balancing valor (prouesse) with wisdom (sagesse).',
+    desc: 'Examined how characters navigate competing duties: Job rejecting retributive platitudes, Rama and Arjuna confronting moral conflict, and Roland balancing valor (prouesse) with wisdom (sagesse).',
   },
   {
     name: 'Historical & Cultural Lens',
@@ -90,46 +91,118 @@ const lenses = [
 ]
 
 export default function Summary() {
+  const [viewMode, setViewMode] = useState('table')
+
   return (
     <>
       <h1>Summary of Learning</h1>
       <section className="glass g-box reveal">
-        <h3>Masterpieces Across Periods and Cultures</h3>
+        <div className="matrix-section-header">
+          <h3 style={{ margin: 0 }}>Masterpieces Across Periods and Cultures</h3>
+          <div className="matrix-view-toggle" role="tablist" aria-label="Matrix display mode">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={viewMode === 'table'}
+              className={`matrix-toggle-btn ${viewMode === 'table' ? 'is-active' : ''}`}
+              onClick={() => setViewMode('table')}
+            >
+              Table View
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={viewMode === 'cards'}
+              className={`matrix-toggle-btn ${viewMode === 'cards' ? 'is-active' : ''}`}
+              onClick={() => setViewMode('cards')}
+            >
+              Card View
+            </button>
+          </div>
+        </div>
+
         <p style={{ lineHeight: '1.75', color: '#e8e2d4', marginBottom: '1.4rem' }}>
           Across two millennia, four distinct civilizations (the Ancient Near East, classical India, archaic Greece,
           and medieval Europe) confronted the perennial dilemmas of human existence. The matrix below synthesizes
           their central inquiries, historical eras, and primary symbolic artifacts:
         </p>
-        <div style={{ overflowX: 'auto', border: '1px solid rgba(255,255,255,0.18)', borderRadius: '12px' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.84rem', textAlign: 'left' }}>
-            <thead>
-              <tr style={{ background: 'rgba(255,255,255,0.08)', borderBottom: '1px solid rgba(255,255,255,0.2)' }}>
-                <th style={{ padding: '0.75rem 1rem', color: 'var(--gold2)' }}>Work &amp; Author</th>
-                <th style={{ padding: '0.75rem 1rem', color: 'var(--gold2)' }}>Era &amp; Date</th>
-                <th style={{ padding: '0.75rem 1rem', color: 'var(--gold2)' }}>Critical Lens</th>
-                <th style={{ padding: '0.75rem 1rem', color: 'var(--gold2)' }}>Symbolic Artifact</th>
-                <th style={{ padding: '0.75rem 1rem', color: 'var(--gold2)' }}>Core Inquiry</th>
-              </tr>
-            </thead>
-            <tbody>
-              {matrix.map((row, i) => (
-                <tr key={row.title} style={{ borderBottom: i < matrix.length - 1 ? '1px solid rgba(255,255,255,0.1)' : 'none' }}>
-                  <td style={{ padding: '0.75rem 1rem' }}>
-                    <strong style={{ color: '#fff' }}>{row.title}</strong>
-                    <div style={{ fontSize: '0.74rem', color: 'var(--muted)' }}>{row.author}</div>
-                  </td>
-                  <td style={{ padding: '0.75rem 1rem', whiteSpace: 'nowrap' }}>
-                    <div>{row.era}</div>
-                    <div style={{ fontSize: '0.74rem', color: 'var(--muted)' }}>{row.date}</div>
-                  </td>
-                  <td style={{ padding: '0.75rem 1rem', color: 'var(--gold2)' }}>{row.lens}</td>
-                  <td style={{ padding: '0.75rem 1rem' }}>{row.symbol}</td>
-                  <td style={{ padding: '0.75rem 1rem', color: '#d8d2c4', maxWidth: '300px' }}>{row.question}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+
+        {viewMode === 'table' ? (
+          <>
+            {/* Visual Mobile Swipe Indicator */}
+            <div className="table-swipe-indicator" aria-label="Swipe hint">
+              <span className="swipe-hand-icon">⇄</span>
+              <span>Swipe horizontally to view all 5 columns</span>
+              <span className="swipe-arrow-animated">→</span>
+            </div>
+
+            <div className="matrix-table-scroll-wrapper">
+              <div className="matrix-table-container">
+                <table>
+                  <thead>
+                    <tr style={{ background: 'rgba(255,255,255,0.08)', borderBottom: '1px solid rgba(255,255,255,0.2)' }}>
+                      <th style={{ padding: '0.85rem 1rem', color: 'var(--gold2)' }}>Work &amp; Author</th>
+                      <th style={{ padding: '0.85rem 1rem', color: 'var(--gold2)' }}>Era &amp; Date</th>
+                      <th style={{ padding: '0.85rem 1rem', color: 'var(--gold2)' }}>Critical Lens</th>
+                      <th style={{ padding: '0.85rem 1rem', color: 'var(--gold2)' }}>Symbolic Artifact</th>
+                      <th style={{ padding: '0.85rem 1rem', color: 'var(--gold2)' }}>Core Inquiry</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {matrix.map((row, i) => (
+                      <tr key={row.title} style={{ borderBottom: i < matrix.length - 1 ? '1px solid rgba(255,255,255,0.1)' : 'none' }}>
+                        <td style={{ padding: '0.85rem 1rem' }}>
+                          <strong style={{ color: '#fff' }}>{row.title}</strong>
+                          <div style={{ fontSize: '0.74rem', color: 'var(--muted)', marginTop: '2px' }}>{row.author}</div>
+                        </td>
+                        <td style={{ padding: '0.85rem 1rem', whiteSpace: 'nowrap' }}>
+                          <div>{row.era}</div>
+                          <div style={{ fontSize: '0.74rem', color: 'var(--muted)', marginTop: '2px' }}>{row.date}</div>
+                        </td>
+                        <td style={{ padding: '0.85rem 1rem', color: 'var(--gold2)' }}>{row.lens}</td>
+                        <td style={{ padding: '0.85rem 1rem' }}>{row.symbol}</td>
+                        <td style={{ padding: '0.85rem 1rem', color: '#d8d2c4', maxWidth: '300px' }}>{row.question}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
+        ) : (
+          /* Redesigned Responsive Mobile Card View */
+          <div className="matrix-cards-grid">
+            {matrix.map((row, idx) => (
+              <article key={row.title} className="matrix-mobile-card">
+                <div className="matrix-card-top">
+                  <div>
+                    <h4 className="matrix-card-title">{row.title}</h4>
+                    <p className="matrix-card-author">{row.author}</p>
+                  </div>
+                  <div className="matrix-card-era">
+                    <b>{row.era}</b>
+                    <span>{row.date}</span>
+                  </div>
+                </div>
+
+                <div className="matrix-card-row">
+                  <span className="matrix-card-label">Critical Lens</span>
+                  <p className="matrix-card-val lens">{row.lens}</p>
+                </div>
+
+                <div className="matrix-card-row">
+                  <span className="matrix-card-label">Symbolic Artifact</span>
+                  <p className="matrix-card-val">{row.symbol}</p>
+                </div>
+
+                <div className="matrix-card-row">
+                  <span className="matrix-card-label">Core Inquiry</span>
+                  <p className="matrix-card-val">{row.question}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
 
         {/* 3D Symbolic Relics Interactive Showcase */}
         <SymbolicRelics />

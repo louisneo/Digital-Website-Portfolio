@@ -9,7 +9,7 @@ import { artifacts } from '../data/artifacts.js'
 
 export default function MuseumPage() {
   const [active, setActive] = useState(0)
-  const [showArtifactCard, setShowArtifactCard] = useState(true)
+  const [showArtifactCard, setShowArtifactCard] = useState(false)
   const [showLightingPanel, setShowLightingPanel] = useState(false)
   const [lighting, setLighting] = useState(DEFAULT_MUSEUM_LIGHTING)
   const [help, setHelp] = useState(false)
@@ -46,10 +46,10 @@ export default function MuseumPage() {
     }
   }, [])
 
-  const handleSelectExhibit = i => {
+  const handleSelectExhibit = (i, openInfo = false) => {
     setActive(i)
     setHelp(false)
-    if (!showOverviewModal) {
+    if (openInfo) {
       setShowArtifactCard(true)
     }
   }
@@ -62,7 +62,6 @@ export default function MuseumPage() {
 
   const handleCloseOverview = () => {
     setShowOverviewModal(false)
-    setShowArtifactCard(true)
   }
 
   return (
@@ -96,11 +95,11 @@ export default function MuseumPage() {
         </aside>
       )}
 
-      {/* Virtual Analog Touch Joystick for Mobile / Tablet */}
+      {/* Virtual Analog Touch Joystick for Mobile / Tablet (Hidden when artifact infos or modals are displayed to eliminate overlap) */}
       {isTouchDevice && (
         <VirtualJoystick
           onMove={setJoystickVector}
-          visible={!showOverviewModal && !help}
+          visible={!showOverviewModal && !help && !showArtifactCard}
         />
       )}
 
