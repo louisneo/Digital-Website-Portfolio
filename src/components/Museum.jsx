@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
+import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js'
 import { wrapText } from '../lib/cover.js'
 import { createRelicModel } from '../lib/relicModels.js'
 import { artifacts } from '../data/artifacts.js'
@@ -137,7 +139,6 @@ function makeFloorTexture() {
   g.fillStyle = '#261810'
   g.fillRect(0, 0, 1024, 1024)
 
-  // Parquet / Herringbone pattern with grain variation
   const tiles = 8
   const tileSize = 1024 / tiles
   for (let ty = 0; ty < tiles; ty++) {
@@ -151,7 +152,6 @@ function makeFloorTexture() {
       g.fillStyle = `hsl(${26 + hueVar}, 34%, ${22 + lightVar}%)`
       g.fillRect(x + 1, y + 1, tileSize - 2, tileSize - 2)
 
-      // Individual wood planks
       for (let p = 0; p < 4; p++) {
         g.strokeStyle = 'rgba(12, 7, 4, 0.45)'
         g.lineWidth = 2
@@ -173,18 +173,15 @@ function makeFloorTexture() {
 }
 
 // 2048x2048 Razor-Sharp High-DPI Wall Typography Plaque
-// (Completely eliminates blur; matching reference photo wall typography)
 function makeWallTextCanvas(work, station) {
   const c = document.createElement('canvas')
   c.width = 2048
   c.height = 2048
   const g = c.getContext('2d')
 
-  // Clean, warm museum linen-white background matching gallery plaster
   g.fillStyle = '#f8f4ee'
   g.fillRect(0, 0, 2048, 2048)
 
-  // Architectural border rule
   g.strokeStyle = '#ded4c0'
   g.lineWidth = 14
   g.strokeRect(50, 50, 1948, 1948)
@@ -195,7 +192,7 @@ function makeWallTextCanvas(work, station) {
   g.letterSpacing = '6px'
   g.fillText(station.wing.toUpperCase(), 120, 180)
 
-  // Masterpiece Title in Bold Classic Serif
+  // Masterpiece Title
   g.fillStyle = '#121212'
   g.font = '700 86px "Playfair Display", "Cormorant Garamond", Georgia, serif'
   g.textAlign = 'left'
@@ -218,21 +215,21 @@ function makeWallTextCanvas(work, station) {
   g.stroke()
   y += 90
 
-  // Philosophical Curatorial Hook (Italic Serif)
+  // Philosophical Curatorial Hook
   g.fillStyle = '#221e1a'
   g.font = 'italic 500 52px "Playfair Display", Georgia, serif'
   const quoteText = work.hook || work.description || ''
   y = wrapText(g, `“${quoteText}”`, 120, y, 1780, 72)
   y += 70
 
-  // Curatorial Narrative Context Excerpt
+  // Narrative Context
   g.fillStyle = '#343029'
   g.font = '400 42px -apple-system, "Segoe UI", Roboto, sans-serif'
   const narrative = work.context || work.summary || ''
   y = wrapText(g, narrative, 120, y, 1780, 64)
   y += 80
 
-  // Key Themes Chips Line
+  // Themes
   g.fillStyle = '#8c6827'
   g.font = '600 38px "Oswald", sans-serif'
   g.letterSpacing = '3px'
@@ -280,37 +277,42 @@ function makeAmphora(THREE, mat) {
   return grp
 }
 
-// Modern Museum Gallery Bench (wood + leather cushion)
+// Modern Museum Gallery Bench with soft rounded edges
 function makeMuseumBench(THREE, woodMat, leatherMat) {
   const grp = new THREE.Group()
-  const seat = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.22, 0.85), leatherMat)
+  const seat = new THREE.Mesh(new RoundedBoxGeometry(2.4, 0.22, 0.85, 4, 0.03), leatherMat)
   seat.position.y = 0.52
+  seat.castShadow = true
+  seat.receiveShadow = true
   grp.add(seat)
-  const frame = new THREE.Mesh(new THREE.BoxGeometry(2.44, 0.08, 0.89), woodMat)
+
+  const frame = new THREE.Mesh(new RoundedBoxGeometry(2.44, 0.08, 0.89, 3, 0.015), woodMat)
   frame.position.y = 0.39
+  frame.castShadow = true
+  frame.receiveShadow = true
   grp.add(frame)
+
   ;[-1.0, 1.0].forEach(x => {
-    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.38, 0.75), woodMat)
+    const leg = new THREE.Mesh(new RoundedBoxGeometry(0.1, 0.38, 0.75, 2, 0.01), woodMat)
     leg.position.set(x, 0.19, 0)
+    leg.castShadow = true
+    leg.receiveShadow = true
     grp.add(leg)
   })
   return grp
 }
 
 // Free-standing partition wall with rounded corners and wood baseboards
-// (Matching reference photo media_1794126160696_477e6c04.jpg)
 function makePartitionWall(THREE, width, height, depth, wallMat, woodMat) {
   const grp = new THREE.Group()
 
-  // Main architectural wall body
-  const body = new THREE.Mesh(new THREE.BoxGeometry(width, height, depth), wallMat)
+  const body = new THREE.Mesh(new RoundedBoxGeometry(width, height, depth, 4, 0.035), wallMat)
   body.position.y = height / 2
   body.castShadow = true
   body.receiveShadow = true
   grp.add(body)
 
-  // Walnut baseboard skirting board around the bottom
-  const baseboard = new THREE.Mesh(new THREE.BoxGeometry(width + 0.06, 0.24, depth + 0.06), woodMat)
+  const baseboard = new THREE.Mesh(new RoundedBoxGeometry(width + 0.06, 0.24, depth + 0.06, 3, 0.018), woodMat)
   baseboard.position.y = 0.12
   baseboard.receiveShadow = true
   grp.add(baseboard)
@@ -332,10 +334,12 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
     const size = () => [el.clientWidth || window.innerWidth, el.clientHeight || window.innerHeight]
     const [w0, h0] = size()
 
-    // 1. Renderer Setup
+    // 1. Renderer Setup with phone-capped pixel ratio & ACES Tone Mapping
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
     const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' })
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    renderer.setPixelRatio(isMobile ? Math.min(window.devicePixelRatio, 1.5) : Math.min(window.devicePixelRatio, 2))
     renderer.setSize(w0, h0)
+    renderer.outputColorSpace = THREE.SRGBColorSpace
     renderer.toneMapping = THREE.ACESFilmicToneMapping
     renderer.toneMappingExposure = 1.15
     renderer.shadowMap.enabled = true
@@ -353,36 +357,47 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
     dolly.add(camera)
     scene.add(dolly)
 
-    // 3. Materials
+    // 3. RoomEnvironment for realistic soft IBL reflections
+    const pmremGenerator = new THREE.PMREMGenerator(renderer)
+    pmremGenerator.compileEquirectangularShader()
+    const roomEnv = new RoomEnvironment()
+    const envTexture = pmremGenerator.fromScene(roomEnv, 0.04).texture
+    scene.environment = envTexture
+
+    // 4. Materials with dialed PBR roughness and metalness
     const floorTex = makeFloorTexture()
     const floorMat = new THREE.MeshStandardMaterial({
       map: floorTex,
       roughness: 0.28,
-      metalness: 0.08,
+      metalness: 0.05,
     })
 
     const wallMat = new THREE.MeshStandardMaterial({
-      color: 0xf5efe6, // Warm off-white museum plaster
+      color: 0xf5efe7, // Warm contemporary gallery plaster
       roughness: 0.92,
       metalness: 0.02,
     })
 
-    const walnutMat = new THREE.MeshStandardMaterial({
+    const walnutMat = new THREE.MeshPhysicalMaterial({
       color: 0x361f12, // Rich dark walnut baseboards & wood trim
-      roughness: 0.45,
+      roughness: 0.38,
       metalness: 0.05,
+      clearcoat: 0.18,
+      clearcoatRoughness: 0.2,
     })
 
     const leatherMat = new THREE.MeshStandardMaterial({
       color: 0x1b1d22, // Charcoal leather bench
-      roughness: 0.65,
-      metalness: 0.1,
+      roughness: 0.6,
+      metalness: 0.08,
     })
 
-    const brassMat = new THREE.MeshStandardMaterial({
+    const brassMat = new THREE.MeshPhysicalMaterial({
       color: 0xd8b570, // Brushed museum brass
-      metalness: 0.9,
-      roughness: 0.24,
+      metalness: 0.92,
+      roughness: 0.22,
+      clearcoat: 0.35,
+      clearcoatRoughness: 0.15,
     })
 
     const marbleMat = new THREE.MeshStandardMaterial({
@@ -399,18 +414,19 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
 
     const plinthMat = new THREE.MeshStandardMaterial({
       color: 0xfaf7f2, // White stepped museum pedestal
-      roughness: 0.3,
+      roughness: 0.35,
       metalness: 0.02,
     })
 
+    // Glass display case with transmission
     const glassMat = new THREE.MeshPhysicalMaterial({
       color: 0xffffff,
       transparent: true,
-      opacity: 0.2,
-      roughness: 0.03,
+      opacity: 0.18,
+      roughness: 0.04,
       metalness: 0.05,
-      transmission: 0.94,
-      thickness: 0.4,
+      transmission: 0.95,
+      thickness: 0.45,
       ior: 1.52,
       side: THREE.DoubleSide,
       depthWrite: false,
@@ -422,14 +438,12 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
       metalness: 0.4,
     })
 
-    // 4. Room Construction: Floor, Outer Walls & Slatted Ceiling
-    // Floor
+    // 5. Room Construction: Floor, Outer Walls & Slatted Ceiling
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_D), floorMat)
     floor.rotation.x = -Math.PI / 2
     floor.receiveShadow = true
     scene.add(floor)
 
-    // Outer Gallery Walls
     const wallNorth = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_H), wallMat)
     wallNorth.position.set(0, ROOM_H / 2, -ROOM_D / 2)
     wallNorth.receiveShadow = true
@@ -453,7 +467,7 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
     wallEast.receiveShadow = true
     scene.add(wallEast)
 
-    // Dark Slatted Ceiling with Acoustic Louvers (matching reference photo)
+    // Slatted ceiling beams
     const ceilMat = new THREE.MeshStandardMaterial({ color: 0x14161a, roughness: 0.95 })
     const ceil = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_D), ceilMat)
     ceil.rotation.x = Math.PI / 2
@@ -462,19 +476,19 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
 
     const louverMat = new THREE.MeshStandardMaterial({ color: 0x181a1f, roughness: 0.85 })
     for (let z = -ROOM_D / 2 + 1.2; z < ROOM_D / 2; z += 0.55) {
-      const slat = new THREE.Mesh(new THREE.BoxGeometry(ROOM_W - 2, 0.14, 0.08), louverMat)
+      const slat = new THREE.Mesh(new RoundedBoxGeometry(ROOM_W - 2, 0.14, 0.08, 2, 0.01), louverMat)
       slat.position.set(0, ROOM_H - 0.07, z)
       scene.add(slat)
     }
 
-    // 5. Ambient & Gallery Lighting
-    const hemiLight = new THREE.HemisphereLight(0xfffaed, 0x2d241c, 0.9)
+    // 6. Ambient & Gallery Lighting
+    const hemiLight = new THREE.HemisphereLight(0xfffaed, 0x2d241c, 0.85)
     scene.add(hemiLight)
 
-    const ambientLight = new THREE.AmbientLight(0xfff6ea, 0.45)
+    const ambientLight = new THREE.AmbientLight(0xfff6ea, 0.42)
     scene.add(ambientLight)
 
-    // 6. Free-Standing Partition Walls & Exhibit Stations (Non-Linear Architecture)
+    // 7. Interactive Exhibit Stations
     const hitObjects = []
     const vitrineCases = []
     const spots = []
@@ -484,8 +498,7 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
     works.forEach((work, i) => {
       const st = EXHIBIT_STATIONS[i] || EXHIBIT_STATIONS[0]
 
-      // A. Free-Standing Architectural Partition Wall
-      // (Wide enough for painting + wall text side-by-side with rounded aesthetic)
+      // A. Partition Wall with RoundedBoxGeometry edges
       const wallW = 5.6
       const wallH = 4.4
       const wallD = 0.55
@@ -494,18 +507,17 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
       partition.rotation.y = st.wallRotY
       scene.add(partition)
 
-      // B. Large Framed Artwork Mounted on the Partition Wall
+      // B. Framed Painting with RoundedBoxGeometry frame
       const frameGroup = new THREE.Group()
-      // Position artwork on the left half of the partition wall face
       frameGroup.position.set(-1.25, 2.5, wallD / 2 + 0.05)
 
       const fw = 2.2, fh = 1.7
       const outerFrame = new THREE.Mesh(
-        new THREE.BoxGeometry(fw, fh, 0.08),
+        new RoundedBoxGeometry(fw, fh, 0.08, 3, 0.015),
         new THREE.MeshStandardMaterial({ color: 0x20170f, roughness: 0.45, metalness: 0.1 })
       )
       const innerGoldFillet = new THREE.Mesh(
-        new THREE.BoxGeometry(fw - 0.08, fh - 0.08, 0.085),
+        new RoundedBoxGeometry(fw - 0.08, fh - 0.08, 0.085, 2, 0.01),
         brassMat
       )
 
@@ -521,7 +533,7 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
       paintingArt.castShadow = true
       frameGroup.add(outerFrame, innerGoldFillet, paintingArt)
 
-      // Overhead picture light fixture
+      // Picture light fixture
       const picLightBar = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.85, 16), brassMat)
       picLightBar.rotation.z = Math.PI / 2
       picLightBar.position.set(0, fh / 2 + 0.18, 0.22)
@@ -533,8 +545,7 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
       partition.add(frameGroup)
       frameGroup.traverse(o => { o.userData.index = i; if (o.isMesh) hitObjects.push(o) })
 
-      // C. Razor-Sharp 2048x2048 Wall Plaque Typography Canvas
-      // Mounted on the right half of the partition wall face
+      // C. 2048x2048 High-DPI Wall Plaque Typography Canvas
       const textGroup = new THREE.Group()
       textGroup.position.set(1.25, 2.45, wallD / 2 + 0.03)
       const textTex = makeWallTextCanvas(work, st)
@@ -549,35 +560,39 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
       partition.add(textGroup)
       textGroup.traverse(o => { o.userData.index = i; if (o.isMesh) hitObjects.push(o) })
 
-      // D. Focused Overhead Ceiling Spotlight
-      const spotLight = new THREE.SpotLight(0xfff6e4, 38, 16, 0.55, 0.5, 1.4)
-      spotLight.position.set(st.x, ROOM_H - 0.3, st.z + 1.6)
+      // D. Warm Spotlight with 2048 Soft Shadows (at most two shadow casters active at once)
+      const spotLight = new THREE.SpotLight(0xfff3dc, 36, 14, 0.54, 0.5, 1.4)
+      spotLight.position.set(st.x, ROOM_H - 0.25, st.z + 1.2)
       spotLight.target.position.set(st.x, 1.45, st.z)
-      spotLight.castShadow = true
+      spotLight.shadow.mapSize.width = 2048
+      spotLight.shadow.mapSize.height = 2048
+      spotLight.shadow.bias = -0.00012
+      spotLight.shadow.radius = 2.4
+      // Only active and adjacent light cast shadows to satisfy constraint: no more than two shadow lights active at once
+      spotLight.castShadow = (i === active || i === (active + 1) % works.length)
       scene.add(spotLight, spotLight.target)
       spots.push(spotLight)
 
-      // E. Stepped Plinth Pedestal with Clear Glass Vitrine Case
+      // E. Stepped Plinth Pedestal with RoundedBoxGeometry
       const pedGroup = new THREE.Group()
       pedGroup.position.set(st.x, 0, st.z)
       pedGroup.rotation.y = st.rotY
 
-      // Stepped museum plinth
-      const baseBottom = new THREE.Mesh(new THREE.BoxGeometry(1.36, 0.1, 1.36), plinthMat)
+      const baseBottom = new THREE.Mesh(new RoundedBoxGeometry(1.36, 0.1, 1.36, 4, 0.02), plinthMat)
       baseBottom.position.y = 0.05
       baseBottom.receiveShadow = true
 
-      const baseColumn = new THREE.Mesh(new THREE.BoxGeometry(1.18, 0.72, 1.18), plinthMat)
+      const baseColumn = new THREE.Mesh(new RoundedBoxGeometry(1.18, 0.72, 1.18, 4, 0.025), plinthMat)
       baseColumn.position.y = 0.46
       baseColumn.castShadow = true
       baseColumn.receiveShadow = true
 
-      const baseTopCap = new THREE.Mesh(new THREE.BoxGeometry(1.34, 0.08, 1.34), plinthMat)
+      const baseTopCap = new THREE.Mesh(new RoundedBoxGeometry(1.34, 0.08, 1.34, 4, 0.02), plinthMat)
       baseTopCap.position.y = 0.86
       baseTopCap.receiveShadow = true
       pedGroup.add(baseBottom, baseColumn, baseTopCap)
 
-      // Glass vitrine case (lifts open on click)
+      // Glass vitrine display case with transmission
       const glassGroup = new THREE.Group()
       glassGroup.position.set(0, 0.9, 0)
 
@@ -592,12 +607,12 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
       )
       caseEdges.position.copy(caseGlass.position)
 
-      const topEdgeBand = new THREE.Mesh(new THREE.BoxGeometry(caseW + 0.02, 0.02, caseW + 0.02), glassFrameMat)
+      const topEdgeBand = new THREE.Mesh(new RoundedBoxGeometry(caseW + 0.02, 0.02, caseW + 0.02, 2, 0.005), glassFrameMat)
       topEdgeBand.position.y = caseH
       glassGroup.add(caseGlass, caseEdges, topEdgeBand)
       pedGroup.add(glassGroup)
 
-      // Authentic 3D Procedural Museum Relic (Elevated High-Detail Models)
+      // Authentic 3D Procedural Museum Relic
       let relic3D = null
       try {
         relic3D = createRelicModel(THREE, work.title)
@@ -610,13 +625,12 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
       relic3D.scale.set(0.92, 0.92, 0.92)
       pedGroup.add(relic3D)
 
-      // Golden light beam inside vitrine
       const vitrineGlow = new THREE.PointLight(0xffe2a8, 2.8, 3.5)
       vitrineGlow.position.set(0, 1.46, 0)
       pedGroup.add(vitrineGlow)
 
-      // Brass Identification Plaque on Front
-      const plaqueMesh = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.22, 0.02), brassMat)
+      // Brass Identification Plaque with RoundedBoxGeometry
+      const plaqueMesh = new THREE.Mesh(new RoundedBoxGeometry(0.55, 0.22, 0.02, 2, 0.01), brassMat)
       plaqueMesh.position.set(0, 0.55, 0.6)
       pedGroup.add(plaqueMesh)
 
@@ -639,14 +653,12 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
       })
     })
 
-    // 7. Architectural Enrichments: Free-Standing Island Partitions, Benches & Sculptures
-    // Central Atrium Island Wall (creating non-linear wandering flow like in reference photo)
+    // 8. Architectural Enrichments
     const centralIsland1 = makePartitionWall(THREE, 4.2, 4.0, 0.6, wallMat, walnutMat)
     centralIsland1.position.set(-1.5, 0, 1.5)
     centralIsland1.rotation.y = Math.PI / 4
     scene.add(centralIsland1)
 
-    // Gallery Benches in Atrium & Corridors
     const bench1 = makeMuseumBench(THREE, walnutMat, leatherMat)
     bench1.position.set(0, 0, 4.5)
     scene.add(bench1)
@@ -661,7 +673,6 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
     bench3.rotation.y = -Math.PI / 2
     scene.add(bench3)
 
-    // Marble pedestals with classical amphorae in open circulation bays
     const urnBays = [
       [-ROOM_W / 2 + 3.2, -ROOM_D / 2 + 3.2],
       [ROOM_W / 2 - 3.2, -ROOM_D / 2 + 3.2],
@@ -673,11 +684,11 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
       const urnStand = new THREE.Group()
       urnStand.position.set(ux, 0, uz)
 
-      const pedBase = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.1, 0.72), marbleMat)
+      const pedBase = new THREE.Mesh(new RoundedBoxGeometry(0.72, 0.1, 0.72, 3, 0.015), marbleMat)
       pedBase.position.y = 0.05
       const pedCol = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.26, 0.88, 20), marbleMat)
       pedCol.position.y = 0.54
-      const pedCap = new THREE.Mesh(new THREE.BoxGeometry(0.66, 0.08, 0.66), marbleMat)
+      const pedCap = new THREE.Mesh(new RoundedBoxGeometry(0.66, 0.08, 0.66, 3, 0.015), marbleMat)
       pedCap.position.y = 1.02
       urnStand.add(pedBase, pedCol, pedCap)
 
@@ -688,7 +699,7 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
       scene.add(urnStand)
     })
 
-    // 8. Orbit Controls & Camera Navigation
+    // 9. Orbit Controls & Camera Navigation (unaltered controls and logic)
     const controls = new OrbitControls(camera, renderer.domElement)
     controls.enableDamping = true
     controls.dampingFactor = 0.08
@@ -709,14 +720,17 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
         tgt: new THREE.Vector3(st.lookX, st.lookY, st.lookZ),
       }
 
-      // Automatically lift the vitrine case of the active exhibit
       vitrineCases.forEach((vc, idx) => {
         vc.isOpen = idx === i
+      })
+
+      // Ensure no more than two shadow-casting lights active at once
+      spots.forEach((spot, idx) => {
+        spot.castShadow = (idx === i || idx === (i + 1) % works.length)
       })
     }
     api.current.setActive = setActive
 
-    // Initial camera position
     {
       const st = EXHIBIT_STATIONS[active] || EXHIBIT_STATIONS[0]
       camera.position.set(st.camX, st.camY, st.camZ)
@@ -725,7 +739,7 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
       goal = null
     }
 
-    // 9. Interactive Pointer Handling: Click to Open Glass & Float Object
+    // 10. Interactive Pointer Handling: Click to Open Glass & Float Object (unaltered logic)
     const rc = new THREE.Raycaster()
     const ndc = new THREE.Vector2()
 
@@ -767,7 +781,7 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
     dom.addEventListener('pointerup', onPointerUp)
     dom.addEventListener('pointermove', onPointerMove)
 
-    // 10. Keyboard Walking (WASD / Arrows)
+    // Keyboard Walking
     const keys = {}
     const onKey = v => e => {
       if (/INPUT|TEXTAREA/.test(document.activeElement?.tagName)) return
@@ -794,7 +808,6 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
       const dt = Math.min(clock.getDelta(), 0.1)
       const t = clock.elapsedTime
 
-      // Camera lerp
       if (goal) {
         const k = 1 - Math.pow(0.002, dt)
         camera.position.lerp(goal.pos, k)
@@ -804,7 +817,6 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
         }
       }
 
-      // WASD navigation
       mv.set(0, 0, 0)
       camera.getWorldDirection(fwd); fwd.y = 0; fwd.normalize()
       side.crossVectors(fwd, camera.up).normalize()
@@ -823,23 +835,19 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
       }
       controls.update()
 
-      // Spotlights breathing
       spots.forEach((spot, i) => {
         const targetIntensity = i === activeIdx ? 48 : 22
         spot.intensity += (targetIntensity - spot.intensity) * 0.1
       })
 
-      // Vitrine Glass Opening & 3D Relic Floating Animation
       vitrineCases.forEach(vc => {
         const targetProg = vc.isOpen ? 1 : 0
         vc.openProgress += (targetProg - vc.openProgress) * 0.08
 
-        // Glass lifts UP into the air
         const glassY = 0.9 + vc.openProgress * 1.45
         vc.glassGroup.position.y = glassY
         vc.glassGroup.rotation.x = -vc.openProgress * 0.12
 
-        // Relic floats UP to eye level and rotates
         const floatElevation = vc.openProgress * 0.55
         const levitation = vc.isOpen ? Math.sin(t * 2.2) * 0.05 : 0
         vc.relic3D.position.y = vc.defaultRelicY + floatElevation + levitation
@@ -867,6 +875,8 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
       window.removeEventListener('keydown', kd)
       window.removeEventListener('keyup', ku)
       controls.dispose()
+      pmremGenerator.dispose()
+      envTexture.dispose()
       scene.traverse(o => {
         if (o.geometry) o.geometry.dispose()
         if (o.material) {
