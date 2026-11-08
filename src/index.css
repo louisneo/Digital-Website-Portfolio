@@ -449,6 +449,121 @@ button { font: inherit; }
 .museum-x:hover { color: var(--head); }
 @media (max-width: 600px) { .museum-name { display: none; } }
 
+/* Museum HUD Floating Exhibit Badge (Bottom-Left) */
+.museum-hud-card {
+  position: absolute;
+  left: 24px;
+  bottom: 74px;
+  z-index: 10;
+  max-width: 420px;
+  background: rgba(18, 22, 28, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(216, 189, 146, 0.35);
+  border-radius: 16px;
+  padding: 20px 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+  pointer-events: auto;
+}
+
+.hud-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 600 0.72rem var(--cond);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+
+.hud-roman {
+  font-family: var(--serif);
+  font-size: 1rem;
+  font-weight: 700;
+  color: #eed6ad;
+}
+
+.hud-sep {
+  color: var(--muted);
+}
+
+.hud-title {
+  font: 500 1.4rem/1.2 var(--serif);
+  color: #ffffff;
+  margin: 0 0 4px;
+}
+
+.hud-author {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0 0 10px;
+}
+
+.hud-hint {
+  font: 500 0.75rem var(--cond);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin: 0 0 14px;
+  background: rgba(216, 189, 146, 0.12);
+  padding: 5px 10px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.hud-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-hud-open {
+  padding: 7px 16px;
+  border-radius: 999px;
+  background: rgba(36, 42, 54, 0.9);
+  border: 1px solid rgba(216, 189, 146, 0.3);
+  color: #e8d0a8;
+  font: 600 0.72rem var(--cond);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.btn-hud-open:hover {
+  background: rgba(48, 56, 72, 1);
+  border-color: #d8bd92;
+  color: #fff;
+}
+
+.btn-hud-analysis {
+  padding: 7px 16px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #d8bd92, #b88d44);
+  color: #111317;
+  font: 600 0.72rem var(--cond);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.btn-hud-analysis:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 600px) {
+  .museum-hud-card {
+    left: 12px;
+    right: 12px;
+    bottom: 68px;
+    max-width: none;
+    padding: 14px 18px;
+  }
+}
+
 
 /* =========================================================
    ANALYSES TAB DETAIL STYLING (matching user uploaded image)

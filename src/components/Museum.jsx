@@ -3,12 +3,14 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js'
 import { drawCover, wrapText, onCoverImageLoad } from '../lib/cover.js'
+import { createRelicModel } from '../lib/relicModels.js'
 
-const SPACING = 5.2
+const SPACING = 6.8
 const PED_Z = -2.2
 const px = i => (i - 3) * SPACING
-const ROOM_W = 44, ROOM_D = 14, ROOM_H = 6
-const RELICS = {
+const ROOM_W = 56, ROOM_D = 18, ROOM_H = 6.2
+
+const RELIC_IMAGES = {
   'Voice out of the Whirlwind': 'relics/job-whirlwind.png',
   'The Panchatantra': 'relics/panchatantra-manuscript.png',
   'The Ramayana': 'relics/rama-bow.png',
@@ -18,67 +20,165 @@ const RELICS = {
   'The Song of Roland': 'relics/roland-oliphant.png',
 }
 
-function makeFloor() {
+// Procedural rich dark walnut parquet floor texture
+function makeFloorTexture() {
   const c = document.createElement('canvas')
   c.width = c.height = 512
   const g = c.getContext('2d')
-  g.strokeStyle = 'rgba(40,20,5,.55)'
-  g.lineWidth = 2
-  for (let ty = 0; ty < 4; ty++) for (let tx = 0; tx < 4; tx++) {
-    const horiz = (tx + ty) % 2 === 0
-    for (let k = 0; k < 4; k++) {
-      const x = tx * 128, y = ty * 128
-      g.fillStyle = `hsl(${26 + Math.random() * 6} 42% ${30 + Math.random() * 10}%)`
-      if (horiz) { g.fillRect(x, y + k * 32, 128, 32); g.strokeRect(x, y + k * 32, 128, 32) }
-      else { g.fillRect(x + k * 32, y, 32, 128); g.strokeRect(x + k * 32, y, 32, 128) }
+
+  // Dark rich walnut base
+  g.fillStyle = '#22150e'
+  g.fillRect(0, 0, 512, 512)
+
+  // Herringbone / parquet pattern
+  for (let ty = 0; ty < 8; ty++) {
+    for (let tx = 0; tx < 8; tx++) {
+      const isAlt = (tx + ty) % 2 === 0
+      const x = tx * 64
+      const y = ty * 64
+
+      // Subtle wood grain variation
+      const hueVar = Math.floor(Math.random() * 8) - 4
+      const lightVar = Math.floor(Math.random() * 12) - 6
+      g.fillStyle = `hsl(${28 + hueVar}, 38%, ${20 + lightVar}%)`
+      g.fillRect(x + 1, y + 1, 62, 62)
+
+      // Fine wood planks
+      for (let p = 0; p < 4; p++) {
+        g.strokeStyle = 'rgba(15, 8, 4, 0.45)'
+        g.lineWidth = 1
+        if (isAlt) {
+          g.strokeRect(x, y + p * 16, 64, 16)
+        } else {
+          g.strokeRect(x + p * 16, y, 16, 64)
+        }
+      }
     }
   }
-  const t = new THREE.CanvasTexture(c)
-  t.wrapS = t.wrapT = THREE.RepeatWrapping
-  t.repeat.set(ROOM_W / 4, ROOM_D / 4)
-  t.colorSpace = THREE.SRGBColorSpace
-  t.anisotropy = 8
-  return t
+
+  const tex = new THREE.CanvasTexture(c)
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping
+  tex.repeat.set(ROOM_W / 3.5, ROOM_D / 3.5)
+  tex.colorSpace = THREE.SRGBColorSpace
+  tex.anisotropy = 8
+  return tex
 }
 
-function wallGroup(len) {
+// Wall typography canvas plaque (matching reference photo Lorem Ipsum wall text)
+function makeWallTextCanvas(work) {
+  const c = document.createElement('canvas')
+  c.width = 768
+  c.height = 960
+  const g = c.getContext('2d')
+
+  // Transparent background
+  g.clearRect(0, 0, c.width, c.height)
+
+  // Title in clean modern serif
+  g.fillStyle = '#1c1b18'
+  g.font = '600 48px "Cormorant Garamond", Georgia, serif'
+  g.textAlign = 'left'
+  let y = wrapText(g, work.title, 40, 70, 680, 54)
+
+  // Metadata
+  g.fillStyle = '#8c6b38'
+  g.font = '500 24px "Oswald", "Arial Narrow", sans-serif'
+  g.letterSpacing = '3px'
+  const authorLine = `${work.author.toUpperCase()} · ${work.era || 'CLASSIC'}`
+  g.fillText(authorLine, 40, y + 25)
+  y += 55
+
+  // Thin separator rule
+  g.strokeStyle = '#c8a462'
+  g.lineWidth = 2
+  g.beginPath()
+  g.moveTo(40, y)
+  g.lineTo(160, y)
+  g.stroke()
+  y += 35
+
+  // Subtitle / Philosophical inquiry
+  g.fillStyle = '#2d2822'
+  g.font = 'italic 500 30px "Cormorant Garamond", Georgia, serif'
+  y = wrapText(g, `“${work.hook || work.description || ''}”`, 40, y, 680, 38)
+  y += 20
+
+  // Narrative analysis excerpt
+  g.fillStyle = '#4a443b'
+  g.font = '400 22px "Inter", system-ui, sans-serif'
+  y = wrapText(g, work.context || work.summary || '', 40, y, 680, 34)
+
+  const tex = new THREE.CanvasTexture(c)
+  tex.colorSpace = THREE.SRGBColorSpace
+  tex.anisotropy = 8
+  return tex
+}
+
+// Classical Museum Amphora / Vase for decorative display
+function makeAmphora(THREE, mat) {
   const grp = new THREE.Group()
-  const upper = new THREE.Mesh(new THREE.PlaneGeometry(len, ROOM_H), new THREE.MeshStandardMaterial({ color: 0x8a6a52, roughness: 0.9 }))
-  upper.position.y = ROOM_H / 2
-  grp.add(upper)
-  const lowerMat = new THREE.MeshStandardMaterial({ color: 0xcfbd9a, roughness: 0.8 })
-  const lower = new THREE.Mesh(new THREE.PlaneGeometry(len, 1.3), lowerMat)
-  lower.position.set(0, 0.65, 0.01)
-  grp.add(lower)
-  const panelMat = new THREE.MeshStandardMaterial({ color: 0xdccba8, roughness: 0.7 })
-  for (let x = -len / 2 + 1.1; x < len / 2 - 0.5; x += 2.2) {
-    const p = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.8, 0.04), panelMat)
-    p.position.set(x, 0.7, 0.03)
-    grp.add(p)
-  }
-  const trim = new THREE.MeshStandardMaterial({ color: 0xe8dcc0, roughness: 0.6 })
-  const rail = new THREE.Mesh(new THREE.BoxGeometry(len, 0.1, 0.1), trim)
-  rail.position.set(0, 1.35, 0.05)
-  grp.add(rail)
-  const base = new THREE.Mesh(new THREE.BoxGeometry(len, 0.22, 0.08), trim)
-  base.position.set(0, 0.11, 0.04)
-  grp.add(base)
+  const points = []
+  // Profile points for a Greek amphora
+  points.push(new THREE.Vector2(0.01, 0))
+  points.push(new THREE.Vector2(0.12, 0.03))
+  points.push(new THREE.Vector2(0.08, 0.12))
+  points.push(new THREE.Vector2(0.22, 0.38))
+  points.push(new THREE.Vector2(0.24, 0.55))
+  points.push(new THREE.Vector2(0.18, 0.72))
+  points.push(new THREE.Vector2(0.09, 0.88))
+  points.push(new THREE.Vector2(0.12, 0.95))
+  points.push(new THREE.Vector2(0.14, 0.98))
+
+  const vaseGeo = new THREE.LatheGeometry(points, 24)
+  const vase = new THREE.Mesh(vaseGeo, mat)
+  grp.add(vase)
+
+  // Handles
+  const handleCurveL = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(-0.16, 0.78, 0),
+    new THREE.Vector3(-0.28, 0.65, 0),
+    new THREE.Vector3(-0.24, 0.45, 0),
+    new THREE.Vector3(-0.19, 0.42, 0),
+  ])
+  const handleGeo = new THREE.TubeGeometry(handleCurveL, 20, 0.018, 8, false)
+  const handleL = new THREE.Mesh(handleGeo, mat)
+  const handleR = handleL.clone()
+  handleR.rotation.y = Math.PI
+  grp.add(handleL, handleR)
   return grp
 }
 
-function hotspotTexture() {
-  const c = document.createElement('canvas')
-  c.width = c.height = 128
-  const g = c.getContext('2d')
-  g.shadowColor = 'rgba(0,0,0,.45)'
-  g.shadowBlur = 12
-  g.fillStyle = '#fff'
-  g.beginPath(); g.arc(64, 64, 34, 0, Math.PI * 2); g.fill()
-  g.shadowBlur = 0
-  g.strokeStyle = 'rgba(255,255,255,.7)'
-  g.lineWidth = 5
-  g.beginPath(); g.arc(64, 64, 48, 0, Math.PI * 2); g.stroke()
-  return new THREE.CanvasTexture(c)
+// Modern Museum Gallery Bench (wood + leather)
+function makeMuseumBench(THREE, woodMat, leatherMat) {
+  const grp = new THREE.Group()
+  // Leather cushion
+  const seat = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.22, 0.85), leatherMat)
+  seat.position.y = 0.52
+  grp.add(seat)
+  // Wood frame underneath
+  const frame = new THREE.Mesh(new THREE.BoxGeometry(2.44, 0.08, 0.89), woodMat)
+  frame.position.y = 0.39
+  grp.add(frame)
+  // Steel/wood legs
+  ;[-1.0, 1.0].forEach(x => {
+    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.38, 0.75), woodMat)
+    leg.position.set(x, 0.19, 0)
+    grp.add(leg)
+  })
+  return grp
+}
+
+// Brass Stanchion Guardrail Post
+function makeStanchion(THREE, brassMat) {
+  const grp = new THREE.Group()
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.18, 0.05, 24), brassMat)
+  base.position.y = 0.025
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.95, 16), brassMat)
+  pole.position.y = 0.5
+  const topBall = new THREE.Mesh(new THREE.SphereGeometry(0.045, 16, 16), brassMat)
+  topBall.position.y = 0.99
+  grp.add(base, pole, topBall)
+  return grp
 }
 
 export default function Museum({ works, active, onSelect, onHotspot, autoRotate }) {
@@ -89,190 +189,402 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
 
   useEffect(() => {
     const el = mount.current
+    if (!el) return
     let disposed = false
-    const size = () => [el.clientWidth || 1, el.clientHeight || 1]
+
+    const size = () => [el.clientWidth || window.innerWidth, el.clientHeight || window.innerHeight]
     const [w0, h0] = size()
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true })
-    const coarse = window.matchMedia?.('(pointer: coarse)').matches
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, coarse ? 1.5 : 2))
+    // 1. Renderer Setup
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' })
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     renderer.setSize(w0, h0)
     renderer.toneMapping = THREE.ACESFilmicToneMapping
-    renderer.toneMappingExposure = 1.1
+    renderer.toneMappingExposure = 1.18
+    renderer.shadowMap.enabled = true
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap
     renderer.xr.enabled = true
     el.appendChild(renderer.domElement)
 
+    // 2. Scene & Camera
     const scene = new THREE.Scene()
-    scene.background = new THREE.Color(0x3a2a20)
-    const camera = new THREE.PerspectiveCamera(55, w0 / h0, 0.1, 100)
+    scene.background = new THREE.Color(0x181a1f)
+    scene.fog = new THREE.FogExp2(0x181a1f, 0.015)
+
+    const camera = new THREE.PerspectiveCamera(50, w0 / h0, 0.1, 100)
     const dolly = new THREE.Group()
     dolly.add(camera)
     scene.add(dolly)
 
-    // Room
-    const floor = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_D), new THREE.MeshStandardMaterial({ map: makeFloor(), roughness: 0.35, metalness: 0.05 }))
+    // 3. Materials
+    const floorTex = makeFloorTexture()
+    const floorMat = new THREE.MeshStandardMaterial({
+      map: floorTex,
+      roughness: 0.28,
+      metalness: 0.08,
+    })
+
+    const wallMat = new THREE.MeshStandardMaterial({
+      color: 0xf4eee6, // Off-white warm contemporary gallery plaster
+      roughness: 0.92,
+      metalness: 0.02,
+    })
+
+    const walnutMat = new THREE.MeshStandardMaterial({
+      color: 0x3d2417, // Dark walnut trim / baseboards / furniture
+      roughness: 0.45,
+      metalness: 0.05,
+    })
+
+    const leatherMat = new THREE.MeshStandardMaterial({
+      color: 0x1e2025, // Charcoal/black gallery bench leather
+      roughness: 0.65,
+      metalness: 0.1,
+    })
+
+    const brassMat = new THREE.MeshStandardMaterial({
+      color: 0xd4b26f, // Museum brass / gold
+      metalness: 0.9,
+      roughness: 0.25,
+    })
+
+    const marbleMat = new THREE.MeshStandardMaterial({
+      color: 0xf8f5f0, // White classical marble
+      roughness: 0.35,
+      metalness: 0.02,
+    })
+
+    const terracottaMat = new THREE.MeshStandardMaterial({
+      color: 0xb45838, // Antique Greek black/terracotta slipware
+      roughness: 0.5,
+      metalness: 0.08,
+    })
+
+    // Stepped pedestal material (matching screenshot)
+    const plinthMat = new THREE.MeshStandardMaterial({
+      color: 0xfaf7f2,
+      roughness: 0.32,
+      metalness: 0.02,
+    })
+
+    // Ultra-clear museum vitrine glass material
+    const glassMat = new THREE.MeshPhysicalMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.22,
+      roughness: 0.03,
+      metalness: 0.05,
+      transmission: 0.94,
+      thickness: 0.4,
+      ior: 1.52,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    })
+
+    const glassFrameMat = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      roughness: 0.2,
+      metalness: 0.4,
+    })
+
+    // 4. Room Construction: Floor, Ceiling, Louvers
+    // Floor
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_D), floorMat)
     floor.rotation.x = -Math.PI / 2
+    floor.receiveShadow = true
     scene.add(floor)
-    const ceil = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_D), new THREE.MeshStandardMaterial({ color: 0xeae2d2, roughness: 0.9 }))
+
+    // Baseboards around perimeter
+    const baseboardGeo = new THREE.BoxGeometry(ROOM_W, 0.22, 0.06)
+    const backBaseboard = new THREE.Mesh(baseboardGeo, walnutMat)
+    backBaseboard.position.set(0, 0.11, -ROOM_D / 2 + 0.03)
+    scene.add(backBaseboard)
+
+    // Main Back Exhibition Wall
+    const backWall = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_H), wallMat)
+    backWall.position.set(0, ROOM_H / 2, -ROOM_D / 2)
+    backWall.receiveShadow = true
+    scene.add(backWall)
+
+    // Ceiling with Dark Slatted Architectural Louvers (matching reference photo)
+    const ceilMat = new THREE.MeshStandardMaterial({ color: 0x14161a, roughness: 0.95 })
+    const ceil = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_D), ceilMat)
     ceil.rotation.x = Math.PI / 2
     ceil.position.y = ROOM_H
     scene.add(ceil)
-    const beamMat = new THREE.MeshStandardMaterial({ color: 0xd8ccb4, roughness: 0.8 })
-    for (let x = -ROOM_W / 2 + 2; x < ROOM_W / 2; x += 4) {
-      const b = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.25, ROOM_D), beamMat)
-      b.position.set(x, ROOM_H - 0.12, 0)
-      scene.add(b)
+
+    // Slatted ceiling beams / louvers running along length
+    const louverMat = new THREE.MeshStandardMaterial({ color: 0x1a1c22, roughness: 0.85 })
+    for (let z = -ROOM_D / 2 + 0.8; z < ROOM_D / 2; z += 0.45) {
+      const slat = new THREE.Mesh(new THREE.BoxGeometry(ROOM_W - 2, 0.14, 0.08), louverMat)
+      slat.position.set(0, ROOM_H - 0.07, z)
+      scene.add(slat)
     }
-    const back = wallGroup(ROOM_W); back.position.z = -ROOM_D / 2; scene.add(back)
-    const front = wallGroup(ROOM_W); front.position.z = ROOM_D / 2; front.rotation.y = Math.PI; scene.add(front)
-    const left = wallGroup(ROOM_D); left.position.x = -ROOM_W / 2; left.rotation.y = Math.PI / 2; scene.add(left)
-    const right = wallGroup(ROOM_D); right.position.x = ROOM_W / 2; right.rotation.y = -Math.PI / 2; scene.add(right)
 
-    scene.add(new THREE.HemisphereLight(0xfff0d8, 0x6b4a30, 1.1))
-    scene.add(new THREE.AmbientLight(0xffe6c4, 0.5))
+    // Black Track Lighting Pipes on Ceiling
+    const trackMat = new THREE.MeshStandardMaterial({ color: 0x111113, metalness: 0.8, roughness: 0.3 })
+    const trackRail1 = new THREE.Mesh(new THREE.BoxGeometry(ROOM_W - 4, 0.05, 0.05), trackMat)
+    trackRail1.position.set(0, ROOM_H - 0.25, PED_Z + 1.2)
+    scene.add(trackRail1)
 
-    // Exhibits
-    const hit = []
-    const frames = []
-    const relicDisplays = []
+    // 5. Contemporary Partition Walls between Alcoves (matching reference photo)
+    for (let i = 0; i < works.length - 1; i++) {
+      const partX = (px(i) + px(i + 1)) / 2
+      const partGroup = new THREE.Group()
+      partGroup.position.set(partX, 0, -ROOM_D / 2 + 2.2)
+
+      // Partition body with rounded aesthetic
+      const partWall = new THREE.Mesh(new THREE.BoxGeometry(0.35, ROOM_H - 0.4, 4.4), wallMat)
+      partWall.position.y = (ROOM_H - 0.4) / 2
+      partWall.castShadow = true
+      partWall.receiveShadow = true
+
+      // Walnut baseboard on partition
+      const partBase = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.22, 4.46), walnutMat)
+      partBase.position.y = 0.11
+
+      partGroup.add(partWall, partBase)
+      scene.add(partGroup)
+    }
+
+    // 6. Ambient & Exhibition Lighting
+    const hemiLight = new THREE.HemisphereLight(0xfffaed, 0x3d3025, 0.95)
+    scene.add(hemiLight)
+
+    const softAmbient = new THREE.AmbientLight(0xfff5e6, 0.5)
+    scene.add(softAmbient)
+
+    // 7. Interactive Exhibits Setup
+    const hitObjects = []
+    const vitrineCases = [] // Stores data for click-to-open and float animations
     const spots = []
-    const canvases = []
     const textures = []
-    const goldMat = new THREE.MeshStandardMaterial({ color: 0xb98a2f, metalness: 0.8, roughness: 0.35 })
-    const pedMat = new THREE.MeshStandardMaterial({ color: 0xf4f0e8, roughness: 0.6 })
-    const glassMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: 0.1, roughness: 0, side: THREE.DoubleSide, depthWrite: false })
-    const fixMat = new THREE.MeshStandardMaterial({ color: 0x222222, emissive: 0xffe9b8, emissiveIntensity: 1.2 })
-    const relicLoader = new THREE.TextureLoader()
-
-    function framed(i, fw, fh) {
-      const grp = new THREE.Group()
-      const frame = new THREE.Mesh(new THREE.BoxGeometry(fw, fh, 0.07), goldMat)
-      const inner = new THREE.Mesh(new THREE.BoxGeometry(fw - 0.12, fh - 0.12, 0.075), new THREE.MeshStandardMaterial({ color: 0x2a1c10 }))
-      const canvas = canvases[i]
-      const tex = new THREE.CanvasTexture(canvas)
-      tex.colorSpace = THREE.SRGBColorSpace
-      tex.anisotropy = 8
-      textures.push(tex)
-      const art = new THREE.Mesh(new THREE.PlaneGeometry(fw - 0.18, fh - 0.18), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.6 }))
-      art.position.z = 0.04
-      grp.add(frame, inner, art)
-      return grp
-    }
+    const canvases = []
+    const wallArtworkMeshes = []
+    const imageLoader = new THREE.TextureLoader()
 
     works.forEach((work, i) => {
-      canvases[i] = drawCover(work, i, 600, 800)
       const x = px(i)
-      const g = new THREE.Group()
-      g.position.set(x, 0, PED_Z)
-      const base = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.15, 1.5), pedMat); base.position.y = 0.075
-      const body = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.85, 1.3), pedMat); body.position.y = 0.575
-      const top = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.1, 1.5), pedMat); top.position.y = 1.05
-      const caseM = new THREE.Mesh(new THREE.BoxGeometry(1.3, 1.2, 1.3), glassMat); caseM.position.y = 1.7
-      const edges = new THREE.LineSegments(new THREE.EdgesGeometry(caseM.geometry), new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.55 }))
-      edges.position.copy(caseM.position)
-      const frame = framed(i, 0.92, 1.2)
-      frame.position.y = 1.72
-      frame.rotation.x = -0.08
-      g.add(base, body, top, caseM, edges, frame)
-      g.traverse(o => { o.userData.index = i; if (o.isMesh) hit.push(o) })
-      scene.add(g)
-      frames.push({ frame, scale: 1 })
 
-      // Companion glass case containing the symbolic object for this work.
-      const relicGroup = new THREE.Group()
-      relicGroup.position.set(x + 1.65, 0, PED_Z + 0.1)
-      const relicBase = new THREE.Mesh(new THREE.BoxGeometry(1.25, 0.13, 1.25), pedMat); relicBase.position.y = 0.065
-      const relicBody = new THREE.Mesh(new THREE.BoxGeometry(1.05, 0.62, 1.05), pedMat); relicBody.position.y = 0.43
-      const relicTop = new THREE.Mesh(new THREE.BoxGeometry(1.25, 0.09, 1.25), pedMat); relicTop.position.y = 0.785
-      const relicGlass = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.15, 1.1), glassMat); relicGlass.position.y = 1.4
-      const relicEdges = new THREE.LineSegments(new THREE.EdgesGeometry(relicGlass.geometry), new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 }))
-      relicEdges.position.copy(relicGlass.position)
-      const relicTexture = relicLoader.load(import.meta.env.BASE_URL + RELICS[work.title])
-      relicTexture.colorSpace = THREE.SRGBColorSpace
-      relicTexture.anisotropy = 8
-      textures.push(relicTexture)
-      const relicArt = new THREE.Mesh(
-        new THREE.PlaneGeometry(0.94, 0.94),
-        new THREE.MeshStandardMaterial({ map: relicTexture, transparent: true, alphaTest: 0.025, side: THREE.DoubleSide, roughness: 0.55, depthWrite: false })
+      // A. Large Framed Classical Painting on Wall
+      const frameGroup = new THREE.Group()
+      frameGroup.position.set(x - 0.9, 3.2, -ROOM_D / 2 + 0.08)
+
+      const fw = 2.4, fh = 1.8
+      const outerFrame = new THREE.Mesh(
+        new THREE.BoxGeometry(fw, fh, 0.09),
+        new THREE.MeshStandardMaterial({ color: 0x241a12, roughness: 0.5, metalness: 0.1 })
       )
-      relicArt.position.set(0, 1.4, 0.03)
-      relicGroup.add(relicBase, relicBody, relicTop, relicGlass, relicEdges, relicArt)
-      relicGroup.traverse(o => { o.userData.index = i; if (o.isMesh) hit.push(o) })
-      scene.add(relicGroup)
-      relicDisplays.push({ art: relicArt, index: i })
+      const innerGoldFillet = new THREE.Mesh(
+        new THREE.BoxGeometry(fw - 0.08, fh - 0.08, 0.095),
+        brassMat
+      )
 
-      // Large framed piece on the wall
-      const wall = framed(i, 1.7, 2.2)
-      wall.position.set(x, 3.6, -ROOM_D / 2 + 0.06)
-      wall.traverse(o => { o.userData.index = i; if (o.isMesh) hit.push(o) })
-      scene.add(wall)
+      // Load painting texture
+      const artTex = imageLoader.load(import.meta.env.BASE_URL + work.image)
+      artTex.colorSpace = THREE.SRGBColorSpace
+      textures.push(artTex)
 
-      // Ceiling spotlight
-      const fix = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.16, 0.2, 16), fixMat)
-      fix.position.set(x, ROOM_H - 0.2, PED_Z + 0.8)
-      scene.add(fix)
-      const spot = new THREE.SpotLight(0xfff2d8, 40, 12, 0.5, 0.6, 1.5)
-      spot.position.copy(fix.position)
-      spot.target.position.set(x, 1.5, PED_Z)
-      scene.add(spot, spot.target)
-      spots.push(spot)
+      const paintingArt = new THREE.Mesh(
+        new THREE.PlaneGeometry(fw - 0.16, fh - 0.16),
+        new THREE.MeshStandardMaterial({ map: artTex, roughness: 0.4 })
+      )
+      paintingArt.position.z = 0.05
+      paintingArt.castShadow = true
+      frameGroup.add(outerFrame, innerGoldFillet, paintingArt)
+
+      // Picture light fixture above frame
+      const picLightBar = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.9, 16), brassMat)
+      picLightBar.rotation.z = Math.PI / 2
+      picLightBar.position.set(0, fh / 2 + 0.22, 0.26)
+      const picLightArm = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.28, 8), brassMat)
+      picLightArm.rotation.x = Math.PI / 3
+      picLightArm.position.set(0, fh / 2 + 0.11, 0.13)
+      frameGroup.add(picLightBar, picLightArm)
+
+      frameGroup.traverse(o => { o.userData.index = i; if (o.isMesh) hitObjects.push(o) })
+      scene.add(frameGroup)
+      wallArtworkMeshes.push(frameGroup)
+
+      // B. Wall Typography Plaque (matching Lorem Ipsum wall typography in reference photo)
+      const textGroup = new THREE.Group()
+      textGroup.position.set(x + 1.25, 3.1, -ROOM_D / 2 + 0.04)
+      const textTex = makeWallTextCanvas(work)
+      textures.push(textTex)
+      const textMesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(1.6, 2.0),
+        new THREE.MeshBasicMaterial({ map: textTex, transparent: true })
+      )
+      textGroup.add(textMesh)
+      textGroup.traverse(o => { o.userData.index = i; if (o.isMesh) hitObjects.push(o) })
+      scene.add(textGroup)
+
+      // C. Ceiling Spotlights
+      const spotLight = new THREE.SpotLight(0xfff4de, 35, 14, 0.52, 0.5, 1.4)
+      spotLight.position.set(x, ROOM_H - 0.25, PED_Z + 1.2)
+      spotLight.target.position.set(x, 1.4, PED_Z)
+      spotLight.castShadow = true
+      scene.add(spotLight, spotLight.target)
+      spots.push(spotLight)
+
+      // Spotlight fixture can on track
+      const spotFixture = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.08, 0.08, 0.18, 16),
+        new THREE.MeshStandardMaterial({ color: 0x111113, metalness: 0.9, roughness: 0.2 })
+      )
+      spotFixture.position.copy(spotLight.position)
+      spotFixture.rotation.x = Math.PI / 5
+      scene.add(spotFixture)
+
+      // D. THE GLASS VITRINE PEDESTAL (matching screenshot media_1794125216296_95b71483.png)
+      const pedestalGroup = new THREE.Group()
+      pedestalGroup.position.set(x, 0, PED_Z)
+
+      // 1. Stepped Plinth Base (White museum stepped plinth)
+      const baseBottom = new THREE.Mesh(new THREE.BoxGeometry(1.36, 0.1, 1.36), plinthMat)
+      baseBottom.position.y = 0.05
+      baseBottom.receiveShadow = true
+
+      const baseColumn = new THREE.Mesh(new THREE.BoxGeometry(1.18, 0.72, 1.18), plinthMat)
+      baseColumn.position.y = 0.46
+      baseColumn.castShadow = true
+      baseColumn.receiveShadow = true
+
+      const baseTopCap = new THREE.Mesh(new THREE.BoxGeometry(1.34, 0.08, 1.34), plinthMat)
+      baseTopCap.position.y = 0.86
+      baseTopCap.receiveShadow = true
+
+      pedestalGroup.add(baseBottom, baseColumn, baseTopCap)
+
+      // 2. Clear Glass Vitrine Case (lifts and opens on click)
+      const glassGroup = new THREE.Group()
+      glassGroup.position.set(0, 0.9, 0) // Rests on top cap at y=0.9
+
+      const caseH = 1.15
+      const caseW = 1.16
+      const caseGlass = new THREE.Mesh(new THREE.BoxGeometry(caseW, caseH, caseW), glassMat)
+      caseGlass.position.y = caseH / 2
+
+      // Fine chrome/white beveled edges on the glass vitrine
+      const caseEdges = new THREE.LineSegments(
+        new THREE.EdgesGeometry(caseGlass.geometry),
+        new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.65 })
+      )
+      caseEdges.position.copy(caseGlass.position)
+
+      // Sleek top chrome handle / edge band
+      const topEdgeBand = new THREE.Mesh(new THREE.BoxGeometry(caseW + 0.02, 0.02, caseW + 0.02), glassFrameMat)
+      topEdgeBand.position.y = caseH
+
+      glassGroup.add(caseGlass, caseEdges, topEdgeBand)
+      pedestalGroup.add(glassGroup)
+
+      // 3. FULL HIGH-DETAIL 3D PROCEDURAL RELIC (from relicModels.js)
+      let relic3D = null
+      try {
+        relic3D = createRelicModel(THREE, work.title)
+      } catch {
+        // Fallback procedural sphere if title mismatch
+        relic3D = new THREE.Mesh(new THREE.TorusGeometry(0.3, 0.1, 16, 32), brassMat)
+      }
+
+      // Rest inside the case on the plinth
+      const defaultRelicY = 1.45
+      relic3D.position.set(0, defaultRelicY, 0)
+      relic3D.scale.set(0.85, 0.85, 0.85)
+      pedestalGroup.add(relic3D)
+
+      // Subtle golden light beam inside the vitrine
+      const vitrineGlow = new THREE.PointLight(0xffe6b0, 2.4, 3.2)
+      vitrineGlow.position.set(0, 1.45, 0)
+      pedestalGroup.add(vitrineGlow)
+
+      // Gold Relic Identification Plaque on the front of the plinth
+      const plaqueMesh = new THREE.Mesh(
+        new THREE.BoxGeometry(0.55, 0.22, 0.02),
+        brassMat
+      )
+      plaqueMesh.position.set(0, 0.55, 0.6)
+      pedestalGroup.add(plaqueMesh)
+
+      // Mark clickable objects for interaction
+      pedestalGroup.traverse(o => {
+        o.userData.index = i
+        o.userData.isVitrine = true
+        if (o.isMesh) hitObjects.push(o)
+      })
+      scene.add(pedestalGroup)
+
+      // Register vitrine animation tracking
+      vitrineCases.push({
+        index: i,
+        pedestalGroup,
+        glassGroup,
+        relic3D,
+        vitrineGlow,
+        defaultRelicY,
+        isOpen: false,
+        openProgress: 0, // 0 = closed, 1 = fully open & floating
+      })
     })
 
-    // Redraw covers once the display fonts are available
-    const redraw = () => {
-      if (disposed) return
-      works.forEach((wk, i) => drawCover(wk, i, 600, 800, canvases[i]))
-      textures.forEach(t => { t.needsUpdate = true })
+    // 8. RANDOM MUSEUM OBJECTS TO ENRICH THE GALLERY (Benches, Amphorae, Stanchions)
+    // A. Center Gallery Benches (placed in central aisle)
+    const bench1 = makeMuseumBench(THREE, walnutMat, leatherMat)
+    bench1.position.set(px(1.5), 0, PED_Z + 4.2)
+    scene.add(bench1)
+
+    const bench2 = makeMuseumBench(THREE, walnutMat, leatherMat)
+    bench2.position.set(px(4.5), 0, PED_Z + 4.2)
+    scene.add(bench2)
+
+    // B. Classical Marble Pedestals with Sculptures / Amphorae in corners and side bays
+    const urnPositions = [
+      [-ROOM_W / 2 + 2.5, PED_Z + 0.8],
+      [ROOM_W / 2 - 2.5, PED_Z + 0.8],
+      [px(0.8), PED_Z + 5.5],
+      [px(5.2), PED_Z + 5.5],
+    ]
+
+    urnPositions.forEach(([ux, uz], k) => {
+      const urnStand = new THREE.Group()
+      urnStand.position.set(ux, 0, uz)
+
+      // Marble fluted pedestal
+      const pedBase = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.1, 0.7), marbleMat)
+      pedBase.position.y = 0.05
+      const pedCol = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.26, 0.88, 20), marbleMat)
+      pedCol.position.y = 0.54
+      const pedCap = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.08, 0.65), marbleMat)
+      pedCap.position.y = 1.02
+      urnStand.add(pedBase, pedCol, pedCap)
+
+      // Classical Terracotta / Bronze Amphora
+      const amphora = makeAmphora(THREE, k % 2 === 0 ? terracottaMat : brassMat)
+      amphora.position.y = 1.06
+      amphora.scale.set(0.9, 0.9, 0.9)
+      urnStand.add(amphora)
+
+      scene.add(urnStand)
+    })
+
+    // C. Brass Stanchion Guide Posts along the gallery line
+    for (let i = 0; i < works.length; i++) {
+      const sx = px(i)
+      const stanchionL = makeStanchion(THREE, brassMat)
+      stanchionL.position.set(sx - 1.6, 0, PED_Z + 1.2)
+      const stanchionR = makeStanchion(THREE, brassMat)
+      stanchionR.position.set(sx + 1.6, 0, PED_Z + 1.2)
+      scene.add(stanchionL, stanchionR)
     }
-    const offImg = onCoverImageLoad(redraw)
-    Promise.all([document.fonts.load('italic 28px "Bodoni Moda"'), document.fonts.load('500 44px "Bodoni Moda"')]).then(redraw).catch(() => {})
 
-    // Hotspot anchor
-    const hotspot = new THREE.Sprite(new THREE.SpriteMaterial({ map: hotspotTexture(), depthTest: false, transparent: true }))
-    hotspot.renderOrder = 10
-    hotspot.userData.hotspot = true
-    scene.add(hotspot)
-    hit.push(hotspot)
-
-    // VR-only floating info panel
-    const xrCanvas = document.createElement('canvas')
-    xrCanvas.width = 800; xrCanvas.height = 1000
-    const xrTex = new THREE.CanvasTexture(xrCanvas)
-    xrTex.colorSpace = THREE.SRGBColorSpace
-    const xrPanel = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.5), new THREE.MeshBasicMaterial({ map: xrTex, transparent: true }))
-    xrPanel.visible = false
-    scene.add(xrPanel)
-    function drawXR(i) {
-      const wk = works[i]
-      const g = xrCanvas.getContext('2d')
-      g.clearRect(0, 0, 800, 1000)
-      g.fillStyle = 'rgba(30,22,18,0.82)'
-      g.beginPath(); g.roundRect(0, 0, 800, 1000, 50); g.fill()
-      g.strokeStyle = 'rgba(255,255,255,.25)'; g.lineWidth = 3; g.stroke()
-      g.textAlign = 'left'
-      g.fillStyle = '#fff'
-      g.font = '500 54px "Bodoni Moda", Georgia, serif'
-      let y = wrapText(g, wk.title, 50, 90, 700, 62)
-      g.fillStyle = '#d8b86a'
-      g.font = 'italic 32px Georgia, serif'
-      y = wrapText(g, `${wk.author}  ·  ${wk.lens}`, 50, y + 6, 700, 40)
-      g.fillStyle = '#eee'
-      const themeText = Array.isArray(wk.themes) ? wk.themes.map(item => item.name).join(' · ') : wk.themes
-      for (const [h, t] of [['Description', wk.description], ['Themes', themeText], ['Imagery', wk.imagery]]) {
-        g.font = '600 30px Montserrat, sans-serif'; g.fillStyle = '#d8b86a'
-        y = wrapText(g, h, 50, y + 20, 700, 38)
-        g.font = '26px Montserrat, sans-serif'; g.fillStyle = '#eee'
-        y = wrapText(g, t, 50, y, 700, 34)
-      }
-      xrTex.needsUpdate = true
-    }
-
-    // Camera control
+    // 9. Camera & Orbit Controls
     const controls = new OrbitControls(camera, renderer.domElement)
     controls.enableDamping = true
+    controls.dampingFactor = 0.08
     controls.minDistance = 1.2
-    controls.maxDistance = 9
-    controls.maxPolarAngle = Math.PI * 0.55
+    controls.maxDistance = 12
+    controls.maxPolarAngle = Math.PI * 0.52
     controls.screenSpacePanning = false
     let goal = null
     controls.addEventListener('start', () => { goal = null })
@@ -281,86 +593,77 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
     function setActive(i) {
       activeIdx = i
       const x = px(i)
-      goal = { pos: new THREE.Vector3(x + 0.2, 1.65, PED_Z + 4.0), tgt: new THREE.Vector3(x + 0.8, 1.5, PED_Z) }
-      hotspot.position.set(x + 0.5, 2.28, PED_Z + 0.1)
-      xrPanel.position.set(x + 1.9, 1.7, PED_Z + 0.9)
-      xrPanel.rotation.y = -0.35
-      drawXR(i)
+      goal = {
+        pos: new THREE.Vector3(x, 1.75, PED_Z + 3.8),
+        tgt: new THREE.Vector3(x, 1.45, PED_Z),
+      }
     }
     api.current.setActive = setActive
+
+    // Initial camera placement
     {
       const x = px(active)
-      camera.position.set(x + 0.2, 1.65, PED_Z + 4.0)
-      controls.target.set(x + 0.8, 1.5, PED_Z)
+      camera.position.set(x, 1.75, PED_Z + 3.8)
+      controls.target.set(x, 1.45, PED_Z)
       setActive(active)
       goal = null
     }
 
-    // XR session handling and controllers
-    // Only show the VR control when this browser can actually start an immersive session.
-    // VRButton otherwise renders a distracting "VR NOT SUPPORTED" badge.
-    navigator.xr?.isSessionSupported?.('immersive-vr').then(supported => {
-      if (supported && !disposed) el.appendChild(VRButton.createButton(renderer))
-    }).catch(() => {})
-    renderer.xr.addEventListener('sessionstart', () => {
-      dolly.position.set(px(activeIdx) + 0.2, 0, PED_Z + 3.0)
-      xrPanel.visible = true
-    })
-    renderer.xr.addEventListener('sessionend', () => {
-      dolly.position.set(0, 0, 0)
-      xrPanel.visible = false
-      setActive(activeIdx)
-    })
+    // 10. Pointer Interaction: Click Vitrine to Open Glass & Float Object
     const rc = new THREE.Raycaster()
-    const tmp = new THREE.Matrix4()
-    function pick() {
-      const h = rc.intersectObjects(hit, false)[0]
-      if (!h) return
-      const o = h.object
-      if (o.userData.hotspot) cb.current.onHotspot()
-      else if (o.userData.index !== undefined) cb.current.onSelect(o.userData.index)
-    }
-    for (let k = 0; k < 2; k++) {
-      const ctrl = renderer.xr.getController(k)
-      ctrl.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3(0, 0, -4)]), new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 })))
-      ctrl.addEventListener('selectstart', () => {
-        tmp.identity().extractRotation(ctrl.matrixWorld)
-        rc.ray.origin.setFromMatrixPosition(ctrl.matrixWorld)
-        rc.ray.direction.set(0, 0, -1).applyMatrix4(tmp)
-        pick()
+    const ndc = new THREE.Vector2()
+
+    function toggleVitrine(targetIndex) {
+      vitrineCases.forEach((vc, idx) => {
+        if (idx === targetIndex) {
+          vc.isOpen = !vc.isOpen // Toggle clicked case
+        } else {
+          vc.isOpen = false // Close others
+        }
       })
-      dolly.add(ctrl)
     }
 
-    // Desktop pointer interaction
-    const ndc = new THREE.Vector2()
-    let hover = -1
-    const cast = e => {
+    let downPos = null
+    const onPointerDown = e => { downPos = [e.clientX, e.clientY] }
+    const onPointerUp = e => {
+      if (!downPos) return
+      const moved = Math.hypot(e.clientX - downPos[0], e.clientY - downPos[1])
+      downPos = null
+      if (moved < 6) {
+        const r = renderer.domElement.getBoundingClientRect()
+        ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1)
+        rc.setFromCamera(ndc, camera)
+        const intersects = rc.intersectObjects(hitObjects, true)
+        if (intersects.length > 0) {
+          // Find topmost object with index
+          let hitObj = intersects[0].object
+          while (hitObj && hitObj.userData.index === undefined && hitObj.parent) {
+            hitObj = hitObj.parent
+          }
+          if (hitObj && hitObj.userData.index !== undefined) {
+            const hitIndex = hitObj.userData.index
+            // Trigger glass opening & relic floating
+            toggleVitrine(hitIndex)
+            cb.current.onSelect(hitIndex)
+          }
+        }
+      }
+    }
+
+    const onPointerMove = e => {
       const r = renderer.domElement.getBoundingClientRect()
       ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1)
       rc.setFromCamera(ndc, camera)
+      const intersects = rc.intersectObjects(hitObjects, true)
+      renderer.domElement.style.cursor = intersects.length > 0 ? 'pointer' : 'grab'
     }
-    let down = null
-    const onDown = e => { down = [e.clientX, e.clientY] }
-    const onUp = e => {
-      if (!down) return
-      const moved = Math.hypot(e.clientX - down[0], e.clientY - down[1])
-      down = null
-      if (moved < 5) { cast(e); pick() }
-    }
-    const onMove = e => {
-      cast(e)
-      const h = rc.intersectObjects(hit, false)[0]
-      const o = h && h.object
-      hover = o && o.userData.index !== undefined ? o.userData.index : -1
-      renderer.domElement.style.cursor = o ? 'pointer' : 'grab'
-    }
-    const dom = renderer.domElement
-    dom.addEventListener('pointerdown', onDown)
-    dom.addEventListener('pointerup', onUp)
-    dom.addEventListener('pointermove', onMove)
 
-    // WASD walking
+    const dom = renderer.domElement
+    dom.addEventListener('pointerdown', onPointerDown)
+    dom.addEventListener('pointerup', onPointerUp)
+    dom.addEventListener('pointermove', onPointerMove)
+
+    // Keyboard WASD / Arrow Walking
     const keys = {}
     const onKey = v => e => {
       if (/INPUT|TEXTAREA/.test(document.activeElement?.tagName)) return
@@ -379,74 +682,110 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate 
     const ro = new ResizeObserver(onResize)
     ro.observe(el)
 
+    // 11. 60 FPS Render Loop with Smooth Vitrine Opening & Object Float
     const clock = new THREE.Clock()
     const fwd = new THREE.Vector3(), side = new THREE.Vector3(), mv = new THREE.Vector3()
+
     renderer.setAnimationLoop(() => {
       const dt = Math.min(clock.getDelta(), 0.1)
       const t = clock.elapsedTime
-      if (!renderer.xr.isPresenting) {
-        if (goal) {
-          const k = 1 - Math.pow(0.002, dt)
-          camera.position.lerp(goal.pos, k)
-          controls.target.lerp(goal.tgt, k)
-          if (camera.position.distanceTo(goal.pos) < 0.02 && controls.target.distanceTo(goal.tgt) < 0.02) goal = null
-        }
-        mv.set(0, 0, 0)
-        camera.getWorldDirection(fwd); fwd.y = 0; fwd.normalize()
-        side.crossVectors(fwd, camera.up).normalize()
-        if (keys.w || keys.arrowup) mv.add(fwd)
-        if (keys.s || keys.arrowdown) mv.sub(fwd)
-        if (keys.d || keys.arrowright) mv.add(side)
-        if (keys.a || keys.arrowleft) mv.sub(side)
-        if (mv.lengthSq() > 0) {
+
+      // Smooth camera tween
+      if (goal) {
+        const k = 1 - Math.pow(0.002, dt)
+        camera.position.lerp(goal.pos, k)
+        controls.target.lerp(goal.tgt, k)
+        if (camera.position.distanceTo(goal.pos) < 0.02 && controls.target.distanceTo(goal.tgt) < 0.02) {
           goal = null
-          mv.normalize().multiplyScalar(3 * dt)
-          const nx = THREE.MathUtils.clamp(camera.position.x + mv.x, -ROOM_W / 2 + 1, ROOM_W / 2 - 1)
-          const nz = THREE.MathUtils.clamp(camera.position.z + mv.z, -ROOM_D / 2 + 1.5, ROOM_D / 2 - 1)
-          mv.set(nx - camera.position.x, 0, nz - camera.position.z)
-          camera.position.add(mv)
-          controls.target.add(mv)
         }
-        controls.update()
       }
-      hotspot.scale.setScalar(0.16 + Math.sin(t * 3) * 0.015)
-      frames.forEach((f, i) => {
-        const targetS = i === hover ? 1.05 : 1
-        f.scale += (targetS - f.scale) * 0.15
-        f.frame.scale.setScalar(f.scale)
-        f.frame.rotation.y = i === activeIdx && cb.current.autoRotate ? Math.sin(t * 0.6) * 0.28 : f.frame.rotation.y * 0.9
-        spots[i].intensity += ((i === activeIdx ? 90 : i === hover ? 60 : 25) - spots[i].intensity) * 0.1
+
+      // WASD movement
+      mv.set(0, 0, 0)
+      camera.getWorldDirection(fwd); fwd.y = 0; fwd.normalize()
+      side.crossVectors(fwd, camera.up).normalize()
+      if (keys.w || keys.arrowup) mv.add(fwd)
+      if (keys.s || keys.arrowdown) mv.sub(fwd)
+      if (keys.d || keys.arrowright) mv.add(side)
+      if (keys.a || keys.arrowleft) mv.sub(side)
+      if (mv.lengthSq() > 0) {
+        goal = null
+        mv.normalize().multiplyScalar(3.2 * dt)
+        const nx = THREE.MathUtils.clamp(camera.position.x + mv.x, -ROOM_W / 2 + 1.5, ROOM_W / 2 - 1.5)
+        const nz = THREE.MathUtils.clamp(camera.position.z + mv.z, -ROOM_D / 2 + 1.8, ROOM_D / 2 - 1.5)
+        mv.set(nx - camera.position.x, 0, nz - camera.position.z)
+        camera.position.add(mv)
+        controls.target.add(mv)
+      }
+      controls.update()
+
+      // Spotlights intensity breathing
+      spots.forEach((spot, i) => {
+        const targetIntensity = i === activeIdx ? 45 : 24
+        spot.intensity += (targetIntensity - spot.intensity) * 0.1
       })
-      relicDisplays.forEach(({ art, index }) => {
-        const wanted = index === activeIdx && cb.current.autoRotate ? Math.sin(t * 0.55) * 0.32 : 0
-        art.rotation.y += (wanted - art.rotation.y) * 0.08
-        const s = index === hover ? 1.08 : 1
-        art.scale.lerp(new THREE.Vector3(s, s, s), 0.12)
+
+      // Vitrine Glass Opening & 3D Relic Floating Animation
+      vitrineCases.forEach(vc => {
+        const targetProg = vc.isOpen ? 1 : 0
+        vc.openProgress += (targetProg - vc.openProgress) * 0.08 // Smooth ease lerp
+
+        // 1. Glass lifts UP into the air
+        // Rests at y=0.9 when closed; lifts up to y=2.3 when opened
+        const glassY = 0.9 + vc.openProgress * 1.45
+        vc.glassGroup.position.y = glassY
+        // Subtle tilt when glass opens
+        vc.glassGroup.rotation.x = -vc.openProgress * 0.12
+
+        // 2. 3D Relic floats UP to eye level and rotates
+        // Base height is 1.45; floats up to 1.95 with vertical sine levitation
+        const floatElevation = vc.openProgress * 0.55
+        const levitation = vc.isOpen ? Math.sin(t * 2.2) * 0.06 : 0
+        vc.relic3D.position.y = vc.defaultRelicY + floatElevation + levitation
+
+        // Relic spins when open and floating
+        if (vc.isOpen) {
+          vc.relic3D.rotation.y += 0.018
+          vc.vitrineGlow.intensity = 4.2 + Math.sin(t * 3) * 0.8
+        } else {
+          // Slow ambient rotation when resting inside glass
+          vc.relic3D.rotation.y += 0.005
+          vc.vitrineGlow.intensity = 2.0
+        }
       })
+
       renderer.render(scene, camera)
     })
 
+    // 12. Cleanup
     return () => {
       disposed = true
-      offImg()
       renderer.setAnimationLoop(null)
       ro.disconnect()
-      dom.removeEventListener('pointerdown', onDown)
-      dom.removeEventListener('pointerup', onUp)
-      dom.removeEventListener('pointermove', onMove)
+      dom.removeEventListener('pointerdown', onPointerDown)
+      dom.removeEventListener('pointerup', onPointerUp)
+      dom.removeEventListener('pointermove', onPointerMove)
       window.removeEventListener('keydown', kd)
       window.removeEventListener('keyup', ku)
       controls.dispose()
       scene.traverse(o => {
         if (o.geometry) o.geometry.dispose()
-        if (o.material) { o.material.map?.dispose(); o.material.dispose() }
+        if (o.material) {
+          if (Array.isArray(o.material)) o.material.forEach(m => m.dispose())
+          else {
+            o.material.map?.dispose()
+            o.material.dispose()
+          }
+        }
       })
       renderer.dispose()
       el.innerHTML = ''
     }
   }, [works])
 
-  useEffect(() => { api.current.setActive?.(active) }, [active])
+  useEffect(() => {
+    api.current.setActive?.(active)
+  }, [active])
 
   return <div ref={mount} className="museum-canvas" />
 }
