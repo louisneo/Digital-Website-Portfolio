@@ -13,6 +13,7 @@ import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
 import { wrapText } from '../lib/cover.js'
 import { createRelicModel } from '../lib/relicModels.js'
 import { artifacts } from '../data/artifacts.js'
+import { DEFAULT_MUSEUM_LIGHTING } from '../data/museumLighting.js'
 
 // Gallery Hall Dimensions
 const ROOM_W = 46
@@ -444,15 +445,6 @@ function makeMuseumTrackLight(THREE, metalMat, emissiveMat) {
   })
 
   return grp
-}
-
-export const DEFAULT_MUSEUM_LIGHTING = {
-  exposure: 0.6,
-  bloomStrength: 0.2,
-  bloomThreshold: 0.9,
-  spotIntensity: 12,
-  ambientIntensity: 0.15,
-  envIntensity: 0.3,
 }
 
 export default function Museum({ works, active, onSelect, onHotspot, autoRotate, lighting = DEFAULT_MUSEUM_LIGHTING }) {

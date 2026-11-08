@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import Museum, { DEFAULT_MUSEUM_LIGHTING } from '../components/Museum.jsx'
+import Museum from '../components/Museum.jsx'
+import { DEFAULT_MUSEUM_LIGHTING } from '../data/museumLighting.js'
 import { works } from '../data/works.js'
 import { meta, roman } from '../data/meta.js'
 import { artifacts } from '../data/artifacts.js'
