@@ -8,7 +8,6 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
 import { VignetteShader } from 'three/examples/jsm/shaders/VignetteShader.js'
-import { GTAOPass } from 'three/examples/jsm/postprocessing/GTAOPass.js'
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
 import { wrapText } from '../lib/cover.js'
 import { createRelicModel } from '../lib/relicModels.js'
@@ -139,14 +138,14 @@ const EXHIBIT_STATIONS = [
 // High-DPI Procedural Parquet Hardwood Floor (Tuned darker & higher roughness to prevent glare)
 function makeFloorTexture() {
   const c = document.createElement('canvas')
-  c.width = c.height = 1024
+  c.width = c.height = 512
   const g = c.getContext('2d')
 
   g.fillStyle = '#22150c'
-  g.fillRect(0, 0, 1024, 1024)
+  g.fillRect(0, 0, 512, 512)
 
   const tiles = 8
-  const tileSize = 1024 / tiles
+  const tileSize = 512 / tiles
   for (let ty = 0; ty < tiles; ty++) {
     for (let tx = 0; tx < tiles; tx++) {
       const isAlt = (tx + ty) % 2 === 0
@@ -160,7 +159,7 @@ function makeFloorTexture() {
 
       for (let p = 0; p < 4; p++) {
         g.strokeStyle = 'rgba(14, 8, 4, 0.45)'
-        g.lineWidth = 2
+        g.lineWidth = 1.5
         if (isAlt) {
           g.strokeRect(x, y + (p * tileSize) / 4, tileSize, tileSize / 4)
         } else {
@@ -174,16 +173,17 @@ function makeFloorTexture() {
   tex.wrapS = tex.wrapT = THREE.RepeatWrapping
   tex.repeat.set(ROOM_W / 4.2, ROOM_D / 4.2)
   tex.colorSpace = THREE.SRGBColorSpace
-  tex.anisotropy = 16
+  tex.anisotropy = 4
   return tex
 }
 
-// 2048x2048 Razor-Sharp High-DPI Wall Typography Plaque (Soft muted parchment to prevent bloom blowout)
+// 1024x1024 Razor-Sharp High-Performance Wall Typography Plaque (Instant render, no mipmap freeze)
 function makeWallTextCanvas(work, station) {
   const c = document.createElement('canvas')
-  c.width = 2048
-  c.height = 2048
+  c.width = 1024
+  c.height = 1024
   const g = c.getContext('2d')
+  g.scale(0.5, 0.5)
 
   g.fillStyle = '#ece6da'
   g.fillRect(0, 0, 2048, 2048)
@@ -236,10 +236,9 @@ function makeWallTextCanvas(work, station) {
   g.fillText(themeStr, 120, y)
 
   const tex = new THREE.CanvasTexture(c)
-  tex.generateMipmaps = true
-  tex.minFilter = THREE.LinearMipmapLinearFilter
+  tex.generateMipmaps = false
+  tex.minFilter = THREE.LinearFilter
   tex.magFilter = THREE.LinearFilter
-  tex.anisotropy = 16
   tex.colorSpace = THREE.SRGBColorSpace
   return tex
 }
@@ -279,13 +278,13 @@ function makeAmphora(THREE, mat) {
 // Modern Museum Gallery Bench with soft rounded edges
 function makeMuseumBench(THREE, woodMat, leatherMat) {
   const grp = new THREE.Group()
-  const seat = new THREE.Mesh(new RoundedBoxGeometry(2.4, 0.22, 0.85, 4, 0.03), leatherMat)
+  const seat = new THREE.Mesh(new RoundedBoxGeometry(2.4, 0.22, 0.85, 2, 0.03), leatherMat)
   seat.position.y = 0.52
   seat.castShadow = true
   seat.receiveShadow = true
   grp.add(seat)
 
-  const frame = new THREE.Mesh(new RoundedBoxGeometry(2.44, 0.08, 0.89, 3, 0.015), woodMat)
+  const frame = new THREE.Mesh(new RoundedBoxGeometry(2.44, 0.08, 0.89, 2, 0.015), woodMat)
   frame.position.y = 0.39
   frame.castShadow = true
   frame.receiveShadow = true
@@ -305,13 +304,13 @@ function makeMuseumBench(THREE, woodMat, leatherMat) {
 function makePartitionWall(THREE, width, height, depth, wallMat, woodMat) {
   const grp = new THREE.Group()
 
-  const body = new THREE.Mesh(new RoundedBoxGeometry(width, height, depth, 4, 0.035), wallMat)
+  const body = new THREE.Mesh(new RoundedBoxGeometry(width, height, depth, 2, 0.035), wallMat)
   body.position.y = height / 2
   body.castShadow = true
   body.receiveShadow = true
   grp.add(body)
 
-  const baseboard = new THREE.Mesh(new RoundedBoxGeometry(width + 0.06, 0.24, depth + 0.06, 3, 0.018), woodMat)
+  const baseboard = new THREE.Mesh(new RoundedBoxGeometry(width + 0.06, 0.24, depth + 0.06, 2, 0.018), woodMat)
   baseboard.position.y = 0.12
   baseboard.receiveShadow = true
   grp.add(baseboard)
@@ -452,7 +451,7 @@ function makeMuseumTrackLight(THREE, metalMat, emissiveMat) {
   return grp
 }
 
-export default function Museum({ works, active, onSelect, onHotspot, autoRotate, lighting = DEFAULT_MUSEUM_LIGHTING, moveVector = { x: 0, y: 0 } }) {
+export default function Museum({ works, active, onSelect, onHotspot, autoRotate, lighting = DEFAULT_MUSEUM_LIGHTING, moveVector = { x: 0, y: 0 }, onReady }) {
   const mount = useRef(null)
   const api = useRef({})
   const cb = useRef({})
@@ -522,17 +521,7 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate,
       const renderPass = new RenderPass(scene, camera)
       composer.addPass(renderPass)
 
-      // B. Faint Ambient Occlusion (GTAOPass)
-      try {
-        const gtaoPass = new GTAOPass(scene, camera, w0, h0)
-        gtaoPass.blendIntensity = 0.42 // Faint AO
-        gtaoPass.radius = 0.28
-        composer.addPass(gtaoPass)
-      } catch (err) {
-        console.warn('Ambient occlusion pass fallback:', err)
-      }
-
-      // C. Subtle Bloom (UnrealBloomPass) - Reduced strength to 0.2 and threshold raised to 0.9
+      // B. Subtle Bloom (UnrealBloomPass) - Reduced strength to 0.2 and threshold raised to 0.9
       bloomPass = new UnrealBloomPass(
         new THREE.Vector2(w0, h0),
         lightingRef.current?.bloomStrength ?? 0.2, // Subtle bloom strength
@@ -615,16 +604,15 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate,
       metalness: 0.0,
     })
 
-    // Glass case material tuned: lower opacity, softer transmission, no glare
+    // Physically reflective clear glass (zero transmission pass overhead, crystal-clear 60 FPS)
     const glassMat = new THREE.MeshPhysicalMaterial({
-      color: 0xdce0dc,
+      color: 0xffffff,
       transparent: true,
-      opacity: 0.08,
-      roughness: 0.12,
-      metalness: 0.0,
-      transmission: 0.9,
-      thickness: 0.25,
-      ior: 1.45,
+      opacity: 0.16,
+      roughness: 0.05,
+      metalness: 0.05,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.05,
       side: THREE.DoubleSide,
       depthWrite: false,
     })
@@ -728,22 +716,12 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate,
       trofferLight.position.z = 0.005
       trofferGrp.add(trofferFrame, trofferLight)
       scene.add(trofferGrp)
-
-      // Soft architectural downlight from ceiling troffer bathing walkways and floor
-      const downLight = new THREE.PointLight(0xfff5e6, 2.8, 13, 1.5)
-      downLight.position.set(tx, ROOM_H - 0.45, tz)
-      scene.add(downLight)
     })
 
-    // Central Atrium & Avenue Architectural Downlights (illuminating benches, floor & central aisle)
-    ;[
-      [0, 0], [-2, 2.5], [2, 2.5], [0, -2.5]
-    ].forEach(([ax, az]) => {
-      const avenueSpot = new THREE.SpotLight(0xfffaec, 6.5, 12, 0.72, 0.85, 1.4)
-      avenueSpot.position.set(ax, ROOM_H - 0.25, az)
-      avenueSpot.target.position.set(ax, 0.5, az)
-      scene.add(avenueSpot, avenueSpot.target)
-    })
+    // Soft central atrium architectural fill light
+    const atriumLight = new THREE.PointLight(0xfff5e6, 2.2, 32, 1.2)
+    atriumLight.position.set(0, ROOM_H - 0.45, 0)
+    scene.add(atriumLight)
 
     // 7. Ambient Lighting & Tiny Dust Particles
     const hemiLight = new THREE.HemisphereLight(
@@ -787,16 +765,11 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate,
       const trackLight = makeMuseumTrackLight(THREE, trackMetalMat, trackLensMat)
       partition.add(trackLight)
 
-      // Gallery Wall-Wash Spotlights aimed directly at Framed Art and Wall Text on the wall
-      const artWashSpot = new THREE.SpotLight(0xffeed6, 9.5, 12, 0.52, 0.82, 1.2)
-      artWashSpot.position.set(-1.25, 5.12, 1.55)
-      artWashSpot.target.position.set(-1.25, 2.5, 0.35)
-      partition.add(artWashSpot, artWashSpot.target)
-
-      const textWashSpot = new THREE.SpotLight(0xfff3e2, 9.0, 12, 0.55, 0.82, 1.2)
-      textWashSpot.position.set(1.25, 5.12, 1.55)
-      textWashSpot.target.position.set(1.25, 2.45, 0.30)
-      partition.add(textWashSpot, textWashSpot.target)
+      // Gallery Wall-Wash Spotlight aimed at Framed Art and Wall Text on the wall
+      const wallWashSpot = new THREE.SpotLight(0xfff0dd, 7.5, 11, 0.65, 0.85, 1.2)
+      wallWashSpot.position.set(0, 5.12, 1.55)
+      wallWashSpot.target.position.set(0, 2.48, 0.32)
+      partition.add(wallWashSpot, wallWashSpot.target)
       partition.updateMatrixWorld(true)
 
       const frameGroup = new THREE.Group()
@@ -804,7 +777,7 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate,
 
       const fw = 2.2, fh = 1.7
       const outerFrame = new THREE.Mesh(
-        new RoundedBoxGeometry(fw, fh, 0.08, 3, 0.015),
+        new RoundedBoxGeometry(fw, fh, 0.08, 2, 0.015),
         new THREE.MeshStandardMaterial({ color: 0x20170f, roughness: 0.45, metalness: 0.1 })
       )
       const innerGoldFillet = new THREE.Mesh(
@@ -849,7 +822,7 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate,
       partition.add(textGroup)
       textGroup.traverse(o => { o.userData.index = i; if (o.isMesh) hitObjects.push(o) })
 
-      // Warm Spotlight with 2048 Soft Shadows aimed at Pedestal from front-top
+      // Warm Spotlight aimed at Pedestal from front-top
       const spotLight = new THREE.SpotLight(0xfff1dc, 18, 15, 0.38, 0.8, 1.5)
       const dirX = st.camX - st.x
       const dirZ = st.camZ - st.z
@@ -858,18 +831,12 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate,
       const offZ = (dirZ / len) * 1.35
       spotLight.position.set(st.x + offX, ROOM_H - 0.25, st.z + offZ)
       spotLight.target.position.set(st.x, 1.45, st.z)
-      spotLight.shadow.mapSize.width = 2048
-      spotLight.shadow.mapSize.height = 2048
+      const shadowRes = isTouchDevice ? 512 : 1024
+      spotLight.shadow.mapSize.width = shadowRes
+      spotLight.shadow.mapSize.height = shadowRes
       spotLight.shadow.bias = -0.00012
-      spotLight.shadow.radius = 2.4
-      spotLight.castShadow = (i === active || i === (active + 1) % works.length)
-      scene.add(spotLight, spotLight.target)
-      spots.push(spotLight)
-      spotLight.shadow.mapSize.width = 2048
-      spotLight.shadow.mapSize.height = 2048
-      spotLight.shadow.bias = -0.00012
-      spotLight.shadow.radius = 2.4
-      spotLight.castShadow = (i === active || i === (active + 1) % works.length)
+      spotLight.shadow.radius = 2.0
+      spotLight.castShadow = (i === active)
       scene.add(spotLight, spotLight.target)
       spots.push(spotLight)
 
@@ -878,16 +845,16 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate,
       pedGroup.position.set(st.x, 0, st.z)
       pedGroup.rotation.y = st.rotY
 
-      const baseBottom = new THREE.Mesh(new RoundedBoxGeometry(1.36, 0.1, 1.36, 4, 0.02), plinthMat)
+      const baseBottom = new THREE.Mesh(new RoundedBoxGeometry(1.36, 0.1, 1.36, 2, 0.02), plinthMat)
       baseBottom.position.y = 0.05
       baseBottom.receiveShadow = true
 
-      const baseColumn = new THREE.Mesh(new RoundedBoxGeometry(1.18, 0.72, 1.18, 4, 0.025), plinthMat)
+      const baseColumn = new THREE.Mesh(new RoundedBoxGeometry(1.18, 0.72, 1.18, 2, 0.025), plinthMat)
       baseColumn.position.y = 0.46
       baseColumn.castShadow = true
       baseColumn.receiveShadow = true
 
-      const baseTopCap = new THREE.Mesh(new RoundedBoxGeometry(1.34, 0.08, 1.34, 4, 0.02), plinthMat)
+      const baseTopCap = new THREE.Mesh(new RoundedBoxGeometry(1.34, 0.08, 1.34, 2, 0.02), plinthMat)
       baseTopCap.position.y = 0.86
       baseTopCap.receiveShadow = true
       pedGroup.add(baseBottom, baseColumn, baseTopCap)
@@ -1023,7 +990,7 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate,
       })
 
       spots.forEach((spot, idx) => {
-        spot.castShadow = (idx === i || idx === (i + 1) % works.length)
+        spot.castShadow = (idx === i)
       })
     }
     api.current.setActive = setActive
@@ -1102,8 +1069,13 @@ export default function Museum({ works, active, onSelect, onHotspot, autoRotate,
     // 12. Render Loop with Post-Processing & Particle Animation
     const clock = new THREE.Clock()
     const fwd = new THREE.Vector3(), side = new THREE.Vector3(), mv = new THREE.Vector3()
+    let hasReportedReady = false
 
     renderer.setAnimationLoop(() => {
+      if (!hasReportedReady) {
+        hasReportedReady = true
+        onReady?.()
+      }
       const dt = Math.min(clock.getDelta(), 0.1)
       const t = clock.elapsedTime
 

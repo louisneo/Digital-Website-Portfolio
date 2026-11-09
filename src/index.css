@@ -3528,9 +3528,101 @@ button { font: inherit; }
 }
 
 /* =========================================================
+   CURATORIAL 3D MUSEUM INSTANT LOADING SCREEN
+   ========================================================= */
+.museum-curatorial-loader {
+  position: absolute;
+  inset: 0;
+  z-index: 150;
+  background: radial-gradient(circle at center, #1b1e24 0%, #0d0f12 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: #eed6ad;
+  user-select: none;
+  pointer-events: none;
+  animation: fadeInLoader 0.2s ease-out;
+}
+
+@keyframes fadeInLoader {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.curatorial-loader-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid rgba(216, 189, 146, 0.2);
+  border-top-color: #d8bd92;
+  border-right-color: #f0dab0;
+  border-radius: 50%;
+  animation: curatorialSpin 0.85s cubic-bezier(0.5, 0.1, 0.5, 0.9) infinite;
+  box-shadow: 0 0 20px rgba(216, 189, 146, 0.2);
+}
+
+@keyframes curatorialSpin {
+  to { transform: rotate(360deg); }
+}
+
+.curatorial-loader-title {
+  font-family: var(--serif);
+  font-size: 1.45rem;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: 0.04em;
+  margin: 0;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
+}
+
+.curatorial-loader-subtitle {
+  font-family: var(--cond);
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #b5a995;
+  margin: 0;
+}
+
+/* =========================================================
+   MUSEUM PORTRAIT TOUCH CONTROLS (Joystick Bottom-Left, HUD Stacked Safely Above)
+   ========================================================= */
+.museum.is-portrait .museum-hud-card,
+.museum.is-touch.is-portrait .museum-hud-card {
+  left: 12px;
+  right: 12px;
+  bottom: calc(186px + env(safe-area-inset-bottom, 0px));
+  max-width: none;
+  padding: 12px 16px;
+  border-radius: 12px;
+}
+
+@media (max-width: 960px) and (orientation: portrait) {
+  .museum-hud-card {
+    left: 12px;
+    right: 12px;
+    bottom: calc(186px + env(safe-area-inset-bottom, 0px));
+    max-width: none;
+    padding: 12px 16px;
+    border-radius: 12px;
+  }
+}
+
+/* =========================================================
    MUSEUM LANDSCAPE TOUCH CONTROLS (Joystick on Left, HUD on Right)
    ========================================================= */
-@media (max-height: 560px) and (orientation: landscape) {
+.museum.is-landscape .museum-hud-card {
+  right: 18px;
+  left: auto;
+  bottom: calc(48px + env(safe-area-inset-bottom, 0px));
+  max-width: min(340px, 44vw);
+  width: auto;
+  padding: 12px 16px;
+  border-radius: 12px;
+}
+
+@media (orientation: landscape) and (max-height: 650px) {
   .museum-hud-card {
     right: 18px;
     left: auto;

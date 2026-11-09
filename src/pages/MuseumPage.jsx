@@ -18,6 +18,7 @@ export default function MuseumPage() {
   const [isTouchDevice, setIsTouchDevice] = useState(false)
   const [isPortraitMobile, setIsPortraitMobile] = useState(false)
   const [dismissLandscapeNotice, setDismissLandscapeNotice] = useState(false)
+  const [isReady, setIsReady] = useState(false)
 
   const activeWork = works[active]
   const activeMeta = meta[active]
@@ -30,6 +31,13 @@ export default function MuseumPage() {
       window.matchMedia('(pointer: coarse)').matches
     )
     setIsTouchDevice(isTouch)
+
+    // Attempt automatic landscape orientation lock if supported by the browser
+    try {
+      if (window.screen?.orientation?.lock) {
+        window.screen.orientation.lock('landscape').catch(() => {})
+      }
+    } catch {}
 
     const checkOrientation = () => {
       const isMobile = window.innerWidth <= 960 || isTouch
@@ -65,7 +73,16 @@ export default function MuseumPage() {
   }
 
   return (
-    <div className="museum">
+    <div className={`museum ${isTouchDevice ? 'is-touch' : ''} ${isPortraitMobile ? 'is-portrait' : 'is-landscape'}`}>
+      {/* Curatorial Instant Loading Screen until WebGL first frame renders */}
+      {!isReady && (
+        <div className="museum-curatorial-loader" role="status" aria-live="polite">
+          <div className="curatorial-loader-spinner" />
+          <h2 className="curatorial-loader-title">Myth &amp; Mind · 3D Gallery</h2>
+          <p className="curatorial-loader-subtitle">Entering Exhibition Wings &amp; Treasury…</p>
+        </div>
+      )}
+
       <Museum
         works={works}
         active={active}
@@ -74,6 +91,7 @@ export default function MuseumPage() {
         autoRotate
         lighting={lighting}
         moveVector={joystickVector}
+        onReady={() => setIsReady(true)}
       />
 
       {/* Non-blocking Floating Landscape Recommendation Notice on Mobile */}
@@ -87,7 +105,14 @@ export default function MuseumPage() {
           <button
             type="button"
             className="toast-dismiss"
-            onClick={() => setDismissLandscapeNotice(true)}
+            onClick={() => {
+              setDismissLandscapeNotice(true)
+              try {
+                if (window.screen?.orientation?.lock) {
+                  window.screen.orientation.lock('landscape').catch(() => {})
+                }
+              } catch {}
+            }}
             aria-label="Dismiss notice"
           >
             Got it
