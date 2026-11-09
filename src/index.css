@@ -1289,6 +1289,201 @@ button { font: inherit; }
   font-weight: 500;
 }
 
+/* =========================================================
+   SUMMARY EDITORIAL 2-COLUMN LAYOUT & CURATORIAL DOSSIER
+   ========================================================= */
+.summary-editorial-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(310px, 370px);
+  gap: clamp(24px, 3.5vw, 48px);
+  align-items: start;
+}
+
+@media (max-width: 1020px) {
+  .summary-editorial-layout {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}
+
+.summary-editorial-layout .editorial-prose p {
+  max-width: 100%;
+}
+
+.summary-dossier-card {
+  background: rgba(18, 22, 28, 0.78);
+  border: 1px solid rgba(216, 189, 146, 0.24);
+  border-radius: 14px;
+  padding: 20px 22px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: sticky;
+  top: 24px;
+}
+
+.dossier-art-frame {
+  position: relative;
+  width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(216, 189, 146, 0.35);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  aspect-ratio: 16 / 10;
+  background: #0d0f13;
+}
+
+.dossier-art-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.dossier-art-frame:hover .dossier-art-img {
+  transform: scale(1.04);
+}
+
+.dossier-art-badge {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.art-era-tag,
+.art-date-tag {
+  background: rgba(10, 12, 16, 0.85);
+  border: 1px solid rgba(216, 189, 146, 0.3);
+  color: #eed6ad;
+  font: 600 0.65rem var(--cond);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 6px;
+  backdrop-filter: blur(8px);
+}
+
+.dossier-art-caption {
+  font-size: 0.74rem;
+  line-height: 1.45;
+  color: #8c93a0;
+  margin: -6px 0 0;
+}
+
+.dossier-art-caption strong {
+  color: #d8bd92;
+  font-weight: 600;
+}
+
+.dossier-divider {
+  height: 1px;
+  background: linear-gradient(90deg, rgba(216, 189, 146, 0.35), transparent);
+  margin: 2px 0;
+}
+
+.dossier-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dossier-heading {
+  font: 600 0.68rem var(--cond);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin: 0;
+}
+
+.dossier-conflict {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #e8ded2;
+  margin: 0;
+}
+
+.dossier-chips-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.dossier-chip {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.76rem;
+  letter-spacing: 0.02em;
+  transition: all 0.2s ease;
+  cursor: default;
+}
+
+.dossier-chip.char-chip {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #d6d9e0;
+}
+
+.dossier-chip.char-chip:hover {
+  background: rgba(216, 189, 146, 0.14);
+  border-color: rgba(216, 189, 146, 0.4);
+  color: #fff;
+}
+
+.dossier-chip.theme-chip {
+  background: rgba(216, 189, 146, 0.1);
+  border: 1px solid rgba(216, 189, 146, 0.28);
+  color: #e4cda6;
+}
+
+.dossier-chip.theme-chip:hover {
+  background: rgba(216, 189, 146, 0.22);
+  border-color: #d8bd92;
+  color: #fff;
+}
+
+.dossier-footer {
+  margin-top: 4px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.btn-dossier-museum {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 14px;
+  border-radius: 8px;
+  background: rgba(216, 189, 146, 0.14);
+  border: 1px solid rgba(216, 189, 146, 0.4);
+  color: #eed6ad;
+  font: 600 0.74rem var(--cond);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.btn-dossier-museum:hover {
+  background: rgba(216, 189, 146, 0.28);
+  border-color: #d8bd92;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
 .editorial-prose p {
   font-size: 1.02rem;
   line-height: 1.8;

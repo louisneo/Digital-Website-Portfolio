@@ -104,19 +104,78 @@ export default function Analyses() {
 
           <div className="lib-panelbody" role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`} key={`${m.id}-${tab}`}>
             {tab === 0 && (
-              <div className="editorial-prose">
-                {paragraphs.map((p, pIdx) => (
-                  <p key={pIdx} className={pIdx === 0 ? 'drop-cap-p' : ''}>
-                    {pIdx === 0 ? (
-                      <>
-                        <span className="drop-cap">{p.charAt(0)}</span>
-                        {p.slice(1)}
-                      </>
-                    ) : (
-                      p
-                    )}
+              <div className="summary-editorial-layout">
+                <div className="editorial-prose">
+                  {paragraphs.map((p, pIdx) => (
+                    <p key={pIdx} className={pIdx === 0 ? 'drop-cap-p' : ''}>
+                      {pIdx === 0 ? (
+                        <>
+                          <span className="drop-cap">{p.charAt(0)}</span>
+                          {p.slice(1)}
+                        </>
+                      ) : (
+                        p
+                      )}
+                    </p>
+                  ))}
+                </div>
+
+                {/* Curatorial Story Dossier & Masterpiece Artwork */}
+                <aside className="summary-dossier-card" aria-label={`${w.title} curatorial dossier`}>
+                  <div className="dossier-art-frame">
+                    <img
+                      src={import.meta.env.BASE_URL + w.image}
+                      alt={m.credit || w.title}
+                      className="dossier-art-img"
+                      loading="lazy"
+                    />
+                    <div className="dossier-art-badge">
+                      <span className="art-era-tag">{m.era}</span>
+                      <span className="art-date-tag">{m.date}</span>
+                    </div>
+                  </div>
+                  <p className="dossier-art-caption">
+                    <strong>Artwork:</strong> {m.credit}
                   </p>
-                ))}
+
+                  <div className="dossier-divider" />
+
+                  <div className="dossier-section">
+                    <h4 className="dossier-heading">Core Dramatic Tension</h4>
+                    <p className="dossier-conflict">“{m.hook}”</p>
+                  </div>
+
+                  <div className="dossier-section">
+                    <h4 className="dossier-heading">Pivotal Figures</h4>
+                    <div className="dossier-chips-wrap">
+                      {w.characters?.slice(0, 4).map(c => (
+                        <span key={c.name} className="dossier-chip char-chip" title={c.text}>
+                          {c.name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="dossier-section">
+                    <h4 className="dossier-heading">Dominant Motifs</h4>
+                    <div className="dossier-chips-wrap">
+                      {w.themes?.slice(0, 4).map(t => (
+                        <span key={t.name} className="dossier-chip theme-chip" title={t.text}>
+                          {t.name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="dossier-footer">
+                    <Link to="/museum" className="btn-dossier-museum">
+                      <svg viewBox="0 0 24 24" aria-hidden="true" width="14" height="14" fill="currentColor">
+                        <path d="M3 21h18M5 21V10M19 21V10M9 21v-7M15 21v-7M2 10l10-6 10 6z" />
+                      </svg>
+                      Explore in 3D Gallery →
+                    </Link>
+                  </div>
+                </aside>
               </div>
             )}
 
