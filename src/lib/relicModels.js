@@ -511,21 +511,21 @@ function buildRamayana(THREE, mat) {
 
   // 2. The Kodanda Recurve Bow (Masterfully arched horizontally across the twin pillars)
   const bowGrp = new THREE.Group()
-  bowGrp.position.set(0, 0.05, -0.02)
+  bowGrp.position.set(0, -0.04, -0.02)
 
   // Classical recurve double-curved composite stave points
   const bowCurvePoints = [
-    [-0.46, 0.04, -0.02], // Left tip nock
-    [-0.42, 0.09, -0.01],
-    [-0.34, 0.14, 0.01],  // Left limb crest
-    [-0.20, 0.09, 0.01],
-    [-0.06, 0.02, 0.0],   // Approach handle
-    [0.0, 0.01, 0.0],     // Riser center
+    [-0.46, -0.04, -0.015], // Left tip nock
+    [-0.41, 0.06, -0.005],
+    [-0.31, 0.14, 0.0],     // Left limb crest
+    [-0.18, 0.08, 0.0],
+    [-0.06, 0.02, 0.0],     // Approach handle
+    [0.0, 0.01, 0.0],       // Riser center
     [0.06, 0.02, 0.0],
-    [0.20, 0.09, 0.01],
-    [0.34, 0.14, 0.01],   // Right limb crest
-    [0.42, 0.09, -0.01],
-    [0.46, 0.04, -0.02],  // Right tip nock
+    [0.18, 0.08, 0.0],
+    [0.31, 0.14, 0.0],      // Right limb crest
+    [0.41, 0.06, -0.005],
+    [0.46, -0.04, -0.015],  // Right tip nock
   ]
   const bowPath = new THREE.CatmullRomCurve3(
     bowCurvePoints.map(([x, y, z]) => new THREE.Vector3(x, y, z))
@@ -556,7 +556,7 @@ function buildRamayana(THREE, mat) {
       mat.gold,
       `bow-tip-${idx}`
     )
-    tipFinial.position.set(tx, 0.04, -0.02)
+    tipFinial.position.set(tx, -0.04, -0.015)
     tipFinial.scale.set(1.4, 0.8, 0.8)
     bowGrp.add(tipFinial)
 
@@ -566,15 +566,15 @@ function buildRamayana(THREE, mat) {
       mat.peacockBlue,
       `tip-gem-${idx}`
     )
-    tipBead.position.set(tx + (idx === 0 ? -0.01 : 0.01), 0.04, -0.02)
+    tipBead.position.set(tx + (idx === 0 ? -0.01 : 0.01), -0.04, -0.015)
     bowGrp.add(tipBead)
   })
 
-  // Taut Celestial Bowstring running tip-to-tip
+  // Taut Celestial Bowstring running straight tip-to-tip
   const stringCurve = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(-0.46, 0.04, -0.02),
+    new THREE.Vector3(-0.46, -0.04, -0.015),
     new THREE.Vector3(0.0, -0.04, -0.015),
-    new THREE.Vector3(0.46, 0.04, -0.02),
+    new THREE.Vector3(0.46, -0.04, -0.015),
   ])
   const bowString = new THREE.Mesh(
     new THREE.TubeGeometry(stringCurve, 40, 0.0035, 8, false),
